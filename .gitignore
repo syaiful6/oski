@@ -1,0 +1,21 @@
+# Dune
+_build
+.merlin
+*.install
+
+# opam
+_opam
+
+# esy
+_esy/
+esy.lock
+
+# Editors
+*.swp
+.direnv
+
+.env
+.DS_Store
+
+# local tools
+.envrc

@@ -1,0 +1,40 @@
+(executable
+ (name skia_types_stubgen)
+ (libraries skia.bindings.types ctypes.stubs ctypes))
+
+(rule
+ (targets ffi_ml_skia_types_stubgen.c)
+ (deps ./skia_types_stubgen.exe)
+ (action
+  (with-stdout-to
+   %{targets}
+   (run %{deps}))))
+
+(rule
+ (targets ctypes_path.txt)
+ (action
+  (with-stdout-to
+   %{targets}
+   (run ocamlfind query ctypes))))
+
+(rule
+ (targets c_flags.txt c_library_flags.txt)
+ (deps
+  (:discover ../../config/discover.exe))
+ (action
+  (run %{discover})))
+
+(rule
+ (targets ffi_ml_skia_types_stubgen.exe)
+ (deps
+  (:c ./ffi_ml_skia_types_stubgen.c)
+  (:ctypes_path ctypes_path.txt))
+ (action
+  (run
+   %{cc}
+   %{c}
+   %{read-lines:c_flags.txt}
+   -I%{read-lines:ctypes_path.txt}
+   -I%{ocaml_where}
+   -o
+   %{targets})))

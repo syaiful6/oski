@@ -1,0 +1,4 @@
+(library
+ (name skia_bindings_types)
+ (public_name skia.bindings.types)
+ (libraries ctypes.stubs ctypes))
