@@ -92,7 +92,7 @@ module GnArgs = struct
     |> arg ~name:"skia_enable_pdf" "true"
     (* Text layout / sharping *)
     |> fun t ->
-      match Sys.getenv_opt "SKIA_ENABLE_TEXT_LAYOUT" with
+      match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
       | Some x when x = "1" || x = "yes" ->
         t
         |> arg ~name:"skia_enable_skshaper" "true"
