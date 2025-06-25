@@ -1,2 +1,2 @@
-include Skia_bindings_types
-include Skia_bindings_types.M (G)
+include Oski_bindings_types
+include Oski_bindings_types.M (G)

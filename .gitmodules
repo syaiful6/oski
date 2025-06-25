@@ -1,0 +1,3 @@
+[submodule "vendor/skia"]
+	path = vendor/skia
+	url = https://github.com/mono/skia

@@ -1,2 +1,2 @@
 (test
- (name test_skia))
+ (name test_oski))

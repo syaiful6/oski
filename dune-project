@@ -1,11 +1,12 @@
 (lang dune 3.19)
+(using directory-targets 0.1)
 
-(name skia)
+(name oski)
 
 (generate_opam_files true)
 
 (source
- (github syaiful6/skia))
+ (github syaiful6/oski))
 
 (authors "Syaiful Bahri <syai.bahri6@gmail.com>")
 
@@ -16,17 +17,19 @@
 (documentation https://url/to/documentation)
 
 (package
- (name skia)
+ (name oski)
  (synopsis "ocaml binding to SKIA")
- (description "skia is a binding to SKIA")
+ (description "oski is Ocaml binding to SKIA")
  (depends
    ocaml
    dune
    (ctypes (>= 0.14.0))
+   (alcotest :with-test)
+   (dune-site :with-test)
    (ocaml-lsp-server :with-dev-setup)
    (dot-merlin-reader :with-dev-setup)
    (ocamlformat :with-dev-setup))
  (tags
-  ("add topics" "to describe" your project)))
+  ("skia" your project)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html

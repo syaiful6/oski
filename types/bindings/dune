@@ -1,4 +1,4 @@
 (library
- (name skia_bindings_types)
- (public_name skia.bindings.types)
+ (name oski_bindings_types)
+ (public_name oski.bindings.types)
  (libraries ctypes.stubs ctypes))

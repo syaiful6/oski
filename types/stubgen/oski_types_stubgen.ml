@@ -4,4 +4,4 @@ let prologue = {|
 
 let () =
   print_endline prologue;
-  Cstubs.Types.write_c Format.std_formatter (module Skia_bindings_types.M)
+  Cstubs.Types.write_c Format.std_formatter (module Oski_bindings_types.M)

@@ -1,4 +1,0 @@
-(executable
- (public_name skia)
- (name main)
- (libraries skia))

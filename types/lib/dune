@@ -1,13 +1,13 @@
 (rule
  (targets g.ml)
- (deps ../stubgen/ffi_ml_skia_types_stubgen.exe)
+ (deps ../stubgen/ffi_ml_oski_types_stubgen.exe)
  (action
   (with-stdout-to
    %{targets}
    (run %{deps}))))
 
 (library
- (name skia_types)
- (public_name skia.types)
+ (name oski_types)
+ (public_name oski.types)
  (synopsis "Ctypes bindings that describe the SKIA FFI")
- (libraries skia.bindings.types ctypes.stubs ctypes))
+ (libraries oski.bindings.types ctypes.stubs ctypes))
