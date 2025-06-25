@@ -21,7 +21,6 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = F.structure "sk_fontstyle_t"
-    let t = typedef t "sk_fontstyle_t"
 
     type slant =
       | Upright
@@ -63,54 +62,43 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure F.typ = F.structure "sk_data_t"
-    let t = typedef t "sk_data_t"
   end
 
   module Stream = struct
     type t
 
     let t : t structure typ = structure "sk_stream_t"
-    let t = typedef t "sk_stream_t"
 
     type file
 
     let file : file structure typ = structure "sk_stream_filestream_t"
-    let file = typedef file "sk_stream_filestream_t"
 
     type asset
 
     let asset : asset structure typ = structure "sk_stream_asset_t"
-    let asset = typedef asset "sk_stream_asset_t"
 
     type memory
 
     let memory : memory structure typ = structure "sk_stream_memorystream_t"
-    let memory = typedef memory "sk_stream_memorystream_t"
 
     type rewindable
 
     let rewindable : rewindable structure typ =
       structure "sk_stream_streamrewindable_t"
 
-    let rewindable = typedef rewindable "sk_stream_streamrewindable_t"
-
     module Writable = struct
       type t
 
       let t : t structure typ = structure "sk_wstream_t"
-      let writable = typedef t "sk_wstream_t"
 
       type file
 
       let file : file structure typ = structure "sk_wstream_filestream_t"
-      let file = typedef file "sk_wstream_filestream_t"
 
       type dynamic_memory
 
       let dynamic_memory : dynamic_memory structure typ =
         structure "sk_wstream_dynamicmemorystream_t"
-
-      let dynamic_memory = typedef dynamic_memory
     end
   end
 
@@ -118,14 +106,12 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_string_t"
-    let t = typedef t "sk_string_t"
   end
 
   module Font = struct
     type t
 
     let t : t structure typ = structure "sk_font_t"
-    let t = typedef t "sk_font_t"
 
     type hinting =
       [ `nohint
@@ -148,14 +134,12 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_typeface_t"
-    let t = typedef t "sk_typeface_t"
   end
 
   module FontManager = struct
     type t
 
     let t : t structure typ = structure "sk_fontmgr_t"
-    let t = typedef t "sk_fontmgr_t"
   end
 
   module FontMetrics = struct

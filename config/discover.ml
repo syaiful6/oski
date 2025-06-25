@@ -75,14 +75,12 @@ module GnArgs = struct
     target_args @ t.args @ cflags @ ldflags
 
   let setup_args t =
-    t
+    ( t
     |> arg ~name:"is_official_build" "true"
     |> arg ~name:"is_debug" "false"
-    |> arg ~name:"is_component_build" "false" (* Ensure static build *)
+    |> arg ~name:"is_component_build" "false"
     |> arg ~name:"skia_enable_tools" "false"
     |> arg ~name:"skia_enable_svg" "true"
-    |> arg ~name:"skia_use_harfbuzz" "false"
-    |> arg ~name:"skia_use_icu" "false"
     |> arg ~name:"skia_use_piex" "true"
     |> arg ~name:"skia_use_sfntly" "false"
     |> arg ~name:"skia_use_system_expat" "false"
@@ -91,6 +89,24 @@ module GnArgs = struct
     |> arg ~name:"skia_use_system_libwebp" "false"
     |> arg ~name:"skia_use_system_zlib" "false"
     |> arg ~name:"skia_enable_skottie" "true"
+    |> arg ~name:"skia_enable_pdf" "true"
+    (* Text layout / sharping *)
+    |> fun t ->
+      match Sys.getenv_opt "SKIA_ENABLE_TEXT_LAYOUT" with
+      | Some x when x = "1" || x = "yes" ->
+        t
+        |> arg ~name:"skia_enable_skshaper" "true"
+        |> arg ~name:"skia_use_icu" "true"
+        (* Mono uncomment icu deps, so we need to fallback to system icu *)
+        |> arg ~name:"skia_use_system_icu" "true"
+        |> arg ~name:"skia_use_harfbuzz" "true"
+        |> arg ~name:"skia_pdf_subset_harfbuzz" "true"
+        |> arg ~name:"skia_use_system_harfbuzz" "false"
+        |> arg ~name:"skia_enable_skparagraph" "true"
+      | _ ->
+        t
+        |> arg ~name:"skia_use_icu" "false"
+        |> arg ~name:"skia_use_harfbuzz" "false" )
     |> fun t ->
     match t.target.os with
     | Linux ->
@@ -104,10 +120,8 @@ module GnArgs = struct
       |> ldflag "-static-libstdc++"
       |> ldflag "-static-libgcc"
     | Mac ->
-      (* TODO: enable metal when mono skia can do that *)
       t
-      |> arg ~name:"skia_enable_gpu" "true"
-      |> arg ~name:"skia_use_gl" "true"
+      |> arg ~name:"skia_use_metal" "true"
       |> cflag "-DSKIA_C_DLL"
       |> cflag "-DHAVE_ARC4RANDOM_BUF"
       |> cflag "-stdlib=libc++"
@@ -129,8 +143,6 @@ module GnArgs = struct
       |> ldflag "/DEBUGTYPE:CV,FIXUP"
     | Android ->
       t
-      |> arg ~name:"cc" (enable_with_env "ANDROID_NDK_CLANG")
-      |> arg ~name:"cxx" (enable_with_env "ANDROID_NDK_CLANGXX")
       |> arg ~name:"skia_enable_ganesh" "true"
       |> cflag "-DSKIA_C_DLL"
       |> ldflag "-static-libstdc++"
@@ -248,7 +260,7 @@ let c_library_flags = function
       ; "-framework"
       ; "Metal"
       ; "-framework"
-      ; "UIKit"
+      ; "MetalKit"
       ; "-L" ^ skia_lib_path
       ]
   | Mac ->
@@ -257,16 +269,15 @@ let c_library_flags = function
       ; "-lsvg"
       ; "-lskottie"
       ; "-framework"
-      ; "CoreFoundation"
+      ; "ApplicationServices"
       ; "-framework"
-      ; "CoreGraphics"
+      ; "Metal"
       ; "-framework"
-      ; "CoreText"
+      ; "MetalKit"
+      ; "-framework"
+      ; "Foundation"
       ; "-framework"
       ; "OpenGL"
-      ; (* or Metal *)
-        "-framework"
-      ; "Cocoa"
       ; "-L" ^ skia_lib_path
       ]
   | Linux ->
