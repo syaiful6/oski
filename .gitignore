@@ -19,3 +19,4 @@ esy.lock
 
 # local tools
 .envrc
+.vscode

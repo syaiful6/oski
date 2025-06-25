@@ -1,11 +1,4 @@
 (rule
- (targets gn_args.txt)
- (deps
-  (:discover ../config/discover.exe))
- (action
-  (run %{discover})))
-
-(rule
  (targets os.txt)
  (action
   (with-stdout-to
@@ -35,9 +28,11 @@
   (dir prefix))
  (deps
   (source_tree skia)
-  gn_args.txt
   os.txt
-  arch.txt)
+  arch.txt
+  lib_ext.txt
+  ../config/gn_args.txt
+  scripts/build-vendor.sh)
  (action
   (progn
    (chdir
@@ -47,19 +42,5 @@
       (run python3 tools/git-sync-deps))
      (ignore-outputs
       (bash
-       "bin/gn gen out/%{read-lines:os.txt}/%{read-lines:arch.txt} --args='%{read-lines:gn_args.txt}'"))
-     (run
-      ninja
-      -C
-      out/%{read-lines:os.txt}/%{read-lines:arch.txt}
-      skia
-      modules/skottie
-      modules/svg)))
-   (bash
-    "mkdir -p prefix/lib && cp skia/out/%{read-lines:os.txt}/%{read-lines:arch.txt}/lib{skia,svg,skottie}.%{read-lines:lib_ext.txt} prefix/lib")
-   (bash
-    "mkdir -p prefix/include/c && cp -r skia/include/c/* prefix/include/c")
-   (bash
-    "mkdir -p prefix/include/svg && cp -r skia/modules/svg/include/* prefix/include/svg")
-   (bash
-    "mkdir -p prefix/include/skottie && cp -r skia/modules/skottie/include/* prefix/include/skottie"))))
+       "bin/gn gen out/%{read-lines:os.txt}/%{read-lines:arch.txt} --args='%{read-lines:../config/gn_args.txt}'"))))
+   (run bash -c "scripts/build-vendor.sh"))))

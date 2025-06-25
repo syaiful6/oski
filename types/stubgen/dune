@@ -18,30 +18,21 @@
    (run ocamlfind query ctypes))))
 
 (rule
- (targets c_flags.txt c_library_flags.txt)
- (deps
-  (:discover ../../config/discover.exe)
-  ../../vendor/os.txt
-  ../../vendor/lib_ext.txt)
- (action
-  (run %{discover})))
-
-(rule
  (targets ffi_ml_oski_types_stubgen.exe)
  (deps
   (:c ./ffi_ml_oski_types_stubgen.c)
   (:ctypes_path ctypes_path.txt)
-  (:c_flags c_flags.txt)
-  (:c_library_flags c_library_flags.txt)
+  (:c_flags ../../config/c_flags.txt)
   (:oski_lib
    ../../vendor/prefix/lib/libskia.%{read-lines:../../vendor/lib_ext.txt})
-  (:oski_types_header ../../vendor/prefix/include/c/sk_types.h))
+  (:oski_types_header ../../vendor/prefix/include/c/sk_types.h)
+  ../../vendor/os.txt
+  ../../vendor/lib_ext.txt)
  (action
   (run
    %{cc}
    %{c}
-   %{read-lines:c_flags.txt}
-   %{read-lines:c_library_flags.txt}
+   %{read-lines:../../config/c_flags.txt}
    -I%{read-lines:ctypes_path.txt}
    -I%{ocaml_where}
    -o
