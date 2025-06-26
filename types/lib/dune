@@ -10,4 +10,4 @@
  (name oski_types)
  (public_name oski.types)
  (synopsis "Ctypes bindings that describe the SKIA FFI")
- (libraries oski.bindings.types ctypes.stubs ctypes))
+ (libraries oski.bindings.types oski.bindings.c ctypes.stubs ctypes))

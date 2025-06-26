@@ -24,6 +24,13 @@
     "if [ $(cat os.txt) = windows ]; then echo lib; else echo a; fi"))))
 
 (rule
+ (target cwd.txt)
+ (action
+  (with-stdout-to
+   cwd.txt
+   (run pwd))))
+
+(rule
  (targets
   (dir prefix))
  (deps scripts/get-skia-prebuilt.sh)
@@ -42,7 +49,7 @@
   os.txt
   arch.txt
   lib_ext.txt
-  ../config/gn_args.txt
+  ../buildtools/gn_args.txt
   scripts/compile-skia.sh
   DEPS)
  (enabled_if
@@ -55,5 +62,5 @@
      %{read-lines:os.txt}
      %{read-lines:arch.txt}
      %{read-lines:lib_ext.txt}
-     ../config/gn_args.txt
+     ../buildtools/gn_args.txt
      DEPS)))))

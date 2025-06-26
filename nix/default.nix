@@ -42,10 +42,6 @@ let
             pkgs.vulkan-headers
             pkgs.vulkan-loader
           ];
-
-        buildInputs = lib.optionals (stdenv.isLinux || stdenv.isDarwin) [
-          pkgs.icu
-        ];
       }
       // args
     );

@@ -1,0 +1,13 @@
+(library
+ (name oski_bindings_c)
+ (public_name oski.bindings.c)
+ (foreign_archives oskic))
+
+(foreign_library
+ (archive_name oskic)
+ (language cxx)
+ (flags
+  (:standard
+   (:include ../../config/cxx_flags.sexp)))
+ (include_dirs includes)
+ (names svgdom))

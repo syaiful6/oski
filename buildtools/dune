@@ -1,0 +1,8 @@
+(executable
+ (name discover)
+ (libraries dune.configurator))
+
+(rule
+ (targets gn_args.txt)
+ (action
+  (run ./discover.exe)))
