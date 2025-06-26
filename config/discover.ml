@@ -217,8 +217,8 @@ let ccopt s = [ "-ccopt"; s ]
 let cclib s = [ "-cclib"; s ]
 
 (* Paths relative to _build/default *)
-let skia_base_path = "../../vendor/prefix"
-let skia_include_path = skia_base_path ^ "/include"
+let skia_base_path = "../../vendor/prefix/skia"
+let skia_include_path = skia_base_path
 let skia_lib_path = skia_base_path ^ "/lib"
 let skia_include_flags = [ "-I" ^ skia_include_path ]
 
