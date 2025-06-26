@@ -33,6 +33,8 @@ let
             llvmPkgs.libcxx
             fontconfig
             libiconv
+            ninja
+            gn
             python3
             pkg-config
           ]
