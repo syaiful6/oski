@@ -43,8 +43,5 @@ pkgs.mkShell {
     ++ lib.optionals stdenv.isLinux [
       pkgs.vulkan-headers
       pkgs.vulkan-loader
-    ]
-    ++ lib.optionals (stdenv.isLinux || stdenv.isDarwin) [
-      pkgs.icu
     ];
 }
