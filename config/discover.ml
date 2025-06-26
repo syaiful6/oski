@@ -10,6 +10,7 @@ type arch =
   | Arm64
 
 let quote s = Format.sprintf "\"%s\"" s
+let str_true x = x = "1" || x = "yes" || x = "true" || x = "on"
 
 module Target = struct
   type t =
@@ -44,8 +45,7 @@ module GnArgs = struct
 
   let enable_with_env name =
     let env = Sys.getenv_opt name in
-    enable_if
-      (Option.fold ~none:false ~some:(fun x -> x == "yes" || x == "1") env)
+    enable_if (Option.fold ~none:false ~some:str_true env)
 
   let of_target target = { target; args = []; cflags = []; ldflags = [] }
 
@@ -93,12 +93,11 @@ module GnArgs = struct
     (* Text layout / sharping *)
     |> fun t ->
       match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
-      | Some x when x = "1" || x = "yes" ->
+      | Some x when str_true x ->
         t
         |> arg ~name:"skia_enable_skshaper" "true"
         |> arg ~name:"skia_use_icu" "true"
-        (* Mono uncomment icu deps, so we need to fallback to system icu *)
-        |> arg ~name:"skia_use_system_icu" "true"
+        |> arg ~name:"skia_use_system_icu" "false"
         |> arg ~name:"skia_use_harfbuzz" "true"
         |> arg ~name:"skia_pdf_subset_harfbuzz" "true"
         |> arg ~name:"skia_use_system_harfbuzz" "false"
