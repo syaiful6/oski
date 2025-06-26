@@ -49,7 +49,7 @@
   os.txt
   arch.txt
   lib_ext.txt
-  ../buildtools/gn_args.txt
+  config/gn_args.txt
   scripts/compile-skia.sh
   DEPS)
  (enabled_if
@@ -62,5 +62,5 @@
      %{read-lines:os.txt}
      %{read-lines:arch.txt}
      %{read-lines:lib_ext.txt}
-     ../buildtools/gn_args.txt
+     config/gn_args.txt
      DEPS)))))
