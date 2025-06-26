@@ -26,21 +26,34 @@
 (rule
  (targets
   (dir prefix))
+ (deps scripts/get-skia-prebuilt.sh)
+ (enabled_if
+  (= true %{env:USE_PREBUILT_SKIA=false}))
+ (action
+  (progn
+   (ignore-outputs
+    (run scripts/get-skia-prebuilt.sh)))))
+
+(rule
+ (targets
+  (dir prefix))
  (deps
   (source_tree skia)
   os.txt
   arch.txt
   lib_ext.txt
   ../config/gn_args.txt
-  scripts/build-vendor.sh)
+  scripts/compile-skia.sh
+  DEPS)
+ (enabled_if
+  (= false %{env:USE_PREBUILT_SKIA=false}))
  (action
   (progn
-   (chdir
-    skia
-    (progn
-     (ignore-outputs
-      (run python3 tools/git-sync-deps))
-     (ignore-outputs
-      (bash
-       "bin/gn gen out/%{read-lines:os.txt}/%{read-lines:arch.txt} --args='%{read-lines:../config/gn_args.txt}'"))))
-   (run bash -c "scripts/build-vendor.sh"))))
+   (ignore-outputs
+    (run
+     scripts/compile-skia.sh
+     %{read-lines:os.txt}
+     %{read-lines:arch.txt}
+     %{read-lines:lib_ext.txt}
+     ../config/gn_args.txt
+     DEPS)))))
