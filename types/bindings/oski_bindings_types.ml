@@ -17,6 +17,133 @@ module M (F : Ctypes.TYPE) = struct
     let t = uint32_t
   end
 
+  module PMColor = struct
+    let t = uint32_t
+  end
+
+  module Color4f = struct
+    type t
+    (** color with 4 float *)
+
+    let t : t structure typ = structure "sk_color4f_t"
+    let red = field t "fR" float
+    let green = field t "fG" float
+    let blue = field t "fB" float
+    let alpha = field t "fA" float
+    let () = seal t
+  end
+
+  module ColorType = struct
+    type t =
+      [ `Unknown
+      | `Alpha8
+      | `Rgb_565
+      | `Argb_4444
+      | `Rgb_8888
+      | `Rgb_888x
+      | `Bgra_8888
+      | `Rgba_1010102
+      | `Bgra_1010102
+      | `Rgb_101010x
+      | `Bgr_101010x
+      | `Bgr_101010x_xr
+      | `Rgba_10x6
+      | `Gray_8
+      | `Rgba_f16_norm
+      | `Rgba_f16
+      | `Rgba_f32
+      | `R8gb_unorm
+      | `A16_float
+      | `R16g16_float
+      | `A16_unorm
+      | `R16g16_unorm
+      | `R16g16b16a16_unorm
+      | `Srgba_8888
+      | `R8_unorm
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "COLORTYPE"
+        "sk_colortype_t"
+        [ `Unknown, "UNKNOWN"
+        ; `Alpha8, "ALPHA_8"
+        ; `Rgb_565, "RGB_565"
+        ; `Argb_4444, "ARGB_4444"
+        ; `Rgb_8888, "RGBA_8888"
+        ; `Rgb_888x, "RGB_888X"
+        ; `Bgra_8888, "BGRA_8888"
+        ; `Rgba_1010102, "RGBA_1010102"
+        ; `Bgra_1010102, "BGRA_1010102"
+        ; `Rgb_101010x, "RGB_101010X"
+        ; `Bgr_101010x, "BGR_101010X"
+        ; `Bgr_101010x_xr, "BGR_101010X_XR"
+        ; `Rgba_10x6, "RGBA_10X6"
+        ; `Gray_8, "GRAY_8"
+        ; `Rgba_f16_norm, "RGBA_F16_NORM"
+        ; `Rgba_f16, "RGBA_F16"
+        ; `Rgba_f32, "RGBA_F32"
+        ; `R8gb_unorm, "R8G8_UNORM"
+        ; `A16_float, "A16_FLOAT"
+        ; `R16g16_unorm, "R16G16_FLOAT"
+        ; `A16_unorm, "A16_UNORM"
+        ; `R16g16_unorm, "R16G16_UNORM"
+        ; `R16g16b16a16_unorm, "R16G16B16A16_UNORM"
+        ; `Srgba_8888, "SRGBA_8888"
+        ; `R8_unorm, "R8_UNORM"
+        ]
+  end
+
+  module AphaType = struct
+    type t =
+      [ `Unknown
+      | `Opaque
+      | `Premul
+      | `Unpremul
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "ALPHATYPE"
+        "sk_alphatype_t"
+        [ `Unknown, "UNKNOWN"
+        ; `Opaque, "OPAQUE"
+        ; `Premul, "PREMUL"
+        ; `Unpremul, "UNPREMUL"
+        ]
+  end
+
+  module PixelGeometry = struct
+    type t =
+      [ `Unknown
+      | `Rgb_h
+      | `Bgr_h
+      | `Rgb_v
+      | `Bgr_v
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "PIXELGEOMETRY"
+        "sk_pixelgeometry_t"
+        [ `Unknown, "UNKNOWN"
+        ; `Rgb_h, "RGB_H"
+        ; `Bgr_h, "BGR_H"
+        ; `Rgb_v, "RGB_V"
+        ; `Bgr_v, "BGR_V"
+        ]
+  end
+
+  module SurfaceProps = struct
+    type flag = Unsigned.uint32
+
+    let flag = Ctypes.uint32_t
+
+    type t
+
+    let t : t structure typ = structure "sk_surfaceprops_t"
+  end
+
   module Point = struct
     type t
 
@@ -144,6 +271,117 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
+  module Canvas = struct
+    type t
+
+    let t : t structure typ = structure "sk_canvas_t"
+  end
+
+  module Drawable = struct
+    type t
+
+    let t : t structure typ = structure "sk_drawable"
+  end
+
+  module Image = struct
+    type t
+
+    let t : t structure typ = structure "sk_image_t"
+  end
+
+  module MaskFilter = struct
+    type t
+
+    let t : t structure typ = structure "sk_maskfilter_t"
+  end
+
+  module Paint = struct
+    type t
+
+    let t : t structure typ = structure "sk_paint_t"
+  end
+
+  module Path = struct
+    type t
+
+    let t : t structure typ = structure "sk_path_t"
+  end
+
+  module Picture = struct
+    type t
+
+    let t : t structure typ = structure "sk_picture_t"
+
+    type recorder
+
+    let recorder : recorder structure typ = structure "sk_picture_recorder_t"
+  end
+
+  module BbhFactory = struct
+    type t
+
+    let t : t structure typ = structure "sk_bbh_factory_t"
+  end
+
+  module RtreeFactory = struct
+    type t
+
+    let t : t structure typ = structure "sk_rtree_factory_t"
+  end
+
+  module Shader = struct
+    type t
+
+    let t : t structure typ = structure "sk_shader_t"
+  end
+
+  module Surface = struct
+    type t
+
+    let t : t structure typ = structure "sk_surface_t"
+  end
+
+  module Region = struct
+    type t
+
+    let t : t structure typ = structure "sk_region_t"
+
+    type region
+
+    let region : region structure typ = structure "sk_region_iterator_t"
+
+    type cliperator
+
+    let cliperator : cliperator structure typ =
+      structure "sk_region_cliperator_t"
+
+    type spanerator
+
+    let spanerator : spanerator structure typ =
+      structure "sk_region_spanerator_t"
+
+    type op =
+      [ `Difference
+      | `Intersect
+      | `Union
+      | `Xor
+      | `Reverse_difference
+      | `Replace
+      ]
+
+    let op : op typ =
+      skia_c_enum
+        "REGION_OP"
+        "sk_region_op_t"
+        [ `Difference, "DIFFERENCE"
+        ; `Intersect, "INTERSECT"
+        ; `Union, "UNION"
+        ; `Xor, "XOR"
+        ; `Reverse_difference, "REVERSE_DIFFERENCE"
+        ; `Replace, "REPLACE"
+        ]
+  end
+
   module FontStyle = struct
     type t
 
@@ -165,6 +403,18 @@ module M (F : Ctypes.TYPE) = struct
 
     let set : set structure typ = F.structure "sk_fontstyleset_t"
     let set = typedef set "sk_fontstyleset_t"
+  end
+
+  module Codec = struct
+    type t
+
+    let t : t structure typ = structure "sk_codec_t"
+  end
+
+  module ColorSpace = struct
+    type t
+
+    let t : t structure typ = structure "sk_colorspace_t"
   end
 
   module Blendmode = struct
@@ -269,7 +519,7 @@ module M (F : Ctypes.TYPE) = struct
         [ `Left, "LEFT"; `Center, "CENTER"; `Right, "RIGHT" ]
   end
 
-  module FillType = struct
+  module PathFillType = struct
     type t =
       [ `Winding
       | `Even_odd
@@ -286,6 +536,21 @@ module M (F : Ctypes.TYPE) = struct
         ; `Inverse_winding, "INVERSE_WINDING"
         ; `Inverse_even_odd, "INVERSE_EVENODD"
         ]
+  end
+
+  module ColorChannel = struct
+    type t =
+      [ `R
+      | `G
+      | `B
+      | `A
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "COLOR_CHANNEL"
+        "sk_color_channel_t"
+        [ `R, "R"; `G, "G"; `B, "B"; `A, "A" ]
   end
 
   module Data = struct
@@ -330,6 +595,26 @@ module M (F : Ctypes.TYPE) = struct
       let dynamic_memory : dynamic_memory structure typ =
         structure "sk_wstream_dynamicmemorystream_t"
     end
+  end
+
+  module Document = struct
+    type t
+
+    let t : t structure typ = structure "sk_document_t"
+  end
+
+  module PointMode = struct
+    type t =
+      [ `Points
+      | `Lines
+      | `Polygon
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "POINT_MODE"
+        "sk_point_mode_t"
+        [ `Points, "POINTS"; `Lines, "LINES"; `Polygon, "POLYGON" ]
   end
 
   module String = struct
