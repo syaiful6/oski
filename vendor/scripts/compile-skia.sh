@@ -57,10 +57,10 @@ OSKI_DEPS_IN_SKIA="$SKIA_SRC_DIR/OSKI_DEPS"
 echo "Copying $GIT_SYNC_DEPS_FILE to $OSKI_DEPS_IN_SKIA..."
 cp "$GIT_SYNC_DEPS_FILE" "$OSKI_DEPS_IN_SKIA"
 
-# (cd "$SKIA_SRC_DIR" && \
-#  export GIT_SYNC_DEPS_PATH="OSKI_DEPS" && \
-#  echo "Running python3 tools/git-sync-deps (GIT_SYNC_DEPS_PATH=$GIT_SYNC_DEPS_PATH)" && \
-#  python3 tools/git-sync-deps)
+(cd "$SKIA_SRC_DIR" && \
+ export GIT_SYNC_DEPS_PATH="OSKI_DEPS" && \
+ echo "Running python3 tools/git-sync-deps (GIT_SYNC_DEPS_PATH=$GIT_SYNC_DEPS_PATH)" && \
+ python3 tools/git-sync-deps)
 
 # --- Step 1: Generate Ninja build files using GN ---
 echo "Generating Ninja build files with GN..."
