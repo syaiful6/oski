@@ -1,0 +1,14 @@
+BasedOnStyle: Google
+Language: Cpp
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 80
+AccessModifierOffset: -2
+AlignAfterOpenBracket: Align
+AlignOperands: true
+AllowShortFunctionsOnASingleLine: Inline
+BreakBeforeBraces: Attach
+PointerAlignment: Left
+SpaceBeforeParens: Never
+SpaceAfterCStyleCast: true

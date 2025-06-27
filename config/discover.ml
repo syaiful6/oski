@@ -76,29 +76,37 @@ let cflags vendor = function
   | Linux -> [] @ skia_include_flags vendor @ [ "-fPIC" ]
   | Windows -> [] @ skia_include_flags vendor
 
-let cxx_flags prefix os =
+let cxxflags vendor os =
   match os with
-  | Windows -> cflags prefix os @ [ "-fno-exceptions"; "-fno-rtti"; "-lstdc++" ]
-  | _ -> cflags prefix os @ [ "-std=c++17"; "-stdlib=libc++" ]
+  | Android | Linux ->
+    [] @ skia_include_flags vendor @ [ "-fPIC"; "-std=c++17" ]
+  | IOS ->
+    let sdk_path = find_xcode_sysroot "iphoneos" in
+    []
+    @ [ "-isysroot"; sdk_path ]
+    @ skia_include_flags vendor
+    @ [ "-std=c++17" ]
+  | Mac ->
+    let sdk_path = find_xcode_sysroot "macosx" in
+    []
+    @ [ "-isysroot"; sdk_path ]
+    @ skia_include_flags vendor
+    @ [ "-std=c++17" ]
+  | Windows -> [] @ skia_include_flags vendor @ [ "/std:c++17" ]
+
+let skia_lib_flags =
+  [ "-lskia"; "-lsvg"; "-lskottie"; "-lskshaper"; "-lskunicode" ]
 
 (* Library flags for linking (plain strings for clang) *)
 let c_library_flags prefix = function
   | Android ->
     []
-    @ [ "-lskia"
-      ; "-lsvg"
-      ; "-lskottie"
-      ; "-lGLESv2"
-      ; "-llog"
-      ; "-landroid"
-      ; "-L" ^ skia_lib_path prefix
-      ]
+    @ skia_lib_flags
+    @ [ "-lGLESv2"; "-llog"; "-landroid"; "-L" ^ skia_lib_path prefix ]
   | IOS ->
     []
-    @ [ "-lskia"
-      ; "-lsvg"
-      ; "-lskottie"
-      ; "-framework"
+    @ skia_lib_flags
+    @ [ "-framework"
       ; "CoreFoundation"
       ; "-framework"
       ; "CoreGraphics"
@@ -112,10 +120,8 @@ let c_library_flags prefix = function
       ]
   | Mac ->
     []
-    @ [ "-lskia"
-      ; "-lsvg"
-      ; "-lskottie"
-      ; "-framework"
+    @ skia_lib_flags
+    @ [ "-framework"
       ; "ApplicationServices"
       ; "-framework"
       ; "Metal"
@@ -129,24 +135,24 @@ let c_library_flags prefix = function
       ]
   | Linux ->
     []
-    @ [ "-lskia"
-      ; "-lsvg"
-      ; "-lskottie"
-      ; "-lfontconfig"
-      ; "-lGL"
-      ; "-L" ^ skia_lib_path prefix
-      ]
+    @ skia_lib_flags
+    @ [ "-lfontconfig"; "-lGL"; "-L" ^ skia_lib_path prefix ]
   | Windows ->
     []
-    @ [ "-lskia"
-      ; "-lsvg"
-      ; "-lskottie"
-      ; "-lopengl32"
+    @ skia_lib_flags
+    @ [ "-lopengl32"
       ; "-lgdi32"
       ; "-luser32"
       ; "-lkernel32"
       ; "-L" ^ skia_lib_path prefix
       ]
+
+let cxx_library_flags vendor os =
+  match os with
+  | IOS | Mac ->
+    [] @ c_library_flags vendor os @ [ "-stdlib=libc++"; "-lc++"; "-lc++abi" ]
+  | Linux | Android -> [] @ c_library_flags vendor os @ [ "-static-libstdc++" ]
+  | _ -> c_library_flags vendor os (* Adjust for Windows/IOS if needed *)
 
 (* Combined flags for OCaml (with ccopt/cclib) *)
 let flags prefix os =
@@ -162,7 +168,6 @@ let () =
     Configurator.Flags.write_sexp "flags.sexp" (flags !vendor os);
     Configurator.Flags.write_lines "c_flags.txt" (cflags !vendor os);
     Configurator.Flags.write_sexp "c_flags.sexp" (cflags !vendor os);
-    Configurator.Flags.write_sexp "cxx_flags.sexp" (cxx_flags !vendor os);
     Configurator.Flags.write_sexp
       "c_library_flags.sexp"
       (c_library_flags !vendor os);
@@ -172,5 +177,19 @@ let () =
     Configurator.Flags.write_sexp
       "cclib_c_library_flags.sexp"
       (c_library_flags !vendor os
+      |> List.map (fun s -> [ "-cclib"; s ])
+      |> List.flatten);
+
+    Configurator.Flags.write_lines "cxx_flags.txt" (cxxflags !vendor os);
+    Configurator.Flags.write_sexp "cxx_flags.sexp" (cxxflags !vendor os);
+    Configurator.Flags.write_lines
+      "cxx_library_flags.txt"
+      (cxx_library_flags !vendor os);
+    Configurator.Flags.write_sexp
+      "cxx_library_flags.sexp"
+      (cxx_library_flags !vendor os);
+    Configurator.Flags.write_sexp
+      "cclib_cxx_library_flags.sexp"
+      (cxx_library_flags !vendor os
       |> List.map (fun s -> [ "-cclib"; s ])
       |> List.flatten))

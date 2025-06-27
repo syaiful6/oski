@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+# Find and format C/C++ files, excluding vendor/skia and _build
+find . -type f \( -iname \*.c -o -iname \*.h -o -iname \*.cpp \) \
+  -not -path "*vendor/skia/*" \
+  -not -path "*_build/*" \
+  -exec clang-format -i {} \;

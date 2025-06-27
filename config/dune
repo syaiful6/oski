@@ -8,8 +8,12 @@
   c_library_flags.txt
   c_flags.sexp
   cxx_flags.sexp
+  cxx_flags.txt
+  cxx_library_flags.sexp
+  cxx_library_flags.txt
   flags.sexp
   c_library_flags.sexp
   cclib_c_library_flags.sexp)
+ (deps ../vendor/cwd.txt)
  (action
   (run ./discover.exe -vendor %{read-lines:../vendor/cwd.txt})))
