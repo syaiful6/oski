@@ -57,10 +57,10 @@ OSKI_DEPS_IN_SKIA="$SKIA_SRC_DIR/OSKI_DEPS"
 echo "Copying $GIT_SYNC_DEPS_FILE to $OSKI_DEPS_IN_SKIA..."
 cp "$GIT_SYNC_DEPS_FILE" "$OSKI_DEPS_IN_SKIA"
 
-(cd "$SKIA_SRC_DIR" && \
- export GIT_SYNC_DEPS_PATH="OSKI_DEPS" && \
- echo "Running python3 tools/git-sync-deps (GIT_SYNC_DEPS_PATH=$GIT_SYNC_DEPS_PATH)" && \
- python3 tools/git-sync-deps)
+# (cd "$SKIA_SRC_DIR" && \
+#  export GIT_SYNC_DEPS_PATH="OSKI_DEPS" && \
+#  echo "Running python3 tools/git-sync-deps (GIT_SYNC_DEPS_PATH=$GIT_SYNC_DEPS_PATH)" && \
+#  python3 tools/git-sync-deps)
 
 # --- Step 1: Generate Ninja build files using GN ---
 echo "Generating Ninja build files with GN..."
@@ -75,12 +75,12 @@ mkdir -p "$SKIA_OUT_DIR" # Ensure the output directory exists before GN runs
 
 # --- Step 2: Prepare Ninja targets and copy lists (from original build-vendor.sh) ---
 NINJA_TARGETS="skia modules/skottie modules/svg"
-COPY_LIBS_BASE="libskia libsvg libskottie"
+COPY_LIBS_BASE="libskia libsvg libskottie libskresources libsksg libskshaper libskunicode"
 
 if [[ "$SKIA_ENABLE_SHAPING" = "1" || "$SKIA_ENABLE_SHAPING" = "yes" ]]; then
   echo "SKIA_ENABLE_SHAPING is enabled. Including SkShaper."
-  NINJA_TARGETS="$NINJA_TARGETS modules/skshaper"
-  COPY_LIBS_BASE="$COPY_LIBS_BASE libskshaper"
+  NINJA_TARGETS="$NINJA_TARGETS modules/skshaper modules/skparagraph"
+  COPY_LIBS_BASE="$COPY_LIBS_BASE libskparagraph"
 else
   echo "SKIA_ENABLE_SHAPING is disabled. Excluding SkShaper."
 fi
@@ -94,11 +94,33 @@ echo "Copying compiled artifacts to '$SKIA_PREFIX_INSTALL_ROOT/'..."
 
 # Create necessary destination directories
 mkdir -p "${SKIA_PREFIX_INSTALL_ROOT}/lib"
+mkdir -p "${SKIA_PREFIX_INSTALL_ROOT}/include"
+mkdir -p "${SKIA_PREFIX_INSTALL_ROOT}/modules"
 
 # Copy compiled libraries
 LIBS_CP_COMMAND=""
 for lib_name in $COPY_LIBS_BASE; do
-  LIBS_CP_COMMAND+="cp $SKIA_OUT_DIR/${lib_name}.$LIB_EXT ${SKIA_PREFIX_INSTALL_ROOT}/lib/ && "
+  LIBS_CP_COMMAND+="cp -f $SKIA_OUT_DIR/${lib_name}.$LIB_EXT ${SKIA_PREFIX_INSTALL_ROOT}/lib/ || true && "
 done
 # Execute the concatenated copy commands. Remove trailing " && " first.
 eval "${LIBS_CP_COMMAND% && }"
+
+# --- Header Copying ---
+# Copy the entire 'include' directory contents from skia/include/ to prefix/skia/include/
+echo "Copying core Skia headers ($SKIA_SRC_DIR/include/ -> ${SKIA_PREFIX_INSTALL_ROOT}/include/)..."
+cp -r "$SKIA_SRC_DIR"/include/* "${SKIA_PREFIX_INSTALL_ROOT}/include/"
+
+# Copy module headers, preserving their path structure under 'modules/'.
+# This command finds all 'include' directories within 'skia/modules/' (up to 2 levels deep).
+echo "Copying module headers ($SKIA_SRC_DIR/modules/*/include/ -> ${SKIA_PREFIX_INSTALL_ROOT}/modules/*/include/)..."
+find "$SKIA_SRC_DIR"/modules/ -maxdepth 2 -type d -name "include" -print0 | while IFS= read -r -d $'\0' module_include_dir_path; do
+  # Example: module_include_dir_path might be "skia/modules/svg/include"
+  # We want "modules/svg/include" to form the destination path.
+  relative_path_from_skia_root="${module_include_dir_path#$SKIA_SRC_DIR/}"
+  dest_dir="${SKIA_PREFIX_INSTALL_ROOT}/${relative_path_from_skia_root}"
+
+  mkdir -p "$dest_dir" # Create the destination module include directory
+  cp -r "${module_include_dir_path}"/* "$dest_dir"/ # Copy header files
+done
+
+echo "--- Skia Source Build Complete ---"

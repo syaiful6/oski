@@ -422,10 +422,4 @@ module M (F : Ctypes.TYPE) = struct
 
     let t : t structure typ = structure "sk_blender_t"
   end
-
-  module SVGDOM = struct
-    type t
-
-    let t : t structure typ = structure "oski_svgdom_t"
-  end
 end

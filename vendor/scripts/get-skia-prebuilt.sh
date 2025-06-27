@@ -10,7 +10,7 @@ set -euo pipefail
 # - 'tar' utility must be available for .tar.gz extraction.
 
 # --- Define common paths and variables ---
-TARGET_DIR="prefix"
+TARGET_DIR="prefix/skia"
 TMP_DOWNLOAD_DIR="./.tmp_skia_download"
 TMP_ARCHIVE_PATH="$TMP_DOWNLOAD_DIR/skia-prebuilt.tar.gz" # Changed to .tar.gz
 

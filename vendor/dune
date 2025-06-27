@@ -33,7 +33,9 @@
 (rule
  (targets
   (dir prefix))
- (deps scripts/get-skia-prebuilt.sh)
+ (deps
+  (source_tree skia)
+  scripts/get-skia-prebuilt.sh)
  (enabled_if
   (= true %{env:USE_PREBUILT_SKIA=false}))
  (action
@@ -56,11 +58,10 @@
   (= false %{env:USE_PREBUILT_SKIA=false}))
  (action
   (progn
-   (ignore-outputs
-    (run
-     scripts/compile-skia.sh
-     %{read-lines:os.txt}
-     %{read-lines:arch.txt}
-     %{read-lines:lib_ext.txt}
-     config/gn_args.txt
-     DEPS)))))
+   (run
+    scripts/compile-skia.sh
+    %{read-lines:os.txt}
+    %{read-lines:arch.txt}
+    %{read-lines:lib_ext.txt}
+    config/gn_args.txt
+    DEPS))))

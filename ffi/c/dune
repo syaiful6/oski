@@ -1,13 +1,41 @@
 (library
  (name oski_bindings_c)
  (public_name oski.bindings.c)
+ (preprocess no_preprocessing)
  (foreign_archives oskic))
 
-(foreign_library
- (archive_name oskic)
- (language cxx)
- (flags
-  (:standard
-   (:include ../../config/cxx_flags.sexp)))
- (include_dirs includes)
- (names svgdom))
+(rule
+ (targets liboskic.a)
+ (deps svgdom.o c_stubs.o)
+ (action
+  (run ar rcs %{targets} %{deps})))
+
+(rule
+ (targets dlloskic.so)
+ (deps svgdom.o c_stubs.o)
+ (action
+  (run
+   %{cc}
+   -shared
+   -o
+   %{targets}
+   %{deps}
+   %{read-lines:../../config/cxx_library_flags.txt})))
+
+(rule
+ (targets svgdom.o)
+ (deps
+  (:cpp svgdom.cpp svgdom.h)
+  ../../vendor/prefix/skia/lib
+  ../../config/cxx_flags.sexp)
+ (action
+  (run %{cxx} %{read-lines:../../config/cxx_flags.txt} -c %{cpp})))
+
+(rule
+ (targets c_stubs.o)
+ (deps
+  (:c c_stubs.c c_stubs.h)
+  ../../vendor/prefix/skia/lib
+  ../../config/cxx_flags.sexp)
+ (action
+  (run %{cc} %{read-lines:../../config/c_flags.txt} -c %{c})))
