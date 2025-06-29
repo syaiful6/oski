@@ -350,6 +350,30 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_typeface_get_font_slant" C.(t @-> returning FontStyle.slant)
   end
 
+  module FontStyleSet = struct
+    type t = T.FontStyle.set C.structure C.ptr
+
+    let t = C.ptr T.FontStyle.set
+    let t_opt = C.ptr_opt T.FontStyle.set
+    let unref = foreign "sk_fontstyleset_unref" C.(t @-> returning void)
+    let get_count = foreign "sk_fontstyleset_get_count" C.(t @-> returning int)
+
+    let get_style =
+      foreign
+        "sk_fontstyleset_get_style"
+        C.(t @-> int @-> FontStyle.t @-> String.t @-> returning void)
+
+    let make_typeface =
+      foreign
+        "sk_fontstyleset_create_typeface"
+        C.(t @-> int @-> returning Typeface.t_opt)
+
+    let match_style =
+      foreign
+        "sk_fontstyleset_match_style"
+        C.(t @-> FontStyle.t @-> returning Typeface.t_opt)
+  end
+
   module FontManager = struct
     type t = T.FontManager.t C.structure C.ptr
 
@@ -357,6 +381,16 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let make_default =
       foreign "sk_fontmgr_create_default" C.(void @-> returning t)
+
+    let make_styleset =
+      foreign
+        "sk_fontmgr_create_styleset"
+        C.(t @-> int @-> returning FontStyleSet.t_opt)
+
+    let match_family =
+      foreign
+        "sk_fontmgr_match_family"
+        C.(t @-> string @-> returning FontStyleSet.t_opt)
 
     let match_family_style =
       foreign
@@ -384,5 +418,26 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> returning Typeface.t_opt)
 
     let unref = foreign "sk_fontmgr_unref" C.(t @-> returning void)
+  end
+
+  module FontMetrics = struct
+    type t = T.FontMetrics.t C.structure C.ptr
+
+    let t = C.ptr T.FontMetrics.t
+    let get_make () = C.allocate_n ~count:1 T.FontMetrics.t
+    let get_ascent m = C.getf m T.FontMetrics.ascent
+    let get_descent m = C.getf m T.FontMetrics.descent
+    let get_bottom m = C.getf m T.FontMetrics.bottom
+    let get_leading m = C.getf m T.FontMetrics.leading
+    let get_avg_char_width m = C.getf m T.FontMetrics.avg_char_width
+    let get_max_char_width m = C.getf m T.FontMetrics.max_char_width
+    let get_xmin m = C.getf m T.FontMetrics.xmin
+    let get_xmax m = C.getf m T.FontMetrics.xmax
+    let get_xheight m = C.getf m T.FontMetrics.xheight
+    let get_cap_height m = C.getf m T.FontMetrics.cap_height
+    let get_underline_thickness m = C.getf m T.FontMetrics.underline_thickness
+    let get_underline_position m = C.getf m T.FontMetrics.underline_position
+    let get_strikeout_thickness m = C.getf m T.FontMetrics.strikeout_thickness
+    let get_strikeout_position m = C.getf m T.FontMetrics.strikeout_position
   end
 end
