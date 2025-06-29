@@ -30,6 +30,7 @@ pkgs.mkShell {
       dune-configurator
       ocaml-lsp
       ocamlformat
+      alcotest
       utop
       llvmPkgs.clang
       ninja
