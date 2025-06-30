@@ -17,6 +17,9 @@ let prolugue =
 #include "include/c/sk_typeface.h"
 #include "include/c/sk_stream.h"
 #include "include/c/sk_string.h"
+#include "oski_types.h"
+#include "bindings.h"
+#include "svgdom.h"
 |}
 
 let () =

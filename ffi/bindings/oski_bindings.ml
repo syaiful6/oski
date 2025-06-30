@@ -308,6 +308,15 @@ module M (F : Ctypes.FOREIGN) = struct
     let t = C.ptr T.Typeface.t
     let t_opt = C.ptr_opt T.Typeface.t
 
+    type id = T.Typeface.id
+
+    let id = T.Typeface.id
+
+    let get_unique_id =
+      foreign "oski_typeface_get_unique_id" C.(t @-> returning T.Typeface.id)
+
+    let equal = foreign "oski_typeface_equal" C.(t @-> t @-> returning bool)
+
     let get_family_name =
       foreign "sk_typeface_get_family_name" C.(t @-> returning String.t)
 
@@ -330,6 +339,16 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_typeface_create_from_data"
         C.(data @-> int @-> returning t_opt)
+
+    let unichars_to_glyphs =
+      foreign
+        "sk_typeface_unichars_to_glyphs"
+        C.(t @-> ptr int32_t @-> int @-> ptr uint16_t @-> returning void)
+
+    let unichar_to_glyph =
+      foreign
+        "sk_typeface_unichar_to_glyph"
+        C.(t @-> int32_t @-> returning uint16_t)
 
     let count_glyphs =
       foreign "sk_typeface_count_glyphs" C.(t @-> returning int)

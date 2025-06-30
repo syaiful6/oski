@@ -35,5 +35,6 @@
    %{read-lines:../../config/c_flags.txt}
    -I%{read-lines:ctypes_path.txt}
    -I%{ocaml_where}
+   -I../../ffi/c
    -o
    %{targets})))

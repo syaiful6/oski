@@ -646,6 +646,10 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_typeface_t"
+
+    type id = Unsigned.uint32
+
+    let id = uint32_t
   end
 
   module FontManager = struct
