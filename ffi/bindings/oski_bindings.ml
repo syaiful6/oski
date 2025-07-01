@@ -459,4 +459,47 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_strikeout_thickness m = C.getf m T.FontMetrics.strikeout_thickness
     let get_strikeout_position m = C.getf m T.FontMetrics.strikeout_position
   end
+
+  module Blender = struct
+    type t = T.Blender.t C.structure C.ptr
+
+    let t = C.ptr T.Blender.t
+    let t_opt = C.ptr_opt T.Blender.t
+
+    let of_mode =
+      foreign "sk_blender_new_mode" C.(T.Blendmode.t @-> returning t_opt)
+
+    let of_arithmetic =
+      foreign
+        "sk_blender_new_arithmetic"
+        C.(float @-> float @-> float @-> float @-> bool @-> returning t_opt)
+  end
+
+  module Point = struct
+    type t = T.Point.t C.structure C.ptr
+
+    let t = C.ptr T.Point.t
+
+    let make x y =
+      let point = C.allocate_n T.Point.t ~count:1 in
+      C.(setf !@point T.Point.x x);
+      C.(setf !@point T.Point.y y);
+      point
+  end
+
+  module Shader = struct
+    type t = T.Shader.t C.structure C.ptr
+
+    let t = C.ptr T.Shader.t
+    let ref = foreign "sk_shader_ref" C.(t @-> returning void)
+    let unref = foreign "sk_shader_unref" C.(t @-> returning void)
+    let of_empty = foreign "sk_shader_new_empty" C.(void @-> returning t)
+    let of_color = foreign "sk_shader_new_color" C.(Color.t @-> returning t)
+  end
+
+  module ImageFilter = struct
+    type t = T.ImageFilter.t C.structure C.ptr
+
+    let t = C.ptr T.ImageFilter.t
+  end
 end

@@ -333,6 +333,18 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_shader_t"
+
+    type tile_mode =
+      [ `clamp
+      | `repeat
+      | `mirror
+      ]
+
+    let tile_mode : tile_mode typ =
+      skia_c_enum
+        "SHADER_TILEMODE"
+        "sk_shader_tilemode_t"
+        [ `clamp, "CLAMP"; `repeat, "REPEAT"; `mirror, "MIRROR" ]
   end
 
   module Surface = struct
