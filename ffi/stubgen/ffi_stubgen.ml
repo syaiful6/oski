@@ -20,6 +20,7 @@ let prolugue =
 #include "include/c/sk_stream.h"
 #include "include/c/sk_string.h"
 #include "oski_types.h"
+#include "c_stubs.h"
 #include "bindings.h"
 #include "svgdom.h"
 |}

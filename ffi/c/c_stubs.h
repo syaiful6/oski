@@ -8,9 +8,6 @@
 void oski_stub_sk_canvas_draw_rect_ltwh(sk_canvas_t* canvas, float left, float top, float width,
                                         float height, sk_paint_t* paint);
 
-gr_glinterface_t* oski_make_sdl2_gl_interface();
-gr_glinterface_t* oski_make_sdl2_gles_interface();
-
 sk_shader_t* oski_stub_linear_gradient2(sk_point_t* startPosition, sk_point_t* stopPosition,
                                         sk_color_t startColor, sk_color_t stopColor,
                                         sk_shader_tilemode_t tileMode);
