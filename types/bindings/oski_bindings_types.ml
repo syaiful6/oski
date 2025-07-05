@@ -412,13 +412,13 @@ module M (F : Ctypes.TYPE) = struct
 
     let t : t structure typ = structure "sk_pathmeasure_t"
 
-    type matrix_flgs =
+    type matrix_flags =
       [ `Get_position
       | `Get_tangent
       | `Get_pos_and_tan
       ]
 
-    let matrix_flgs : matrix_flgs typ =
+    let matrix_flags : matrix_flags typ =
       skia_c_enum
         "PATHMEASURE_MATRIXFLAGS"
         "sk_pathmeasure_matrixflags_t"
