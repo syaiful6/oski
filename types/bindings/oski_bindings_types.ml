@@ -94,7 +94,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module AphaType = struct
+  module AlphaType = struct
     type t =
       [ `Unknown
       | `Opaque
@@ -548,6 +548,49 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_colorspace_t"
+
+    type transfer_fn
+
+    let transfer_fn : transfer_fn structure typ =
+      structure "sk_colorspace_transfer_fn_t"
+
+    let transfer_fn = typedef transfer_fn "sk_colorspace_transfer_fn_t"
+    let fG = field transfer_fn "fG" float
+    let fA = field transfer_fn "fA" float
+    let fB = field transfer_fn "fB" float
+    let fC = field transfer_fn "fC" float
+    let fD = field transfer_fn "fD" float
+    let fE = field transfer_fn "fE" float
+    let fF = field transfer_fn "fF" float
+    let () = seal transfer_fn
+
+    type xyz
+
+    let xyz : xyz structure typ = structure "sk_colorspace_xyz_t"
+    let xyz = typedef xyz "sk_colorspace_xyz_t"
+    let fM00 = field xyz "fM00" float
+    let fM01 = field xyz "fM01" float
+    let fM02 = field xyz "fM02" float
+    let fM10 = field xyz "fM10" float
+    let fM11 = field xyz "fM11" float
+    let fM12 = field xyz "fM12" float
+    let fM20 = field xyz "fM20" float
+    let fM21 = field xyz "fM21" float
+    let fM22 = field xyz "fM22" float
+    let () = seal xyz
+  end
+
+  module ImageInfo = struct
+    type t
+
+    let t : t structure typ = structure "sk_imageinfo_t"
+    let t = typedef t "sk_imageinfo_t"
+    let colorspace = field t "colorspace" (ptr ColorSpace.t)
+    let width = field t "width" int32_t
+    let height = field t "height" int32_t
+    let color_type = field t "colorType" ColorType.t
+    let alpha_type = field t "alphaType" AlphaType.t
+    let () = seal t
   end
 
   module Blendmode = struct

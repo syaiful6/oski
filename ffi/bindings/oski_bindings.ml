@@ -629,6 +629,9 @@ module M (F : Ctypes.FOREIGN) = struct
       C.(setf !@rect T.Rect.bottom right);
       rect
 
+    let of_xywh ~left ~top ~width ~height () =
+      of_ltrb ~left ~top ~right:(left +. width) ~bottom:(top +. height) ()
+
     let of_empty () = of_ltrb ()
     let get_left rect = C.(getf !@rect T.Rect.left)
     let get_top rect = C.(getf !@rect T.Rect.top)
@@ -718,6 +721,25 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let map_radius =
       foreign "sk_matrix_map_radius" C.(t @-> float @-> returning float)
+  end
+
+  module IRect = struct
+    type t = T.IRect.t C.ptr
+
+    let t = C.ptr T.IRect.t
+
+    let of_ltrb ~left ~top ~right ~bottom =
+      let irect = C.allocate_n T.IRect.t ~count:1 in
+      C.(
+        setf !@irect T.IRect.left left;
+        setf !@irect T.IRect.top top;
+        setf !@irect T.IRect.right right;
+        setf !@irect T.IRect.bottom bottom);
+      irect
+
+    let of_empty () =
+      let zero = Int32.of_int 0 in
+      of_ltrb ~left:zero ~top:zero ~right:zero ~bottom:zero
   end
 
   module RRect = struct
@@ -1196,5 +1218,83 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let next_contour =
       foreign "sk_pathmeasure_next_contour" C.(t @-> returning bool)
+  end
+
+  module ColorSpace = struct
+    type t = T.ColorSpace.t C.ptr
+
+    let t = C.ptr T.ColorSpace.t
+    let ref = foreign "sk_colorspace_ref" C.(t @-> returning void)
+    let unref = foreign "sk_colorspace_unref" C.(t @-> returning void)
+    let of_srgb = foreign "sk_colorspace_new_srgb" C.(void @-> returning t)
+
+    let of_srgb_linear =
+      foreign "sk_colorspace_new_srgb_linear" C.(void @-> returning t)
+  end
+
+  module ImageInfo = struct
+    type t = T.ImageInfo.t C.ptr
+
+    let t = C.ptr T.ImageInfo.t
+
+    let make ~width ~height ~color_type ~alpha_type ~colorspace =
+      let info = C.allocate_n T.ImageInfo.t ~count:1 in
+      C.(
+        setf !@info T.ImageInfo.width width;
+        setf !@info T.ImageInfo.height height;
+        setf !@info T.ImageInfo.color_type color_type;
+        setf !@info T.ImageInfo.alpha_type alpha_type;
+        setf !@info T.ImageInfo.colorspace colorspace);
+      info
+  end
+
+  module Pixmap = struct
+    type t = T.Pixmap.t C.ptr
+
+    let t = C.ptr T.Pixmap.t
+    let t_opt = C.ptr_opt T.Pixmap.t
+    let delete = foreign "sk_pixmap_destructor" C.(t @-> returning void)
+    let make = foreign "sk_pixmap_new" C.(void @-> returning t)
+
+    let make_with_params =
+      foreign
+        "sk_pixmap_new_with_params"
+        C.(
+          const ImageInfo.t @-> const (ptr void) @-> size_t @-> returning t_opt)
+
+    let reset = foreign "sk_pixmap_reset" C.(t @-> returning void)
+
+    let reset_with_params =
+      foreign
+        "sk_pixmap_reset_with_params"
+        C.(
+          t
+          @-> const ImageInfo.t
+          @-> const (ptr void)
+          @-> size_t
+          @-> returning void)
+
+    let set_colorspace =
+      foreign
+        "sk_pixmap_set_colorspace"
+        C.(t @-> ColorSpace.t @-> returning void)
+  end
+
+  module Image = struct
+    type t = T.Image.t C.ptr
+
+    let t = C.ptr T.Image.t
+    let t_opt = C.ptr_opt T.Image.t
+    let ref = foreign "sk_image_ref" C.(t @-> returning void)
+    let unref = foreign "sk_image_unref" C.(t @-> returning void)
+
+    let of_raster_copy =
+      foreign
+        "sk_image_new_raster_copy"
+        C.(
+          const ImageInfo.t @-> const (ptr void) @-> size_t @-> returning t_opt)
+
+    let of_encoded =
+      foreign "sk_image_new_from_encoded" C.(const Data.t @-> returning t_opt)
   end
 end
