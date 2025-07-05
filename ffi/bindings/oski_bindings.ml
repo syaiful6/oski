@@ -1157,9 +1157,9 @@ module M (F : Ctypes.FOREIGN) = struct
     let t = C.ptr T.PathMeasure.t
     let t_opt = C.ptr_opt T.PathMeasure.t
 
-    type matrix_flags = T.PathMeasure.matrix_flgs
+    type matrix_flags = T.PathMeasure.matrix_flags
 
-    let matrix_flags = T.PathMeasure.matrix_flgs
+    let matrix_flags = T.PathMeasure.matrix_flags
     let make = foreign "sk_pathmeasure_new" C.(void @-> returning t_opt)
 
     let of_path =
