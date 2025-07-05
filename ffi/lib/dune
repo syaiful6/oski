@@ -22,7 +22,7 @@
  (modules g m)
  (flags
   (:standard -w -9-27-32-34))
- (libraries oski.bindings oski.types oski.bindings.c ctypes.stubs)
+ (libraries oski.bindings.c oski.bindings oski.types ctypes.stubs)
  (foreign_stubs
   (language c)
   (names oski_stubs)

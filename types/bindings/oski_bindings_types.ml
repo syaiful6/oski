@@ -305,6 +305,127 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_path_t"
+
+    type direction =
+      [ `CW
+      | `CCW
+      ]
+
+    let direction : direction typ =
+      skia_c_enum
+        "PATH_DIRECTION"
+        "sk_path_direction_t"
+        [ `CW, "CW"; `CCW, "CCW" ]
+
+    type arc_size =
+      [ `Small
+      | `Large
+      ]
+
+    let arc_size : arc_size typ =
+      skia_c_enum
+        "PATH_ARC_SIZE"
+        "sk_path_arc_size_t"
+        [ `Small, "SMALL"; `Large, "LARGE" ]
+
+    type fill_type =
+      [ `Winding
+      | `Even_odd
+      | `Inverse_winding
+      | `Inverse_even_odd
+      ]
+
+    let fill_type : fill_type typ =
+      skia_c_enum
+        "PATH_FILLTYPE"
+        "sk_path_filltype_t"
+        [ `Winding, "WINDING"
+        ; `Even_odd, "EVENODD"
+        ; `Inverse_winding, "INVERSE_WINDING"
+        ; `Inverse_even_odd, "INVERSE_EVENODD"
+        ]
+
+    type add_mode =
+      [ `Append
+      | `Extend
+      ]
+
+    let add_mode : add_mode typ =
+      skia_c_enum
+        "PATH_ADD_MODE"
+        "sk_path_add_mode_t"
+        [ `Append, "APPEND"; `Extend, "EXTEND" ]
+
+    type verb =
+      [ `Move
+      | `Line
+      | `Quad
+      | `Conic
+      | `Cubic
+      | `Close
+      | `Done
+      ]
+
+    let verb : verb typ =
+      skia_c_enum
+        "PATH_VERB"
+        "sk_path_verb_t"
+        [ `Move, "MOVE"
+        ; `Line, "LINE"
+        ; `Quad, "QUAD"
+        ; `Conic, "CONIC"
+        ; `Cubic, "CUBIC"
+        ; `Close, "CLOSE"
+        ; `Done, "DONE"
+        ]
+
+    type iterator
+
+    let iterator : iterator structure typ = structure "sk_path_iterator_t"
+
+    type op =
+      [ `Difference
+      | `Intersect
+      | `Union
+      | `Xor
+      | `Reverse_difference
+      ]
+
+    let op : op typ =
+      skia_c_enum
+        "PATHOP"
+        "sk_pathop_t"
+        [ `Difference, "DIFFERENCE"
+        ; `Intersect, "INTERSECT"
+        ; `Union, "UNION"
+        ; `Xor, "XOR"
+        ; `Reverse_difference, "REVERSE_DIFFERENCE"
+        ]
+
+    type op_builder
+
+    let op_builder : op_builder structure typ = structure "sk_opbuilder_t"
+  end
+
+  module PathMeasure = struct
+    type t
+
+    let t : t structure typ = structure "sk_pathmeasure_t"
+
+    type matrix_flgs =
+      [ `Get_position
+      | `Get_tangent
+      | `Get_pos_and_tan
+      ]
+
+    let matrix_flgs : matrix_flgs typ =
+      skia_c_enum
+        "PATHMEASURE_MATRIXFLAGS"
+        "sk_pathmeasure_matrixflags_t"
+        [ `Get_position, "GET_POSITION"
+        ; `Get_tangent, "GET_TANGENT"
+        ; `Get_pos_and_tan, "GET_POS_AND_TAN"
+        ]
   end
 
   module Picture = struct
@@ -333,6 +454,18 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_shader_t"
+
+    type tile_mode =
+      [ `clamp
+      | `repeat
+      | `mirror
+      ]
+
+    let tile_mode : tile_mode typ =
+      skia_c_enum
+        "SHADER_TILEMODE"
+        "sk_shader_tilemode_t"
+        [ `clamp, "CLAMP"; `repeat, "REPEAT"; `mirror, "MIRROR" ]
   end
 
   module Surface = struct
@@ -519,25 +652,6 @@ module M (F : Ctypes.TYPE) = struct
         [ `Left, "LEFT"; `Center, "CENTER"; `Right, "RIGHT" ]
   end
 
-  module PathFillType = struct
-    type t =
-      [ `Winding
-      | `Even_odd
-      | `Inverse_winding
-      | `Inverse_even_odd
-      ]
-
-    let t : t typ =
-      skia_c_enum
-        "PATH_FILLTYPE"
-        "sk_path_filltype_t"
-        [ `Winding, "WINDING"
-        ; `Even_odd, "EVENODD"
-        ; `Inverse_winding, "INVERSE_WINDING"
-        ; `Inverse_even_odd, "INVERSE_EVENODD"
-        ]
-  end
-
   module ColorChannel = struct
     type t =
       [ `R
@@ -646,6 +760,14 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_typeface_t"
+
+    type id = Unsigned.uint32
+
+    let id = uint32_t
+
+    type font_table_tag = Unsigned.uint32
+
+    let font_table_tag = uint32_t
   end
 
   module FontManager = struct

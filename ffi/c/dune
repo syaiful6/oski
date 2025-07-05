@@ -6,13 +6,13 @@
 
 (rule
  (targets liboskic.a)
- (deps svgdom%{ext_obj} c_stubs%{ext_obj})
+ (deps bindings%{ext_obj} svgdom%{ext_obj} c_stubs%{ext_obj})
  (action
   (run ar rcs %{targets} %{deps})))
 
 (rule
  (targets dlloskic.so)
- (deps svgdom%{ext_obj} c_stubs%{ext_obj})
+ (deps bindings%{ext_obj} svgdom%{ext_obj} c_stubs%{ext_obj})
  (action
   (run
    %{cc}
@@ -23,9 +23,20 @@
    %{read-lines:../../config/cxx_library_flags.txt})))
 
 (rule
+ (targets bindings%{ext_obj})
+ (deps
+  (:cpp bindings.cpp bindings.h)
+  oski_types.h
+  ../../vendor/prefix/skia/lib
+  ../../config/cxx_flags.sexp)
+ (action
+  (run %{cxx} %{read-lines:../../config/cxx_flags.txt} -c %{cpp})))
+
+(rule
  (targets svgdom%{ext_obj})
  (deps
   (:cpp svgdom.cpp svgdom.h)
+  oski_types.h
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
  (action
@@ -35,6 +46,7 @@
  (targets c_stubs%{ext_obj})
  (deps
   (:c c_stubs.c c_stubs.h)
+  oski_types.h
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
  (action

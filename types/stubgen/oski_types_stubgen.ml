@@ -1,5 +1,6 @@
 let prologue = {|
 #include "include/c/sk_types.h"
+#include "oski_types.h"
 |}
 
 let () =

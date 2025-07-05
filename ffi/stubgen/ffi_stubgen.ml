@@ -7,6 +7,8 @@ let prolugue =
 #include "include/c/sk_canvas.h"
 #include "include/c/sk_data.h"
 #include "include/c/sk_font.h"
+#include "include/c/sk_blender.h"
+#include "include/c/sk_shader.h"
 #include "include/c/sk_image.h"
 #include "include/c/sk_imagefilter.h"
 #include "include/c/sk_paint.h"
@@ -17,6 +19,10 @@ let prolugue =
 #include "include/c/sk_typeface.h"
 #include "include/c/sk_stream.h"
 #include "include/c/sk_string.h"
+#include "oski_types.h"
+#include "c_stubs.h"
+#include "bindings.h"
+#include "svgdom.h"
 |}
 
 let () =
