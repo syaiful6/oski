@@ -102,14 +102,14 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_length = foreign "sk_stream_get_length" C.(t @-> returning int)
   end
 
-  module StreamAsset = struct
+  module Stream_asset = struct
     type t = T.Stream.asset C.ptr
 
     let t = C.ptr T.Stream.asset
     let delete = foreign "sk_stream_asset_destroy" C.(t @-> returning void)
   end
 
-  module FileStream = struct
+  module File_stream = struct
     type t = T.Stream.file C.ptr
 
     let t = C.ptr T.Stream.file
@@ -120,7 +120,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let as_stream file = C.coerce t Stream.t file
   end
 
-  module MemoryStream = struct
+  module Memory_stream = struct
     type t = T.Stream.memory C.ptr
 
     let t = C.ptr T.Stream.memory
@@ -209,7 +209,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_wstream_get_size_of_packed_uint" C.(size_t @-> returning int)
   end
 
-  module FileWStream = struct
+  module File_wstream = struct
     type t = T.Stream.Writable.file C.ptr
 
     let t = C.ptr T.Stream.Writable.file
@@ -221,7 +221,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let as_stream file = C.coerce t Stream.t file
   end
 
-  module DynamicMemoryWStream = struct
+  module Dynamic_memory_wstream = struct
     type t = T.Stream.Writable.dynamic_memory C.ptr
 
     let t = C.ptr T.Stream.Writable.dynamic_memory
@@ -233,7 +233,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let detach_as_stream =
       foreign
         "sk_dynamicmemorywstream_detach_as_stream"
-        C.(t @-> returning StreamAsset.t)
+        C.(t @-> returning Stream_asset.t)
 
     let detach_as_data =
       foreign "sk_dynamicmemorywstream_detach_as_data" C.(t @-> returning data)
@@ -301,14 +301,14 @@ module M (F : Ctypes.FOREIGN) = struct
     let delete = foreign "sk_string_destructor" C.(t @-> returning void)
   end
 
-  module FontStyle = struct
-    type t = T.FontStyle.t C.ptr
+  module Font_style = struct
+    type t = T.Font_style.t C.ptr
 
-    let t = C.ptr T.FontStyle.t
+    let t = C.ptr T.Font_style.t
 
-    type slant = T.FontStyle.slant
+    type slant = T.Font_style.slant
 
-    let slant = T.FontStyle.slant
+    let slant = T.Font_style.slant
 
     let make =
       foreign "sk_fontstyle_new" C.(int @-> int @-> slant @-> returning t)
@@ -319,10 +319,10 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_height = foreign "sk_fontstyle_get_weight" C.(t @-> returning int)
   end
 
-  module TextEncoding = struct
-    type t = T.TextEncoding.t
+  module Text_encoding = struct
+    type t = T.Text_encoding.t
 
-    let t = T.TextEncoding.t
+    let t = T.Text_encoding.t
   end
 
   module Typeface = struct
@@ -350,7 +350,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_name =
       foreign
         "sk_typeface_create_from_name"
-        C.(string @-> FontStyle.t @-> returning t_opt)
+        C.(string @-> Font_style.t @-> returning t_opt)
 
     let of_file =
       foreign
@@ -360,7 +360,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_asset =
       foreign
         "sk_typeface_create_from_stream"
-        C.(StreamAsset.t @-> int @-> returning t_opt)
+        C.(Stream_asset.t @-> int @-> returning t_opt)
 
     let of_data =
       foreign
@@ -410,7 +410,7 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> font_table_tag @-> returning Data.t_opt)
 
     let get_font_style =
-      foreign "sk_typeface_get_fontstyle" C.(t @-> returning FontStyle.t)
+      foreign "sk_typeface_get_fontstyle" C.(t @-> returning Font_style.t)
 
     let get_font_weight =
       foreign "sk_typeface_get_font_weight" C.(t @-> returning int)
@@ -419,7 +419,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_typeface_get_font_width" C.(t @-> returning int)
 
     let get_font_slant =
-      foreign "sk_typeface_get_font_slant" C.(t @-> returning FontStyle.slant)
+      foreign "sk_typeface_get_font_slant" C.(t @-> returning Font_style.slant)
 
     let get_units_per_em =
       foreign "sk_typeface_get_units_per_em" C.(t @-> returning int)
@@ -435,18 +435,18 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> ptr_opt int @-> returning (ptr_opt T.Stream.asset))
   end
 
-  module FontStyleSet = struct
-    type t = T.FontStyle.set C.ptr
+  module Font_style_set = struct
+    type t = T.Font_style.set C.ptr
 
-    let t = C.ptr T.FontStyle.set
-    let t_opt = C.ptr_opt T.FontStyle.set
+    let t = C.ptr T.Font_style.set
+    let t_opt = C.ptr_opt T.Font_style.set
     let unref = foreign "sk_fontstyleset_unref" C.(t @-> returning void)
     let get_count = foreign "sk_fontstyleset_get_count" C.(t @-> returning int)
 
     let get_style =
       foreign
         "sk_fontstyleset_get_style"
-        C.(t @-> int @-> FontStyle.t @-> String.t @-> returning void)
+        C.(t @-> int @-> Font_style.t @-> String.t @-> returning void)
 
     let make_typeface =
       foreign
@@ -456,13 +456,13 @@ module M (F : Ctypes.FOREIGN) = struct
     let match_style =
       foreign
         "sk_fontstyleset_match_style"
-        C.(t @-> FontStyle.t @-> returning Typeface.t_opt)
+        C.(t @-> Font_style.t @-> returning Typeface.t_opt)
   end
 
-  module FontManager = struct
-    type t = T.FontManager.t C.ptr
+  module Font_manager = struct
+    type t = T.Font_manager.t C.ptr
 
-    let t = C.ptr T.FontManager.t
+    let t = C.ptr T.Font_manager.t
 
     let make_default =
       foreign "sk_fontmgr_create_default" C.(void @-> returning t)
@@ -472,17 +472,17 @@ module M (F : Ctypes.FOREIGN) = struct
     let make_styleset =
       foreign
         "sk_fontmgr_create_styleset"
-        C.(t @-> int @-> returning FontStyleSet.t_opt)
+        C.(t @-> int @-> returning Font_style_set.t_opt)
 
     let match_family =
       foreign
         "sk_fontmgr_match_family"
-        C.(t @-> string @-> returning FontStyleSet.t_opt)
+        C.(t @-> string @-> returning Font_style_set.t_opt)
 
     let match_family_style =
       foreign
         "sk_fontmgr_match_family_style"
-        C.(t @-> string @-> FontStyle.t @-> returning Typeface.t_opt)
+        C.(t @-> string @-> Font_style.t @-> returning Typeface.t_opt)
 
     let count_families =
       foreign "sk_fontmgr_count_families" C.(t @-> returning int)
@@ -498,7 +498,7 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(
           t
           @-> string
-          @-> FontStyle.t
+          @-> Font_style.t
           @-> ptr string
           @-> int
           @-> int32_t
@@ -512,7 +512,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_stream =
       foreign
         "sk_fontmgr_create_from_stream"
-        C.(t @-> StreamAsset.t @-> int @-> returning Typeface.t_opt)
+        C.(t @-> Stream_asset.t @-> int @-> returning Typeface.t_opt)
 
     let of_file =
       foreign
@@ -522,31 +522,33 @@ module M (F : Ctypes.FOREIGN) = struct
     let unref = foreign "sk_fontmgr_unref" C.(t @-> returning void)
   end
 
-  module FontMetrics = struct
-    type t = T.FontMetrics.t C.ptr
+  module Font_metrics = struct
+    type t = T.Font_metrics.t C.ptr
 
-    let t = C.ptr T.FontMetrics.t
-    let get_make () = C.allocate_n ~count:1 T.FontMetrics.t
-    let get_ascent m = C.(getf !@m T.FontMetrics.ascent)
-    let get_descent m = C.(getf !@m T.FontMetrics.descent)
-    let get_bottom m = C.(getf !@m T.FontMetrics.bottom)
-    let get_leading m = C.(getf !@m T.FontMetrics.leading)
-    let get_avg_char_width m = C.(getf !@m T.FontMetrics.avg_char_width)
-    let get_max_char_width m = C.(getf !@m T.FontMetrics.max_char_width)
-    let get_xmin m = C.(getf !@m T.FontMetrics.xmin)
-    let get_xmax m = C.(getf !@m T.FontMetrics.xmax)
-    let get_xheight m = C.(getf !@m T.FontMetrics.xheight)
-    let get_cap_height m = C.(getf !@m T.FontMetrics.cap_height)
+    let t = C.ptr T.Font_metrics.t
+    let get_make () = C.allocate_n ~count:1 T.Font_metrics.t
+    let get_ascent m = C.(getf !@m T.Font_metrics.ascent)
+    let get_descent m = C.(getf !@m T.Font_metrics.descent)
+    let get_bottom m = C.(getf !@m T.Font_metrics.bottom)
+    let get_leading m = C.(getf !@m T.Font_metrics.leading)
+    let get_avg_char_width m = C.(getf !@m T.Font_metrics.avg_char_width)
+    let get_max_char_width m = C.(getf !@m T.Font_metrics.max_char_width)
+    let get_xmin m = C.(getf !@m T.Font_metrics.xmin)
+    let get_xmax m = C.(getf !@m T.Font_metrics.xmax)
+    let get_xheight m = C.(getf !@m T.Font_metrics.xheight)
+    let get_cap_height m = C.(getf !@m T.Font_metrics.cap_height)
 
     let get_underline_thickness m =
-      C.(getf !@m T.FontMetrics.underline_thickness)
+      C.(getf !@m T.Font_metrics.underline_thickness)
 
-    let get_underline_position m = C.(getf !@m T.FontMetrics.underline_position)
+    let get_underline_position m =
+      C.(getf !@m T.Font_metrics.underline_position)
 
     let get_strikeout_thickness m =
-      C.(getf !@m T.FontMetrics.strikeout_thickness)
+      C.(getf !@m T.Font_metrics.strikeout_thickness)
 
-    let get_strikeout_position m = C.(getf !@m T.FontMetrics.strikeout_position)
+    let get_strikeout_position m =
+      C.(getf !@m T.Font_metrics.strikeout_position)
   end
 
   module Blender = struct
@@ -631,10 +633,10 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> returning t)
   end
 
-  module ImageFilter = struct
-    type t = T.ImageFilter.t C.ptr
+  module Image_filter = struct
+    type t = T.Image_filter.t C.ptr
 
-    let t = C.ptr T.ImageFilter.t
+    let t = C.ptr T.Image_filter.t
     let unref = foreign "sk_imagefilter_unref" C.(t @-> returning void)
   end
 
@@ -1157,7 +1159,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let is_convex = foreign "sk_path_is_convex" C.(t @-> returning bool)
   end
 
-  module PathIterator = struct
+  module Path_iterator = struct
     type t = T.Path.iterator C.ptr
 
     let t = C.ptr T.Path.iterator
@@ -1182,7 +1184,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_path_iter_is_closed_contour" C.(t @-> returning bool)
   end
 
-  module PathOp = struct
+  module Path_op = struct
     type t = T.Path.op
 
     let t = T.Path.op
@@ -1218,15 +1220,15 @@ module M (F : Ctypes.FOREIGN) = struct
     end
   end
 
-  module PathMeasure = struct
-    type t = T.PathMeasure.t C.ptr
+  module Path_measure = struct
+    type t = T.Path_measure.t C.ptr
 
-    let t = C.ptr T.PathMeasure.t
-    let t_opt = C.ptr_opt T.PathMeasure.t
+    let t = C.ptr T.Path_measure.t
+    let t_opt = C.ptr_opt T.Path_measure.t
 
-    type matrix_flags = T.PathMeasure.matrix_flags
+    type matrix_flags = T.Path_measure.matrix_flags
 
-    let matrix_flags = T.PathMeasure.matrix_flags
+    let matrix_flags = T.Path_measure.matrix_flags
     let make = foreign "sk_pathmeasure_new" C.(void @-> returning t_opt)
 
     let of_path =
@@ -1265,18 +1267,18 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_pathmeasure_next_contour" C.(t @-> returning bool)
   end
 
-  module PathEffect = struct
-    type t = T.PathEffect.t C.ptr
+  module Path_effect = struct
+    type t = T.Path_effect.t C.ptr
 
-    let t = C.ptr T.PathEffect.t
+    let t = C.ptr T.Path_effect.t
 
-    type style = T.PathEffect.style
+    type style = T.Path_effect.style
 
-    let style = T.PathEffect.style
+    let style = T.Path_effect.style
 
-    type trim_mode = T.PathEffect.trim_mode
+    type trim_mode = T.Path_effect.trim_mode
 
-    let trim_mode = T.PathEffect.trim_mode
+    let trim_mode = T.Path_effect.trim_mode
     let unref = foreign "sk_path_effect_unref" C.(t @-> returning void)
 
     let of_compose =
@@ -1330,10 +1332,10 @@ module M (F : Ctypes.FOREIGN) = struct
     let t = T.Blurstyle.t
   end
 
-  module MaskFilter = struct
-    type t = T.MaskFilter.t C.ptr
+  module Mask_filter = struct
+    type t = T.Mask_filter.t C.ptr
 
-    let t = C.ptr T.MaskFilter.t
+    let t = C.ptr T.Mask_filter.t
     let ref = foreign "sk_maskfilter_ref" C.(t @-> returning void)
     let unref = foreign "sk_maskfilter_unref" C.(t @-> returning void)
 
@@ -1351,10 +1353,10 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_maskfilter_new_shader" C.(Shader.t @-> returning t)
   end
 
-  module ColorSpace = struct
-    type t = T.ColorSpace.t C.ptr
+  module Color_space = struct
+    type t = T.Color_space.t C.ptr
 
-    let t = C.ptr T.ColorSpace.t
+    let t = C.ptr T.Color_space.t
     let ref = foreign "sk_colorspace_ref" C.(t @-> returning void)
     let unref = foreign "sk_colorspace_unref" C.(t @-> returning void)
     let of_srgb = foreign "sk_colorspace_new_srgb" C.(void @-> returning t)
@@ -1363,44 +1365,44 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_colorspace_new_srgb_linear" C.(void @-> returning t)
   end
 
-  module ImageInfo = struct
-    type t = T.ImageInfo.t C.ptr
+  module Image_info = struct
+    type t = T.Image_info.t C.ptr
 
-    let t = C.ptr T.ImageInfo.t
+    let t = C.ptr T.Image_info.t
 
     let make ~width ~height ~color_type ~alpha_type ~colorspace =
-      let info = C.allocate_n T.ImageInfo.t ~count:1 in
+      let info = C.allocate_n T.Image_info.t ~count:1 in
       C.(
-        setf !@info T.ImageInfo.width width;
-        setf !@info T.ImageInfo.height height;
-        setf !@info T.ImageInfo.color_type color_type;
-        setf !@info T.ImageInfo.alpha_type alpha_type;
-        setf !@info T.ImageInfo.colorspace colorspace);
+        setf !@info T.Image_info.width width;
+        setf !@info T.Image_info.height height;
+        setf !@info T.Image_info.color_type color_type;
+        setf !@info T.Image_info.alpha_type alpha_type;
+        setf !@info T.Image_info.colorspace colorspace);
       info
   end
 
-  module FilterMode = struct
-    type t = T.FilterMode.t
+  module Filter_mode = struct
+    type t = T.Filter_mode.t
 
-    let t = T.FilterMode.t
+    let t = T.Filter_mode.t
   end
 
-  module MipmapMode = struct
-    type t = T.MipmapMode.t
+  module Mipmap_mode = struct
+    type t = T.Mipmap_mode.t
 
-    let t = T.MipmapMode.t
+    let t = T.Mipmap_mode.t
   end
 
-  module CubicResampler = struct
-    type t = T.CubicResampler.t
+  module Cubic_resampler = struct
+    type t = T.Cubic_resampler.t
 
-    let t = T.CubicResampler.t
+    let t = T.Cubic_resampler.t
 
     let make ~b ~c =
       let cubic = C.make t in
       C.(
-        setf cubic T.CubicResampler.b b;
-        setf cubic T.CubicResampler.c c);
+        setf cubic T.Cubic_resampler.b b;
+        setf cubic T.Cubic_resampler.c c);
       cubic
 
     let mitchell () = make ~b:(1. /. 3.) ~c:(1. /. 3.)
@@ -1408,19 +1410,19 @@ module M (F : Ctypes.FOREIGN) = struct
     let empty () = make ~b:0. ~c:0.
   end
 
-  module SamplingOptions = struct
-    type t = T.SamplingOptions.t
+  module Sampling_options = struct
+    type t = T.Sampling_options.t
 
-    let t = T.SamplingOptions.t
+    let t = T.Sampling_options.t
 
     let make ?(max_aniso = 0) ?(use_cubic = false) ~cubic ~filter ~mimmap () =
       let sampler = C.make t in
       C.(
-        setf sampler T.SamplingOptions.max_aniso max_aniso;
-        setf sampler T.SamplingOptions.use_cubic use_cubic;
-        setf sampler T.SamplingOptions.cubic cubic;
-        setf sampler T.SamplingOptions.filter filter;
-        setf sampler T.SamplingOptions.mipmap mimmap);
+        setf sampler T.Sampling_options.max_aniso max_aniso;
+        setf sampler T.Sampling_options.use_cubic use_cubic;
+        setf sampler T.Sampling_options.cubic cubic;
+        setf sampler T.Sampling_options.filter filter;
+        setf sampler T.Sampling_options.mipmap mimmap);
       sampler
   end
 
@@ -1435,24 +1437,24 @@ module M (F : Ctypes.FOREIGN) = struct
     let make_with_params =
       foreign
         "sk_pixmap_new_with_params"
-        C.(ImageInfo.t @-> ptr void @-> size_t @-> returning t_opt)
+        C.(Image_info.t @-> ptr void @-> size_t @-> returning t_opt)
 
     let reset = foreign "sk_pixmap_reset" C.(t @-> returning void)
 
     let reset_with_params =
       foreign
         "sk_pixmap_reset_with_params"
-        C.(t @-> ImageInfo.t @-> ptr void @-> size_t @-> returning void)
+        C.(t @-> Image_info.t @-> ptr void @-> size_t @-> returning void)
 
     let set_colorspace =
       foreign
         "sk_pixmap_set_colorspace"
-        C.(t @-> ColorSpace.t @-> returning void)
+        C.(t @-> Color_space.t @-> returning void)
 
     let get_colorspace =
       foreign
         "sk_pixmap_get_colorspace"
-        C.(t @-> returning (ptr_opt T.ColorSpace.t))
+        C.(t @-> returning (ptr_opt T.Color_space.t))
 
     let extract_subset =
       foreign
@@ -1460,7 +1462,7 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> t @-> IRect.t @-> returning bool)
 
     let get_info =
-      foreign "sk_pixmap_get_info" C.(t @-> ImageInfo.t @-> returning void)
+      foreign "sk_pixmap_get_info" C.(t @-> Image_info.t @-> returning void)
 
     let get_row_bytes =
       foreign "sk_pixmap_get_row_bytes" C.(t @-> returning size_t)
@@ -1496,7 +1498,7 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_pixmap_read_pixels"
         C.(
           t
-          @-> ImageInfo.t
+          @-> Image_info.t
           @-> ptr void
           @-> size_t
           @-> int
@@ -1506,7 +1508,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let scale_pixels =
       foreign
         "sk_pixmap_scale_pixels"
-        C.(t @-> t @-> ptr SamplingOptions.t @-> returning bool)
+        C.(t @-> t @-> ptr Sampling_options.t @-> returning bool)
 
     let erase =
       foreign
@@ -1528,7 +1530,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let make = foreign "sk_bitmap_new" C.(void @-> returning t)
 
     let get_info =
-      foreign "sk_bitmap_get_info" C.(t @-> ImageInfo.t @-> returning void)
+      foreign "sk_bitmap_get_info" C.(t @-> Image_info.t @-> returning void)
 
     let get_pixels =
       foreign
@@ -1588,7 +1590,7 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_bitmap_install_pixels"
         C.(
           t
-          @-> ImageInfo.t
+          @-> Image_info.t
           @-> ptr void
           @-> size_t
           @-> release_proc
@@ -1603,12 +1605,12 @@ module M (F : Ctypes.FOREIGN) = struct
     let try_alloc_pixels =
       foreign
         "sk_bitmap_try_alloc_pixels"
-        C.(t @-> ImageInfo.t @-> size_t @-> returning bool)
+        C.(t @-> Image_info.t @-> size_t @-> returning bool)
 
     let try_alloc_pixels_with_flags =
       foreign
         "sk_bitmap_try_alloc_pixels_with_flags"
-        C.(t @-> ImageInfo.t @-> uint32_t @-> returning bool)
+        C.(t @-> Image_info.t @-> uint32_t @-> returning bool)
 
     let set_pixels =
       foreign "sk_bitmap_set_pixels" C.(t @-> ptr void @-> returning void)
@@ -1633,7 +1635,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_raster_copy =
       foreign
         "sk_image_new_raster_copy"
-        C.(ImageInfo.t @-> ptr void @-> size_t @-> returning t_opt)
+        C.(Image_info.t @-> ptr void @-> size_t @-> returning t_opt)
 
     let of_encoded =
       foreign "sk_image_new_from_encoded" C.(Data.t @-> returning t_opt)

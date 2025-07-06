@@ -17,7 +17,7 @@ module M (F : Ctypes.TYPE) = struct
     let t = uint32_t
   end
 
-  module PMColor = struct
+  module PM_color = struct
     let t = uint32_t
   end
 
@@ -33,7 +33,7 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal t
   end
 
-  module ColorType = struct
+  module Color_type = struct
     type t =
       [ `Unknown
       | `Alpha8
@@ -94,7 +94,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module AlphaType = struct
+  module Alpha_type = struct
     type t =
       [ `Unknown
       | `Opaque
@@ -113,7 +113,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module PixelGeometry = struct
+  module Pixel_geometry = struct
     type t =
       [ `Unknown
       | `Rgb_h
@@ -134,7 +134,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module SurfaceProps = struct
+  module Surface_props = struct
     type flag = Unsigned.uint32
 
     let flag = Ctypes.uint32_t
@@ -329,7 +329,7 @@ module M (F : Ctypes.TYPE) = struct
     let t : t structure typ = structure "sk_image_t"
   end
 
-  module MaskFilter = struct
+  module Mask_filter = struct
     type t
 
     let t : t structure typ = structure "sk_maskfilter_t"
@@ -486,7 +486,7 @@ module M (F : Ctypes.TYPE) = struct
     let op_builder : op_builder structure typ = structure "sk_opbuilder_t"
   end
 
-  module PathMeasure = struct
+  module Path_measure = struct
     type t
 
     let t : t structure typ = structure "sk_pathmeasure_t"
@@ -507,7 +507,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module PathEffect = struct
+  module Path_effect = struct
     type t
 
     let t : t structure typ = structure "sk_path_effect_t"
@@ -546,13 +546,13 @@ module M (F : Ctypes.TYPE) = struct
     let recorder : recorder structure typ = structure "sk_picture_recorder_t"
   end
 
-  module BbhFactory = struct
+  module Bbh_factory = struct
     type t
 
     let t : t structure typ = structure "sk_bbh_factory_t"
   end
 
-  module RtreeFactory = struct
+  module Rtree_factory = struct
     type t
 
     let t : t structure typ = structure "sk_rtree_factory_t"
@@ -623,7 +623,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module FontStyle = struct
+  module Font_style = struct
     type t
 
     let t : t structure typ = structure "sk_fontstyle_t"
@@ -652,7 +652,7 @@ module M (F : Ctypes.TYPE) = struct
     let t : t structure typ = structure "sk_codec_t"
   end
 
-  module ColorSpace = struct
+  module Color_space = struct
     type t
 
     let t : t structure typ = structure "sk_colorspace_t"
@@ -688,16 +688,16 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal xyz
   end
 
-  module ImageInfo = struct
+  module Image_info = struct
     type t
 
     let t : t structure typ = structure "sk_imageinfo_t"
     let t = typedef t "sk_imageinfo_t"
-    let colorspace = field t "colorspace" (ptr ColorSpace.t)
+    let colorspace = field t "colorspace" (ptr Color_space.t)
     let width = field t "width" int32_t
     let height = field t "height" int32_t
-    let color_type = field t "colorType" ColorType.t
-    let alpha_type = field t "alphaType" AlphaType.t
+    let color_type = field t "colorType" Color_type.t
+    let alpha_type = field t "alphaType" Alpha_type.t
     let () = seal t
   end
 
@@ -770,7 +770,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module TextEncoding = struct
+  module Text_encoding = struct
     type t =
       [ `Utf8
       | `Utf16
@@ -789,7 +789,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module TextAlign = struct
+  module Text_align = struct
     type t =
       [ `Left
       | `Center
@@ -803,7 +803,7 @@ module M (F : Ctypes.TYPE) = struct
         [ `Left, "LEFT"; `Center, "CENTER"; `Right, "RIGHT" ]
   end
 
-  module ColorChannel = struct
+  module Color_channel = struct
     type t =
       [ `R
       | `G
@@ -868,7 +868,7 @@ module M (F : Ctypes.TYPE) = struct
     let t : t structure typ = structure "sk_document_t"
   end
 
-  module PointMode = struct
+  module Point_mode = struct
     type t =
       [ `Points
       | `Lines
@@ -921,13 +921,13 @@ module M (F : Ctypes.TYPE) = struct
     let font_table_tag = uint32_t
   end
 
-  module FontManager = struct
+  module Font_manager = struct
     type t
 
     let t : t structure typ = structure "sk_fontmgr_t"
   end
 
-  module FontMetrics = struct
+  module Font_metrics = struct
     type t
 
     let t : t structure typ = structure "sk_fontmetrics_t"
@@ -951,7 +951,7 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal t
   end
 
-  module FilterMode = struct
+  module Filter_mode = struct
     type t =
       [ `Nearest
       | `Linear
@@ -964,7 +964,7 @@ module M (F : Ctypes.TYPE) = struct
         [ `Nearest, "NEAREST"; `Linear, "LINEAR" ]
   end
 
-  module MipmapMode = struct
+  module Mipmap_mode = struct
     type t =
       [ `None
       | `Nearest
@@ -978,7 +978,7 @@ module M (F : Ctypes.TYPE) = struct
         [ `None, "NONE"; `Nearest, "NEAREST"; `Linear, "LINEAR" ]
   end
 
-  module CubicResampler = struct
+  module Cubic_resampler = struct
     type t
 
     let t : t structure typ = structure "sk_cubic_resampler_t"
@@ -988,16 +988,16 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal t
   end
 
-  module SamplingOptions = struct
+  module Sampling_options = struct
     type t
 
     let t : t structure typ = structure "sk_sampling_options_t"
     let t = typedef t "sk_sampling_options_t"
     let max_aniso = field t "fMaxAniso" int
     let use_cubic = field t "fUseCubic" bool
-    let cubic = field t "fCubic" CubicResampler.t
-    let filter = field t "fFilter" FilterMode.t
-    let mipmap = field t "fMipmap" MipmapMode.t
+    let cubic = field t "fCubic" Cubic_resampler.t
+    let filter = field t "fFilter" Filter_mode.t
+    let mipmap = field t "fMipmap" Mipmap_mode.t
     let () = seal t
   end
 
@@ -1014,13 +1014,13 @@ module M (F : Ctypes.TYPE) = struct
     let t : t structure typ = structure "sk_pixmap_t"
   end
 
-  module ColorFilter = struct
+  module Color_filter = struct
     type t
 
     let t : t structure typ = structure "sk_colorfilter_t"
   end
 
-  module ImageFilter = struct
+  module Image_filter = struct
     type t
 
     let t : t structure typ = structure "sk_imagefilter_t"
