@@ -94,7 +94,7 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
-  module AphaType = struct
+  module AlphaType = struct
     type t =
       [ `Unknown
       | `Opaque
@@ -155,6 +155,31 @@ module M (F : Ctypes.TYPE) = struct
   end
 
   module Vector = Point
+
+  module Point3 = struct
+    type t
+
+    let t : t structure typ = structure "sk_point3_t"
+    let t = typedef t "sk_point3_t"
+    let x = field t "x" float
+    let y = field t "y" float
+    let z = field t "z" float
+    let () = seal t
+  end
+
+  module Vector3 = Point3
+
+  module Vector4 = struct
+    type t
+
+    let t : t structure typ = structure "oski_v4_t"
+    let t = typedef t "oski_v4_t"
+    let x = field t "x" float
+    let y = field t "y" float
+    let z = field t "z" float
+    let w = field t "w" float
+    let () = seal t
+  end
 
   module Matrix = struct
     type t
@@ -271,6 +296,21 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
+  module Blurstyle = struct
+    type t =
+      [ `Normal
+      | `Solid
+      | `Outer
+      | `Inner
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "BLUR_STYLE"
+        "sk_blurstyle_t"
+        [ `Normal, "NORMAL"; `Solid, "SOLID"; `Outer, "OUTER"; `Inner, "INNER" ]
+  end
+
   module Canvas = struct
     type t
 
@@ -299,6 +339,45 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_paint_t"
+
+    type style =
+      [ `Fill
+      | `Stroke
+      | `Stroke_and_fill
+      ]
+
+    let style : style typ =
+      skia_c_enum
+        "PAINT_STYLE"
+        "sk_paint_style_t"
+        [ `Fill, "FILL"
+        ; `Stroke, "STROKE"
+        ; `Stroke_and_fill, "STROKE_AND_FILL"
+        ]
+
+    type stroke_cap =
+      [ `Butt
+      | `Round
+      | `Square
+      ]
+
+    let stroke_cap : stroke_cap typ =
+      skia_c_enum
+        "STROKE_CAP"
+        "sk_stroke_cap_t"
+        [ `Butt, "BUTT"; `Round, "ROUND"; `Square, "SQUARE" ]
+
+    type stroke_join =
+      [ `Miter
+      | `Round
+      | `Bevel
+      ]
+
+    let stroke_join : stroke_join typ =
+      skia_c_enum
+        "STROKE_JOIN"
+        "sk_stroke_join_t"
+        [ `Miter, "MITER"; `Round, "ROUND"; `Bevel, "BEVEL" ]
   end
 
   module Path = struct
@@ -428,6 +507,35 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
+  module PathEffect = struct
+    type t
+
+    let t : t structure typ = structure "sk_path_effect_t"
+
+    type style =
+      [ `Translate
+      | `Rotate
+      | `Morph
+      ]
+
+    let style : style typ =
+      skia_c_enum
+        "PATH_EFFECT_1D_STYLE"
+        "sk_path_effect_1d_style_t"
+        [ `Translate, "TRANSLATE"; `Rotate, "ROTATE"; `Morph, "MORPH" ]
+
+    type trim_mode =
+      [ `Normal
+      | `Inverted
+      ]
+
+    let trim_mode : trim_mode typ =
+      skia_c_enum
+        "PATH_EFFECT_TRIM_MODE"
+        "sk_path_effect_trim_mode_t"
+        [ `Normal, "NORMAL"; `Inverted, "INVERTED" ]
+  end
+
   module Picture = struct
     type t
 
@@ -548,6 +656,49 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_colorspace_t"
+
+    type transfer_fn
+
+    let transfer_fn : transfer_fn structure typ =
+      structure "sk_colorspace_transfer_fn_t"
+
+    let transfer_fn = typedef transfer_fn "sk_colorspace_transfer_fn_t"
+    let fG = field transfer_fn "fG" float
+    let fA = field transfer_fn "fA" float
+    let fB = field transfer_fn "fB" float
+    let fC = field transfer_fn "fC" float
+    let fD = field transfer_fn "fD" float
+    let fE = field transfer_fn "fE" float
+    let fF = field transfer_fn "fF" float
+    let () = seal transfer_fn
+
+    type xyz
+
+    let xyz : xyz structure typ = structure "sk_colorspace_xyz_t"
+    let xyz = typedef xyz "sk_colorspace_xyz_t"
+    let fM00 = field xyz "fM00" float
+    let fM01 = field xyz "fM01" float
+    let fM02 = field xyz "fM02" float
+    let fM10 = field xyz "fM10" float
+    let fM11 = field xyz "fM11" float
+    let fM12 = field xyz "fM12" float
+    let fM20 = field xyz "fM20" float
+    let fM21 = field xyz "fM21" float
+    let fM22 = field xyz "fM22" float
+    let () = seal xyz
+  end
+
+  module ImageInfo = struct
+    type t
+
+    let t : t structure typ = structure "sk_imageinfo_t"
+    let t = typedef t "sk_imageinfo_t"
+    let colorspace = field t "colorspace" (ptr ColorSpace.t)
+    let width = field t "width" int32_t
+    let height = field t "height" int32_t
+    let color_type = field t "colorType" ColorType.t
+    let alpha_type = field t "alphaType" AlphaType.t
+    let () = seal t
   end
 
   module Blendmode = struct
@@ -800,10 +951,61 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal t
   end
 
+  module FilterMode = struct
+    type t =
+      [ `Nearest
+      | `Linear
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "FILTER_MODE"
+        "sk_filter_mode_t"
+        [ `Nearest, "NEAREST"; `Linear, "LINEAR" ]
+  end
+
+  module MipmapMode = struct
+    type t =
+      [ `None
+      | `Nearest
+      | `Linear
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "MIPMAP_MODE"
+        "sk_mipmap_mode_t"
+        [ `None, "NONE"; `Nearest, "NEAREST"; `Linear, "LINEAR" ]
+  end
+
+  module CubicResampler = struct
+    type t
+
+    let t : t structure typ = structure "sk_cubic_resampler_t"
+    let t = typedef t "sk_cubic_resampler_t"
+    let b = field t "fB" float
+    let c = field t "fC" float
+    let () = seal t
+  end
+
+  module SamplingOptions = struct
+    type t
+
+    let t : t structure typ = structure "sk_sampling_options_t"
+    let t = typedef t "sk_sampling_options_t"
+    let max_aniso = field t "fMaxAniso" int
+    let use_cubic = field t "fUseCubic" bool
+    let cubic = field t "fCubic" CubicResampler.t
+    let filter = field t "fFilter" FilterMode.t
+    let mipmap = field t "fMipmap" MipmapMode.t
+    let () = seal t
+  end
+
   module Bitmap = struct
     type t
 
     let t : t structure typ = structure "sk_bitmap_t"
+    let release_proc = ptr void @-> ptr void @-> returning void
   end
 
   module Pixmap = struct

@@ -25,8 +25,8 @@
 (rule
  (targets bindings%{ext_obj})
  (deps
-  (:cpp bindings.cpp bindings.h)
   oski_types.h
+  (:cpp bindings.h bindings.cpp)
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
  (action
@@ -35,8 +35,8 @@
 (rule
  (targets svgdom%{ext_obj})
  (deps
-  (:cpp svgdom.cpp svgdom.h)
   oski_types.h
+  (:cpp svgdom.h svgdom.cpp)
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
  (action
@@ -45,8 +45,8 @@
 (rule
  (targets c_stubs%{ext_obj})
  (deps
-  (:c c_stubs.c c_stubs.h)
   oski_types.h
+  (:c c_stubs.h c_stubs.c)
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
  (action

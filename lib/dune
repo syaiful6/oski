@@ -1,2 +1,4 @@
 (library
- (name oski))
+ (name oski)
+ (public_name oski)
+ (libraries oski.ffi oski.types))
