@@ -1,10 +1,10 @@
-#include "oski_types.h"
 #include "include/c/gr_context.h"
 #include "include/c/sk_canvas.h"
 #include "include/c/sk_paint.h"
 #include "include/c/sk_patheffect.h"
 #include "include/c/sk_shader.h"
 #include "include/c/sk_types.h"
+#include "oski_types.h"
 
 void oski_stub_sk_canvas_draw_rect_ltwh(sk_canvas_t* canvas, float left, float top, float width,
                                         float height, sk_paint_t* paint);
