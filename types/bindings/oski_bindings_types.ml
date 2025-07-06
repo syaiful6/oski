@@ -156,6 +156,31 @@ module M (F : Ctypes.TYPE) = struct
 
   module Vector = Point
 
+  module Point3 = struct
+    type t
+
+    let t : t structure typ = structure "sk_point3_t"
+    let t = typedef t "sk_point3_t"
+    let x = field t "x" float
+    let y = field t "y" float
+    let z = field t "z" float
+    let () = seal t
+  end
+
+  module Vector3 = Point3
+
+  module Vector4 = struct
+    type t
+
+    let t : t structure typ = structure "oski_v4_t"
+    let t = typedef t "oski_v4_t"
+    let x = field t "x" float
+    let y = field t "y" float
+    let z = field t "z" float
+    let w = field t "w" float
+    let () = seal t
+  end
+
   module Matrix = struct
     type t
 

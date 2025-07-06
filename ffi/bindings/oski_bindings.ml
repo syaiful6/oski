@@ -18,13 +18,30 @@ module M (F : Ctypes.FOREIGN) = struct
     let set_argb =
       foreign
         "sk_color_set_argb"
-        C.(uint32_t @-> uint32_t @-> uint32_t @-> uint32_t @-> returning t)
+        C.(uint8_t @-> uint8_t @-> uint8_t @-> uint8_t @-> returning t)
+
+    let get_alpha = foreign "sk_color_get_a" C.(t @-> returning uint8_t)
+    let get_red = foreign "sk_color_get_r" C.(t @-> returning uint8_t)
+    let get_green = foreign "sk_color_get_g" C.(t @-> returning uint8_t)
+    let get_blue = foreign "sk_color_get_b" C.(t @-> returning uint8_t)
+
+    let hsv_to_color =
+      foreign "oski_color_hsv_to_color" C.(uint @-> ptr float @-> returning t)
+
+    let rgb_to_hsv =
+      foreign
+        "oski_color_rgb_to_hsv"
+        C.(uint @-> uint @-> uint @-> ptr float @-> returning void)
   end
 
   module Color4f = struct
     type t = T.Color4f.t C.ptr
 
     let t = C.ptr T.Color4f.t
+    let to_color = foreign "sk_color4f_to_color" C.(t @-> returning Color.t)
+
+    let of_color =
+      foreign "sk_color4f_from_color" C.(Color.t @-> t @-> returning void)
   end
 
   type data = T.Data.t C.ptr
@@ -775,7 +792,11 @@ module M (F : Ctypes.FOREIGN) = struct
         setf m44 T.Matrix44.m33 m33);
       m44
 
-    let invert = foreign "oski_m44_invert" C.(ptr t @-> returning bool)
+    let invert =
+      foreign "oski_m44_invert" C.(ptr t @-> ptr t @-> returning bool)
+
+    let concat =
+      foreign "oski_m44_concat" C.(ptr t @-> ptr t @-> ptr t @-> returning void)
   end
 
   module IRect = struct
