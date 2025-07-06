@@ -271,6 +271,21 @@ module M (F : Ctypes.TYPE) = struct
         ]
   end
 
+  module Blurstyle = struct
+    type t =
+      [ `Normal
+      | `Solid
+      | `Outer
+      | `Inner
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "BLUR_STYLE"
+        "sk_blurstyle_t"
+        [ `Normal, "NORMAL"; `Solid, "SOLID"; `Outer, "OUTER"; `Inner, "INNER" ]
+  end
+
   module Canvas = struct
     type t
 
@@ -299,6 +314,45 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_paint_t"
+
+    type style =
+      [ `Fill
+      | `Stroke
+      | `Stroke_and_fill
+      ]
+
+    let style : style typ =
+      skia_c_enum
+        "PAINT_STYLE"
+        "sk_paint_style_t"
+        [ `Fill, "FILL"
+        ; `Stroke, "STROKE"
+        ; `Stroke_and_fill, "STROKE_AND_FILL"
+        ]
+
+    type stroke_cap =
+      [ `Butt
+      | `Round
+      | `Square
+      ]
+
+    let stroke_cap : stroke_cap typ =
+      skia_c_enum
+        "STROKE_CAP"
+        "sk_stroke_cap_t"
+        [ `Butt, "BUTT"; `Round, "ROUND"; `Square, "SQUARE" ]
+
+    type stroke_join =
+      [ `Miter
+      | `Round
+      | `Bevel
+      ]
+
+    let stroke_join : stroke_join typ =
+      skia_c_enum
+        "STROKE_JOIN"
+        "sk_stroke_join_t"
+        [ `Miter, "MITER"; `Round, "ROUND"; `Bevel, "BEVEL" ]
   end
 
   module Path = struct
@@ -426,6 +480,35 @@ module M (F : Ctypes.TYPE) = struct
         ; `Get_tangent, "GET_TANGENT"
         ; `Get_pos_and_tan, "GET_POS_AND_TAN"
         ]
+  end
+
+  module PathEffect = struct
+    type t
+
+    let t : t structure typ = structure "sk_path_effect_t"
+
+    type style =
+      [ `Translate
+      | `Rotate
+      | `Morph
+      ]
+
+    let style : style typ =
+      skia_c_enum
+        "PATH_EFFECT_1D_STYLE"
+        "sk_path_effect_1d_style_t"
+        [ `Translate, "TRANSLATE"; `Rotate, "ROTATE"; `Morph, "MORPH" ]
+
+    type trim_mode =
+      [ `Normal
+      | `Inverted
+      ]
+
+    let trim_mode : trim_mode typ =
+      skia_c_enum
+        "PATH_EFFECT_TRIM_MODE"
+        "sk_path_effect_trim_mode_t"
+        [ `Normal, "NORMAL"; `Inverted, "INVERTED" ]
   end
 
   module Picture = struct
@@ -843,10 +926,61 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal t
   end
 
+  module FilterMode = struct
+    type t =
+      [ `Nearest
+      | `Linear
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "FILTER_MODE"
+        "sk_filter_mode_t"
+        [ `Nearest, "NEAREST"; `Linear, "LINEAR" ]
+  end
+
+  module MipmapMode = struct
+    type t =
+      [ `None
+      | `Nearest
+      | `Linear
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "MIPMAP_MODE"
+        "sk_mipmap_mode_t"
+        [ `None, "NONE"; `Nearest, "NEAREST"; `Linear, "LINEAR" ]
+  end
+
+  module CubicResampler = struct
+    type t
+
+    let t : t structure typ = structure "sk_cubic_resampler_t"
+    let t = typedef t "sk_cubic_resampler_t"
+    let b = field t "fB" float
+    let c = field t "fC" float
+    let () = seal t
+  end
+
+  module SamplingOptions = struct
+    type t
+
+    let t : t structure typ = structure "sk_sampling_options_t"
+    let t = typedef t "sk_sampling_options_t"
+    let max_aniso = field t "fMaxAniso" int
+    let use_cubic = field t "fUseCubic" bool
+    let cubic = field t "fCubic" CubicResampler.t
+    let filter = field t "fFilter" FilterMode.t
+    let mipmap = field t "fMipmap" MipmapMode.t
+    let () = seal t
+  end
+
   module Bitmap = struct
     type t
 
     let t : t structure typ = structure "sk_bitmap_t"
+    let release_proc = ptr void @-> ptr void @-> returning void
   end
 
   module Pixmap = struct

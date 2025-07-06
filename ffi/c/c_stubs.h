@@ -1,3 +1,4 @@
+#include "oski_types.h"
 #include "include/c/gr_context.h"
 #include "include/c/sk_canvas.h"
 #include "include/c/sk_paint.h"

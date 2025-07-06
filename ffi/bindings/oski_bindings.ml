@@ -21,6 +21,12 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(uint32_t @-> uint32_t @-> uint32_t @-> uint32_t @-> returning t)
   end
 
+  module Color4f = struct
+    type t = T.Color4f.t C.ptr
+
+    let t = C.ptr T.Color4f.t
+  end
+
   type data = T.Data.t C.ptr
 
   let data = C.ptr T.Data.t
@@ -404,8 +410,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_kerning_pair_adjustments =
       foreign
         "sk_typeface_get_kerning_pair_adjustments"
-        C.(
-          t @-> const (ptr uint16_t) @-> int @-> ptr int32_t @-> returning bool)
+        C.(t @-> ptr uint16_t @-> int @-> ptr int32_t @-> returning bool)
 
     let open_stream =
       foreign
@@ -723,6 +728,56 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_matrix_map_radius" C.(t @-> float @-> returning float)
   end
 
+  module Matrix44 = struct
+    type t = T.Matrix44.t
+
+    let t = T.Matrix44.t
+    let t_ptr = C.ptr t
+
+    let make
+          ~m00
+          ~m01
+          ~m02
+          ~m03
+          ~m10
+          ~m11
+          ~m12
+          ~m13
+          ~m20
+          ~m21
+          ~m22
+          ~m23
+          ~m30
+          ~m31
+          ~m32
+          ~m33
+      =
+      let m44 = C.make t in
+      C.(
+        setf m44 T.Matrix44.m00 m00;
+        setf m44 T.Matrix44.m01 m01;
+        setf m44 T.Matrix44.m02 m02;
+        setf m44 T.Matrix44.m03 m03;
+
+        setf m44 T.Matrix44.m10 m10;
+        setf m44 T.Matrix44.m11 m11;
+        setf m44 T.Matrix44.m12 m12;
+        setf m44 T.Matrix44.m13 m13;
+
+        setf m44 T.Matrix44.m20 m20;
+        setf m44 T.Matrix44.m21 m21;
+        setf m44 T.Matrix44.m22 m22;
+        setf m44 T.Matrix44.m23 m23;
+
+        setf m44 T.Matrix44.m30 m30;
+        setf m44 T.Matrix44.m31 m31;
+        setf m44 T.Matrix44.m32 m32;
+        setf m44 T.Matrix44.m33 m33);
+      m44
+
+    let invert = foreign "oski_m44_invert" C.(ptr t @-> returning bool)
+  end
+
   module IRect = struct
     type t = T.IRect.t C.ptr
 
@@ -757,40 +812,37 @@ module M (F : Ctypes.FOREIGN) = struct
     let make = foreign "sk_rrect_new" C.(void @-> returning t)
     let copy = foreign "sk_rrect_new_copy" C.(t @-> returning t)
     let delete = foreign "sk_rrect_delete" C.(t @-> returning void)
-    let get_type = foreign "sk_rrect_get_type" C.(const t @-> returning type_)
+    let get_type = foreign "sk_rrect_get_type" C.(t @-> returning type_)
 
     let get_rect =
-      foreign "sk_rrect_get_rect" C.(const t @-> Rect.t @-> returning void)
+      foreign "sk_rrect_get_rect" C.(t @-> Rect.t @-> returning void)
 
     let get_radii =
       foreign
         "sk_rrect_get_radii"
-        C.(const t @-> corner @-> Vector.t @-> returning void)
+        C.(t @-> corner @-> Vector.t @-> returning void)
 
-    let get_width = foreign "sk_rrect_get_width" C.(const t @-> returning float)
-
-    let get_height =
-      foreign "sk_rrect_get_height" C.(const t @-> returning float)
-
+    let get_width = foreign "sk_rrect_get_width" C.(t @-> returning float)
+    let get_height = foreign "sk_rrect_get_height" C.(t @-> returning float)
     let set_empty = foreign "sk_rrect_set_empty" C.(t @-> returning void)
 
     let set_rect =
-      foreign "sk_rrect_set_rect" C.(t @-> const Rect.t @-> returning void)
+      foreign "sk_rrect_set_rect" C.(t @-> Rect.t @-> returning void)
 
     let set_oval =
-      foreign "sk_rrect_set_oval" C.(t @-> const Rect.t @-> returning void)
+      foreign "sk_rrect_set_oval" C.(t @-> Rect.t @-> returning void)
 
     let set_rect_xy =
       foreign
         "sk_rrect_set_rect_xy"
-        C.(t @-> const Rect.t @-> float @-> float @-> returning void)
+        C.(t @-> Rect.t @-> float @-> float @-> returning void)
 
     let set_nine_patch =
       foreign
         "sk_rrect_set_nine_patch"
         C.(
           t
-          @-> const Rect.t
+          @-> Rect.t
           @-> float
           @-> float
           @-> float
@@ -800,7 +852,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let set_rect_radii =
       foreign
         "sk_rrect_set_rect_radii"
-        C.(t @-> const Rect.t @-> const Vector.t @-> returning void)
+        C.(t @-> Rect.t @-> Vector.t @-> returning void)
 
     let inset =
       foreign "sk_rrect_inset" C.(t @-> float @-> float @-> returning void)
@@ -812,16 +864,12 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_rrect_offset" C.(t @-> float @-> float @-> returning void)
 
     let contains =
-      foreign
-        "sk_rrect_contains"
-        C.(const t @-> const Rect.t @-> returning bool)
+      foreign "sk_rrect_contains" C.(t @-> Rect.t @-> returning bool)
 
-    let is_valid = foreign "sk_rrect_is_valid" C.(const t @-> returning bool)
+    let is_valid = foreign "sk_rrect_is_valid" C.(t @-> returning bool)
 
     let transform =
-      foreign
-        "sk_rrect_transform"
-        C.(t @-> const Matrix.t @-> t @-> returning bool)
+      foreign "sk_rrect_transform" C.(t @-> Matrix.t @-> t @-> returning bool)
   end
 
   module Path = struct
@@ -925,33 +973,27 @@ module M (F : Ctypes.FOREIGN) = struct
     let add_rect =
       foreign
         "sk_path_add_rect"
-        C.(t @-> const Rect.t @-> direction @-> returning void)
+        C.(t @-> Rect.t @-> direction @-> returning void)
 
     let add_rrect =
       foreign
         "sk_path_add_rrect"
-        C.(t @-> const RRect.t @-> direction @-> returning void)
+        C.(t @-> RRect.t @-> direction @-> returning void)
 
     let add_rrect_start =
       foreign
         "sk_path_add_rrect_start"
-        C.(t @-> const RRect.t @-> direction @-> uint32_t @-> returning void)
+        C.(t @-> RRect.t @-> direction @-> uint32_t @-> returning void)
 
     let add_rounded_rect =
       foreign
         "sk_path_add_rounded_rect"
-        C.(
-          t
-          @-> const Rect.t
-          @-> float
-          @-> float
-          @-> direction
-          @-> returning void)
+        C.(t @-> Rect.t @-> float @-> float @-> direction @-> returning void)
 
     let add_oval =
       foreign
         "sk_path_add_oval"
-        C.(t @-> const Rect.t @-> direction @-> returning void)
+        C.(t @-> Rect.t @-> direction @-> returning void)
 
     let add_circle =
       foreign
@@ -959,12 +1001,10 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> float @-> float @-> float @-> direction @-> returning void)
 
     let get_bounds =
-      foreign "sk_path_get_bounds" C.(const t @-> Rect.t @-> returning void)
+      foreign "sk_path_get_bounds" C.(t @-> Rect.t @-> returning void)
 
     let compute_tight_bounds =
-      foreign
-        "sk_path_compute_tight_bounds"
-        C.(const t @-> Rect.t @-> returning void)
+      foreign "sk_path_compute_tight_bounds" C.(t @-> Rect.t @-> returning void)
 
     let rmove_to =
       foreign "sk_path_rmove_to" C.(t @-> float @-> float @-> returning void)
@@ -999,28 +1039,28 @@ module M (F : Ctypes.FOREIGN) = struct
     let add_rect_start =
       foreign
         "sk_path_add_rect_start"
-        C.(t @-> const Rect.t @-> direction @-> uint32_t @-> returning void)
+        C.(t @-> Rect.t @-> direction @-> uint32_t @-> returning void)
 
     let add_arc =
       foreign
         "sk_path_add_arc"
-        C.(t @-> const Rect.t @-> float @-> float @-> returning void)
+        C.(t @-> Rect.t @-> float @-> float @-> returning void)
 
     let get_fill_type =
-      foreign "sk_path_get_filltype" C.(const t @-> returning fill_type)
+      foreign "sk_path_get_filltype" C.(t @-> returning fill_type)
 
     let set_fill_type =
       foreign "sk_path_set_filltype" C.(t @-> fill_type @-> returning void)
 
     let transform =
-      foreign "sk_path_transform" C.(t @-> const Matrix.t @-> returning void)
+      foreign "sk_path_transform" C.(t @-> Matrix.t @-> returning void)
 
     let transform_to =
       foreign
         "sk_path_transform_to_dest"
-        C.(const t @-> const Matrix.t @-> t @-> returning void)
+        C.(t @-> Matrix.t @-> t @-> returning void)
 
-    let clone = foreign "sk_path_clone" C.(const t @-> returning t)
+    let clone = foreign "sk_path_clone" C.(t @-> returning t)
 
     let add_path_offset =
       foreign
@@ -1044,40 +1084,30 @@ module M (F : Ctypes.FOREIGN) = struct
     let count_verbs = foreign "sk_path_count_verbs" C.(t @-> returning int)
 
     let get_point =
-      foreign
-        "sk_path_get_point"
-        C.(const t @-> int @-> Point.t @-> returning void)
+      foreign "sk_path_get_point" C.(t @-> int @-> Point.t @-> returning void)
 
     let get_points =
-      foreign
-        "sk_path_get_points"
-        C.(const t @-> Point.t @-> int @-> returning int)
+      foreign "sk_path_get_points" C.(t @-> Point.t @-> int @-> returning int)
 
     let contains =
-      foreign
-        "sk_path_contains"
-        C.(const t @-> float @-> float @-> returning bool)
+      foreign "sk_path_contains" C.(t @-> float @-> float @-> returning bool)
 
     let parse_svg_string =
       foreign "sk_path_parse_svg_string" C.(t @-> string @-> returning bool)
 
     let to_svg_string =
-      foreign
-        "sk_path_to_svg_string"
-        C.(const t @-> String.t @-> returning void)
+      foreign "sk_path_to_svg_string" C.(t @-> String.t @-> returning void)
 
     let get_last_point =
-      foreign
-        "sk_path_get_last_point"
-        C.(const t @-> Point.t @-> returning bool)
+      foreign "sk_path_get_last_point" C.(t @-> Point.t @-> returning bool)
 
     let convert_conic_to_quads =
       foreign
         "sk_path_convert_conic_to_quads"
         C.(
-          const Point.t
-          @-> const Point.t
-          @-> const Point.t
+          Point.t
+          @-> Point.t
+          @-> Point.t
           @-> float
           @-> Point.t
           @-> int
@@ -1086,7 +1116,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let add_poly =
       foreign
         "sk_path_add_poly"
-        C.(t @-> const Point.t @-> int @-> bool @-> returning void)
+        C.(t @-> Point.t @-> int @-> bool @-> returning void)
 
     let get_segment_masks =
       foreign "sk_path_get_segment_masks" C.(t @-> returning uint32_t)
@@ -1139,22 +1169,16 @@ module M (F : Ctypes.FOREIGN) = struct
     let op =
       foreign
         "sk_pathop_op"
-        C.(const Path.t @-> const Path.t @-> t @-> Path.t @-> returning bool)
+        C.(Path.t @-> Path.t @-> t @-> Path.t @-> returning bool)
 
     let simplify =
-      foreign
-        "sk_pathop_simplify"
-        C.(const Path.t @-> Path.t @-> returning bool)
+      foreign "sk_pathop_simplify" C.(Path.t @-> Path.t @-> returning bool)
 
     let tight_bounds =
-      foreign
-        "sk_pathop_tight_bounds"
-        C.(const Path.t @-> Rect.t @-> returning bool)
+      foreign "sk_pathop_tight_bounds" C.(Path.t @-> Rect.t @-> returning bool)
 
     let as_winding =
-      foreign
-        "sk_pathop_as_winding"
-        C.(const Path.t @-> Path.t @-> returning bool)
+      foreign "sk_pathop_as_winding" C.(Path.t @-> Path.t @-> returning bool)
 
     module Builder = struct
       type t = T.Path.op_builder C.ptr
@@ -1166,7 +1190,7 @@ module M (F : Ctypes.FOREIGN) = struct
       let add =
         foreign
           "sk_opbuilder_add"
-          C.(t @-> const Path.t @-> T.Path.op @-> returning void)
+          C.(t @-> Path.t @-> T.Path.op @-> returning void)
 
       let resolve =
         foreign "sk_opbuilder_resolve" C.(t @-> Path.t @-> returning bool)
@@ -1187,14 +1211,14 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_path =
       foreign
         "sk_pathmeasure_new_with_path"
-        C.(const Path.t @-> bool @-> float @-> returning t_opt)
+        C.(Path.t @-> bool @-> float @-> returning t_opt)
 
     let delete = foreign "sk_pathmeasure_destroy" C.(t @-> returning void)
 
     let set_path =
       foreign
         "sk_pathmeasure_set_path"
-        C.(t @-> const Path.t @-> bool @-> returning void)
+        C.(t @-> Path.t @-> bool @-> returning void)
 
     let get_length =
       foreign "sk_pathmeasure_get_length" C.(t @-> returning float)
@@ -1218,6 +1242,92 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let next_contour =
       foreign "sk_pathmeasure_next_contour" C.(t @-> returning bool)
+  end
+
+  module PathEffect = struct
+    type t = T.PathEffect.t C.ptr
+
+    let t = C.ptr T.PathEffect.t
+
+    type style = T.PathEffect.style
+
+    let style = T.PathEffect.style
+
+    type trim_mode = T.PathEffect.trim_mode
+
+    let trim_mode = T.PathEffect.trim_mode
+    let unref = foreign "sk_path_effect_unref" C.(t @-> returning void)
+
+    let of_compose =
+      foreign "sk_path_effect_create_compose" C.(t @-> t @-> returning t)
+
+    let of_sum = foreign "sk_path_effect_create_sum" C.(t @-> t @-> returning t)
+
+    let of_discrete =
+      foreign
+        "sk_path_effect_create_discrete"
+        C.(float @-> float @-> uint32_t @-> returning t)
+
+    let of_corner =
+      foreign "sk_path_effect_create_corner" C.(float @-> returning t)
+
+    let of_1d_path =
+      foreign
+        "sk_path_effect_create_1d_path"
+        C.(Path.t @-> float @-> float @-> style @-> returning t)
+
+    let of_2d_line =
+      foreign
+        "sk_path_effect_create_2d_line"
+        C.(float @-> Matrix.t @-> returning t)
+
+    let of_2d_path =
+      foreign
+        "sk_path_effect_create_2d_path"
+        C.(Matrix.t @-> Path.t @-> returning t)
+
+    let of_dash =
+      foreign
+        "sk_path_effect_create_dash"
+        C.(ptr float @-> int @-> float @-> returning t)
+
+    let of_trim =
+      foreign
+        "sk_path_effect_create_trim"
+        C.(float @-> float @-> trim_mode @-> returning t)
+  end
+
+  module Paint = struct
+    type t = T.Paint.t C.ptr
+
+    let t = C.ptr T.Paint.t
+  end
+
+  module Blurstyle = struct
+    type t = T.Blurstyle.t
+
+    let t = T.Blurstyle.t
+  end
+
+  module MaskFilter = struct
+    type t = T.MaskFilter.t C.ptr
+
+    let t = C.ptr T.MaskFilter.t
+    let ref = foreign "sk_maskfilter_ref" C.(t @-> returning void)
+    let unref = foreign "sk_maskfilter_unref" C.(t @-> returning void)
+
+    let of_blur =
+      foreign
+        "sk_maskfilter_new_blur_with_flags"
+        C.(Blurstyle.t @-> float @-> bool @-> returning t)
+
+    let of_gamma = foreign "sk_maskfilter_new_gamma" C.(float @-> returning t)
+
+    let of_clip =
+      foreign "sk_maskfilter_new_clip" C.(uint8_t @-> uint8_t @-> returning t)
+
+    let of_shader =
+      foreign "sk_maskfilter_new_shader" C.(Shader.t @-> returning t)
   end
 
   module ColorSpace = struct
@@ -1248,6 +1358,51 @@ module M (F : Ctypes.FOREIGN) = struct
       info
   end
 
+  module FilterMode = struct
+    type t = T.FilterMode.t
+
+    let t = T.FilterMode.t
+  end
+
+  module MipmapMode = struct
+    type t = T.MipmapMode.t
+
+    let t = T.MipmapMode.t
+  end
+
+  module CubicResampler = struct
+    type t = T.CubicResampler.t
+
+    let t = T.CubicResampler.t
+
+    let make ~b ~c =
+      let cubic = C.make t in
+      C.(
+        setf cubic T.CubicResampler.b b;
+        setf cubic T.CubicResampler.c c);
+      cubic
+
+    let mitchell () = make ~b:(1. /. 3.) ~c:(1. /. 3.)
+    let catmull_rom () = make ~b:0. ~c:(1. /. 2.)
+    let empty () = make ~b:0. ~c:0.
+  end
+
+  module SamplingOptions = struct
+    type t = T.SamplingOptions.t
+
+    let t = T.SamplingOptions.t
+
+    let make ?(max_aniso = 0) ?(use_cubic = false) ~cubic ~filter ~mimmap () =
+      let sampler = C.make t in
+      C.(
+        setf sampler T.SamplingOptions.max_aniso max_aniso;
+        setf sampler T.SamplingOptions.use_cubic use_cubic;
+        setf sampler T.SamplingOptions.cubic cubic;
+        setf sampler T.SamplingOptions.filter filter;
+        setf sampler T.SamplingOptions.mipmap mimmap);
+      sampler
+  end
+
   module Pixmap = struct
     type t = T.Pixmap.t C.ptr
 
@@ -1259,25 +1414,191 @@ module M (F : Ctypes.FOREIGN) = struct
     let make_with_params =
       foreign
         "sk_pixmap_new_with_params"
-        C.(
-          const ImageInfo.t @-> const (ptr void) @-> size_t @-> returning t_opt)
+        C.(ImageInfo.t @-> ptr void @-> size_t @-> returning t_opt)
 
     let reset = foreign "sk_pixmap_reset" C.(t @-> returning void)
 
     let reset_with_params =
       foreign
         "sk_pixmap_reset_with_params"
-        C.(
-          t
-          @-> const ImageInfo.t
-          @-> const (ptr void)
-          @-> size_t
-          @-> returning void)
+        C.(t @-> ImageInfo.t @-> ptr void @-> size_t @-> returning void)
 
     let set_colorspace =
       foreign
         "sk_pixmap_set_colorspace"
         C.(t @-> ColorSpace.t @-> returning void)
+
+    let get_colorspace =
+      foreign
+        "sk_pixmap_get_colorspace"
+        C.(t @-> returning (ptr_opt T.ColorSpace.t))
+
+    let extract_subset =
+      foreign
+        "sk_pixmap_extract_subset"
+        C.(t @-> t @-> IRect.t @-> returning bool)
+
+    let get_info =
+      foreign "sk_pixmap_get_info" C.(t @-> ImageInfo.t @-> returning void)
+
+    let get_row_bytes =
+      foreign "sk_pixmap_get_row_bytes" C.(t @-> returning size_t)
+
+    let compute_is_opaque =
+      foreign "sk_pixmap_compute_is_opaque" C.(t @-> returning bool)
+
+    let get_pixel_color =
+      foreign
+        "sk_pixmap_get_pixel_color"
+        C.(t @-> int @-> int @-> returning Color.t)
+
+    let get_pixel_color4f =
+      foreign
+        "sk_pixmap_get_pixel_color4f"
+        C.(t @-> int @-> int @-> Color4f.t @-> returning void)
+
+    let get_pixel_alphaf =
+      foreign
+        "sk_pixmap_get_pixel_alphaf"
+        C.(t @-> int @-> int @-> returning float)
+
+    let get_writable_addr =
+      foreign "sk_pixmap_get_writable_addr" C.(t @-> returning (ptr void))
+
+    let get_writable_addr_at =
+      foreign
+        "sk_pixmap_get_writeable_addr_with_xy"
+        C.(t @-> int @-> int @-> returning (ptr void))
+
+    let read_pixels =
+      foreign
+        "sk_pixmap_read_pixels"
+        C.(
+          t
+          @-> ImageInfo.t
+          @-> ptr void
+          @-> size_t
+          @-> int
+          @-> int
+          @-> returning bool)
+
+    let scale_pixels =
+      foreign
+        "sk_pixmap_scale_pixels"
+        C.(t @-> t @-> ptr SamplingOptions.t @-> returning bool)
+
+    let erase =
+      foreign
+        "sk_pixmap_erase_color"
+        C.(t @-> Color.t @-> IRect.t @-> returning bool)
+
+    let erase_4f =
+      foreign
+        "sk_pixmap_erase_color4f"
+        C.(t @-> Color4f.t @-> IRect.t @-> returning bool)
+  end
+
+  module Bitmap = struct
+    type t = T.Bitmap.t C.ptr
+
+    let t = C.ptr T.Bitmap.t
+    let release_proc = C.static_funptr T.Bitmap.release_proc
+    let delete = foreign "sk_bitmap_destructor" C.(t @-> returning void)
+    let make = foreign "sk_bitmap_new" C.(void @-> returning t)
+
+    let get_info =
+      foreign "sk_bitmap_get_info" C.(t @-> ImageInfo.t @-> returning void)
+
+    let get_pixels =
+      foreign
+        "sk_bitmap_get_pixels"
+        C.(t @-> ptr size_t @-> returning (ptr void))
+
+    let get_row_bytes =
+      foreign "sk_bitmap_get_row_bytes" C.(t @-> returning size_t)
+
+    let get_row_byte_count =
+      foreign "sk_bitmap_get_byte_count" C.(t @-> returning size_t)
+
+    let reset = foreign "sk_bitmap_reset" C.(t @-> returning void)
+    let is_null = foreign "sk_bitmap_is_null" C.(t @-> returning bool)
+    let is_immutable = foreign "sk_bitmap_is_immutable" C.(t @-> returning bool)
+
+    let set_immutable =
+      foreign "sk_bitmap_set_immutable" C.(t @-> returning void)
+
+    let erase = foreign "sk_bitmap_erase" C.(t @-> Color.t @-> returning void)
+
+    let erase_rect =
+      foreign
+        "sk_bitmap_erase_rect"
+        C.(t @-> Color.t @-> IRect.t @-> returning void)
+
+    let get_addr_8 =
+      foreign
+        "sk_bitmap_get_addr_8"
+        C.(t @-> int @-> int @-> returning (ptr uint8_t))
+
+    let get_addr_16 =
+      foreign
+        "sk_bitmap_get_addr_16"
+        C.(t @-> int @-> int @-> returning (ptr uint16_t))
+
+    let get_addr_32 =
+      foreign
+        "sk_bitmap_get_addr_32"
+        C.(t @-> int @-> int @-> returning (ptr uint32_t))
+
+    let get_addr =
+      foreign
+        "sk_bitmap_get_addr"
+        C.(t @-> int @-> int @-> returning (ptr void))
+
+    let get_pixel_color =
+      foreign
+        "sk_bitmap_get_pixel_color"
+        C.(t @-> int @-> int @-> returning Color.t)
+
+    let ready_to_draw =
+      foreign "sk_bitmap_ready_to_draw" C.(t @-> returning bool)
+
+    let install_pixels =
+      foreign
+        "sk_bitmap_install_pixels"
+        C.(
+          t
+          @-> ImageInfo.t
+          @-> ptr void
+          @-> size_t
+          @-> release_proc
+          @-> ptr void
+          @-> returning bool)
+
+    let install_pixels_with_pixmap =
+      foreign
+        "sk_bitmap_install_pixels_with_pixmap"
+        C.(t @-> Pixmap.t @-> returning bool)
+
+    let try_alloc_pixels =
+      foreign
+        "sk_bitmap_try_alloc_pixels"
+        C.(t @-> ImageInfo.t @-> size_t @-> returning bool)
+
+    let try_alloc_pixels_with_flags =
+      foreign
+        "sk_bitmap_try_alloc_pixels_with_flags"
+        C.(t @-> ImageInfo.t @-> uint32_t @-> returning bool)
+
+    let set_pixels =
+      foreign "sk_bitmap_set_pixels" C.(t @-> ptr void @-> returning void)
+
+    let peek_pixels =
+      foreign "sk_bitmap_peek_pixels" C.(t @-> Pixmap.t @-> returning bool)
+
+    let extract_subset =
+      foreign
+        "sk_bitmap_extract_subset"
+        C.(t @-> t @-> IRect.t @-> returning bool)
   end
 
   module Image = struct
@@ -1291,10 +1612,9 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_raster_copy =
       foreign
         "sk_image_new_raster_copy"
-        C.(
-          const ImageInfo.t @-> const (ptr void) @-> size_t @-> returning t_opt)
+        C.(ImageInfo.t @-> ptr void @-> size_t @-> returning t_opt)
 
     let of_encoded =
-      foreign "sk_image_new_from_encoded" C.(const Data.t @-> returning t_opt)
+      foreign "sk_image_new_from_encoded" C.(Data.t @-> returning t_opt)
   end
 end
