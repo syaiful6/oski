@@ -2,4 +2,8 @@
  (name oski_bindings)
  (synopsis "Ctypes bindings that describe the SKIA FFI")
  (public_name oski.bindings)
- (libraries oski.types ctypes.stubs ctypes))
+ (libraries oski.types ctypes.stubs ctypes)
+ (preprocess
+  (pps ppx_optcomp))
+ (preprocessor_deps
+  (file ../../config/config.h)))

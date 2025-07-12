@@ -144,6 +144,32 @@ module M (F : Ctypes.TYPE) = struct
     let t : t structure typ = structure "sk_surfaceprops_t"
   end
 
+  module Highcontrastconfig = struct
+    type invert_style =
+      [ `No_invert
+      | `Invert_brightness
+      | `Invert_lightness
+      ]
+
+    let invert_style : invert_style typ =
+      skia_c_enum
+        "HIGH_CONTRAST_CONFIG_INVERT_STYLE"
+        "sk_highcontrastconfig_invertstyle_t"
+        [ `No_invert, "NO_INVERT"
+        ; `Invert_brightness, "INVERT_BRIGHTNESS"
+        ; `Invert_lightness, "INVERT_LIGHTNESS"
+        ]
+
+    type t
+
+    let t : t structure typ = structure "sk_highcontrastconfig_t"
+    let t = typedef t "sk_highcontrastconfig_t"
+    let grayscale = field t "fGrayscale" bool
+    let invert_style_field = field t "fInvertStyle" invert_style
+    let contrast = field t "fContrast" float
+    let () = seal t
+  end
+
   module Point = struct
     type t
 
@@ -311,16 +337,10 @@ module M (F : Ctypes.TYPE) = struct
         [ `Normal, "NORMAL"; `Solid, "SOLID"; `Outer, "OUTER"; `Inner, "INNER" ]
   end
 
-  module Canvas = struct
-    type t
-
-    let t : t structure typ = structure "sk_canvas_t"
-  end
-
   module Drawable = struct
     type t
 
-    let t : t structure typ = structure "sk_drawable"
+    let t : t structure typ = structure "sk_drawable_t"
   end
 
   module Image = struct
@@ -642,7 +662,7 @@ module M (F : Ctypes.TYPE) = struct
 
     type set
 
-    let set : set structure typ = F.structure "sk_fontstyleset_t"
+    let set : set structure typ = structure "sk_fontstyleset_t"
     let set = typedef set "sk_fontstyleset_t"
   end
 
@@ -821,7 +841,13 @@ module M (F : Ctypes.TYPE) = struct
   module Data = struct
     type t
 
-    let t : t structure F.typ = F.structure "sk_data_t"
+    let t : t structure typ = structure "sk_data_t"
+  end
+
+  module String = struct
+    type t
+
+    let t : t structure typ = structure "sk_string_t"
   end
 
   module Stream = struct
@@ -866,6 +892,41 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_document_t"
+
+    type pdf_datetime
+
+    let pdf_datetime : pdf_datetime structure typ =
+      structure "sk_document_pdf_datetime_t"
+
+    let pdf_datetime = typedef pdf_datetime "sk_document_pdf_datetime_t"
+    let time_zone_minutes = field pdf_datetime "fTimeZoneMinutes" int16_t
+    let year = field pdf_datetime "fYear" uint16_t
+    let month = field pdf_datetime "fMonth" uint8_t
+    let day_of_week = field pdf_datetime "fDayOfWeek" uint8_t
+    let day = field pdf_datetime "fDay" uint8_t
+    let hour = field pdf_datetime "fHour" uint8_t
+    let minute = field pdf_datetime "fMinute" uint8_t
+    let second = field pdf_datetime "fSecond" uint8_t
+    let () = seal pdf_datetime
+
+    type pdf_metadata
+
+    let pdf_metadata : pdf_metadata structure typ =
+      structure "sk_document_pdf_metadata_t"
+
+    let pdf_metadata = typedef pdf_metadata "sk_document_pdf_metadata_t"
+    let title = field pdf_metadata "fTitle" (ptr String.t)
+    let author = field pdf_metadata "fAuthor" (ptr String.t)
+    let subject = field pdf_metadata "fSubject" (ptr String.t)
+    let keywords = field pdf_metadata "fKeywords" (ptr String.t)
+    let creator = field pdf_metadata "fCreator" (ptr String.t)
+    let producer = field pdf_metadata "fProducer" (ptr String.t)
+    let creation = field pdf_metadata "fCreation" (ptr pdf_datetime)
+    let modified = field pdf_metadata "fModified" (ptr pdf_datetime)
+    let raster_dpi = field pdf_metadata "fRasterDPI" float
+    let pdfa = field pdf_metadata "fPDFA" bool
+    let encoding_quality = field pdf_metadata "fEncodingQuality" int
+    let () = seal pdf_metadata
   end
 
   module Point_mode = struct
@@ -880,12 +941,6 @@ module M (F : Ctypes.TYPE) = struct
         "POINT_MODE"
         "sk_point_mode_t"
         [ `Points, "POINTS"; `Lines, "LINES"; `Polygon, "POLYGON" ]
-  end
-
-  module String = struct
-    type t
-
-    let t : t structure typ = structure "sk_string_t"
   end
 
   module Font = struct
@@ -905,6 +960,21 @@ module M (F : Ctypes.TYPE) = struct
         "FONT_HINTING"
         "sk_font_hinting_t"
         [ `nohint, "NONE"; `slight, "SLIGHT"; `normal, "NORMAL"; `full, "FULL" ]
+
+    type edging =
+      [ `Alias
+      | `Antialias
+      | `Subpixel_antialias
+      ]
+
+    let edging : edging typ =
+      skia_c_enum
+        "FONT_EDGING"
+        "sk_font_edging_t"
+        [ `Alias, "ALIAS"
+        ; `Antialias, "ANTIALIAS"
+        ; `Subpixel_antialias, "SUBPIXEL_ANTIALIAS"
+        ]
   end
 
   module Typeface = struct
@@ -1005,7 +1075,6 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "sk_bitmap_t"
-    let release_proc = ptr void @-> ptr void @-> returning void
   end
 
   module Pixmap = struct
@@ -1036,5 +1105,284 @@ module M (F : Ctypes.TYPE) = struct
     type t
 
     let t : t structure typ = structure "oski_svgdom_t"
+  end
+
+  module Text_blob = struct
+    type t
+
+    let t : t structure typ = structure "sk_textblob_t"
+  end
+
+  module Text_blob_builder = struct
+    type t
+
+    let t : t structure typ = structure "sk_textblob_builder_t"
+  end
+
+  module Shaper = struct
+    type t
+
+    let t : t structure typ = structure "sk_shaper_t"
+  end
+
+  module Size = struct
+    type t
+
+    let t : t structure typ = structure "sk_size_t"
+    let t = typedef t "sk_size_t"
+    let w = field t "w" float
+    let h = field t "h" float
+    let () = seal t
+  end
+
+  module ISize = struct
+    type t
+
+    let t : t structure typ = structure "sk_isize_t"
+    let t = typedef t "sk_isize_t"
+    let w = field t "w" int32_t
+    let h = field t "h" int32_t
+    let () = seal t
+  end
+
+  module IPoint = struct
+    type t
+
+    let t : t structure typ = structure "sk_ipoint_t"
+    let t = typedef t "sk_ipoint_t"
+    let x = field t "x" int32_t
+    let y = field t "y" int32_t
+    let () = seal t
+  end
+
+  module Vertices = struct
+    type t
+
+    let t : t structure typ = structure "sk_vertices_t"
+
+    type vertex_mode =
+      [ `Triangles
+      | `Triangle_strip
+      | `Triangle_fan
+      ]
+
+    let vertex_mode : vertex_mode typ =
+      skia_c_enum
+        "VERTICES_VERTEX_MODE"
+        "sk_vertices_vertex_mode_t"
+        [ `Triangles, "TRIANGLES"
+        ; `Triangle_strip, "TRIANGLE_STRIP"
+        ; `Triangle_fan, "TRIANGLE_FAN"
+        ]
+  end
+
+  module RSXform = struct
+    type t
+
+    let t : t structure typ = structure "sk_rsxform_t"
+    let t = typedef t "sk_rsxform_t"
+    let scos = field t "fSCos" float
+    let ssin = field t "fSSin" float
+    let tx = field t "fTX" float
+    let ty = field t "fTY" float
+    let () = seal t
+  end
+
+  module Lattice = struct
+    type rect_type =
+      [ `Default
+      | `Transparent
+      | `Fixed_color
+      ]
+
+    let rect_type : rect_type typ =
+      skia_c_enum
+        "LATTICE_RECT_TYPE"
+        "sk_lattice_recttype_t"
+        [ `Default, "DEFAULT"
+        ; `Transparent, "TRANSPARENT"
+        ; `Fixed_color, "FIXED_COLOR"
+        ]
+
+    type t
+
+    let t : t structure typ = structure "sk_lattice_t"
+    let t = typedef t "sk_lattice_t"
+    let x_divs = field t "fXDivs" (ptr int)
+    let y_divs = field t "fYDivs" (ptr int)
+    let rect_types = field t "fRectTypes" (ptr rect_type)
+    let x_count = field t "fXCount" int
+    let y_count = field t "fYCount" int
+    let bounds = field t "fBounds" (ptr IRect.t)
+    let colors = field t "fColors" (ptr Color.t)
+    let () = seal t
+  end
+
+  module Clip_op = struct
+    type t =
+      [ `Difference
+      | `Intersect
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "CLIPOP"
+        "sk_clipop_t"
+        [ `Difference, "DIFFERENCE"; `Intersect, "INTERSECT" ]
+  end
+
+  module Encoded_image_format = struct
+    type t =
+      [ `Bmp
+      | `Gif
+      | `Ico
+      | `Jpeg
+      | `Png
+      | `Wbmp
+      | `Webp
+      | `Pkm
+      | `Ktx
+      | `Astc
+      | `Dng
+      | `Heif
+      | `Avif
+      | `Jpegxl
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "ENCODED_FORMAT"
+        "sk_encoded_image_format_t"
+        [ `Bmp, "BMP"
+        ; `Gif, "GIF"
+        ; `Ico, "ICO"
+        ; `Jpeg, "JPEG"
+        ; `Png, "PNG"
+        ; `Wbmp, "WBMP"
+        ; `Webp, "WEBP"
+        ; `Pkm, "PKM"
+        ; `Ktx, "KTX"
+        ; `Astc, "ASTC"
+        ; `Dng, "DNG"
+        ; `Heif, "HEIF"
+        ; `Avif, "AVIF"
+        ; `Jpegxl, "JPEGXL"
+        ]
+  end
+
+  module Image_caching_hint = struct
+    type t =
+      [ `Allow
+      | `Disallow
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "IMAGE_CACHING_HINT"
+        "sk_image_caching_hint_t"
+        [ `Allow, "ALLOW"; `Disallow, "DISALLOW" ]
+  end
+
+  module Runtime_effect = struct
+    type t
+
+    let t : t structure typ = structure "sk_runtimeeffect_t"
+
+    type uniform_type =
+      [ `Float
+      | `Float2
+      | `Float3
+      | `Float4
+      | `Float2x2
+      | `Float3x3
+      | `Float4x4
+      | `Int
+      | `Int2
+      | `Int3
+      | `Int4
+      ]
+
+    let uniform_type : uniform_type typ =
+      skia_c_enum
+        "RUNTIMEEFFECT_UNIFORM_TYPE"
+        "sk_runtimeeffect_uniform_type_t"
+        [ `Float, "FLOAT"
+        ; `Float2, "FLOAT2"
+        ; `Float3, "FLOAT3"
+        ; `Float4, "FLOAT4"
+        ; `Float2x2, "FLOAT2X2"
+        ; `Float3x3, "FLOAT3X3"
+        ; `Float4x4, "FLOAT4X4"
+        ; `Int, "INT"
+        ; `Int2, "INT2"
+        ; `Int3, "INT3"
+        ; `Int4, "INT4"
+        ]
+
+    type child_type =
+      [ `Shader
+      | `Color_filter
+      | `Blender
+      ]
+
+    let child_type : child_type typ =
+      skia_c_enum
+        "RUNTIMEEFFECT_CHILD_TYPE"
+        "sk_runtimeeffect_child_type_t"
+        [ `Shader, "SHADER"
+        ; `Color_filter, "COLOR_FILTER"
+        ; `Blender, "BLENDER"
+        ]
+
+    type uniform_flags = Unsigned.uint32
+
+    let uniform_flags = uint32_t
+
+    type uniform
+
+    let uniform : uniform structure typ = structure "sk_runtimeeffect_uniform_t"
+    let uniform = typedef uniform "sk_runtimeeffect_uniform_t"
+    let name = field uniform "fName" string
+    let name_length = field uniform "fNameLength" size_t
+    let offset = field uniform "fOffset" size_t
+    let uniform_type_field = field uniform "fType" uniform_type
+    let count = field uniform "fCount" int
+    let flags = field uniform "fFlags" uniform_flags
+    let () = seal uniform
+
+    type child
+
+    let child : child structure typ = structure "sk_runtimeeffect_child_t"
+    let child = typedef child "sk_runtimeeffect_child_t"
+    let child_name = field child "fName" string
+    let child_name_length = field child "fNameLength" size_t
+    let child_type_field = field child "fType" child_type
+    let index = field child "fIndex" int
+    let () = seal child
+  end
+
+  (* Canvas moved to end to resolve dependencies *)
+
+  (* Define Canvas module after all dependencies are available *)
+  module Canvas = struct
+    type t
+
+    let t : t structure typ = structure "sk_canvas_t"
+
+    type save_layer_rec_flags = Unsigned.uint32
+
+    let save_layer_rec_flags = uint32_t
+
+    type save_layer_rec
+
+    let save_layer_rec : save_layer_rec structure typ =
+      structure "sk_canvas_savelayerrec_t"
+
+    let save_layer_rec = typedef save_layer_rec "sk_canvas_savelayerrec_t"
+    let bounds = field save_layer_rec "fBounds" (ptr Rect.t)
+    let paint = field save_layer_rec "fPaint" (ptr Paint.t)
+    let backdrop = field save_layer_rec "fBackdrop" (ptr Image_filter.t)
+    let flags = field save_layer_rec "fFlags" save_layer_rec_flags
+    let () = seal save_layer_rec
   end
 end

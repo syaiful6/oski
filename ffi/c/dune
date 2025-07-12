@@ -16,9 +16,16 @@
    %{deps})))
 
 (rule
+ (targets config.h)
+ (deps ../../config/config.h)
+ (action
+  (copy %{deps} %{targets})))
+
+(rule
  (targets bindings%{ext_obj})
  (deps
   oski_types.h
+  config.h
   (:cpp bindings.h bindings.cpp)
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
@@ -29,6 +36,7 @@
  (targets svgdom%{ext_obj})
  (deps
   oski_types.h
+  config.h
   (:cpp svgdom.h svgdom.cpp)
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
@@ -39,6 +47,7 @@
  (targets c_stubs%{ext_obj})
  (deps
   oski_types.h
+  config.h
   (:c c_stubs.h c_stubs.c)
   ../../vendor/prefix/skia/lib
   ../../config/cxx_flags.sexp)
