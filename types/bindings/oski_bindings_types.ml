@@ -1361,9 +1361,6 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal child
   end
 
-  (* Canvas moved to end to resolve dependencies *)
-
-  (* Define Canvas module after all dependencies are available *)
   module Canvas = struct
     type t
 
