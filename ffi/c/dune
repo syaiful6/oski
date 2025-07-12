@@ -5,22 +5,15 @@
  (foreign_archives oskic))
 
 (rule
- (targets liboskic.a)
- (deps bindings%{ext_obj} svgdom%{ext_obj} c_stubs%{ext_obj})
- (action
-  (run ar rcs %{targets} %{deps})))
-
-(rule
- (targets dlloskic.so)
+ (targets liboskic%{ext_lib} dlloskic%{ext_dll})
  (deps bindings%{ext_obj} svgdom%{ext_obj} c_stubs%{ext_obj})
  (action
   (run
-   %{cc}
-   -shared
+   ocamlmklib
    -o
-   %{targets}
-   %{deps}
-   %{read-lines:../../config/cxx_library_flags.txt})))
+   oskic
+   %{read-lines:../../config/cxx_library_flags.txt}
+   %{deps})))
 
 (rule
  (targets bindings%{ext_obj})
