@@ -112,9 +112,7 @@ let get_feature_flags () =
 
 let get_config_header conf os features =
   let open Configurator.C_define in
-  let includes value =
-    Value.Switch (List.exists (( = ) value) features)
-  in
+  let includes value = Value.Switch (List.exists (( = ) value) features) in
   let os_str =
     match os with
     | Android -> "android"
@@ -204,8 +202,7 @@ let c_library_flags prefix = function
 
 let cxx_library_flags vendor os =
   match os with
-  | IOS | Mac ->
-    [] @ c_library_flags vendor os @ [ "-stdlib=libc++"; "-lc++"; "-lc++abi" ]
+  | IOS | Mac -> [] @ c_library_flags vendor os @ [ "-lc++"; "-lc++abi" ]
   | Linux | Android -> [] @ c_library_flags vendor os @ [ "-static-libstdc++" ]
   | _ -> c_library_flags vendor os (* Adjust for Windows/IOS if needed *)
 
