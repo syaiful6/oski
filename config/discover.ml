@@ -5,7 +5,13 @@ type os =
   | Mac
   | Windows
 
+type feature =
+  | Text_shaping
+  | SVG
+
 module Configurator = Configurator.V1
+
+let str_true x = x = "1" || x = "yes" || x = "true" || x = "on"
 
 let find_xcode_sysroot sdk =
   let ic =
@@ -94,18 +100,67 @@ let cxxflags vendor os =
     @ [ "-std=c++17" ]
   | Windows -> [] @ skia_include_flags vendor @ [ "/std:c++17" ]
 
-let skia_lib_flags =
-  [ "-lskia"; "-lsvg"; "-lskottie"; "-lskshaper"; "-lskunicode" ]
+let get_feature_flags () =
+  []
+  @ (match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
+    | Some flag when str_true flag -> [ Text_shaping ]
+    | _ -> [])
+  @
+  match Sys.getenv_opt "SKIA_ENABLE_SVG" with
+  | Some flag when str_true flag -> [ SVG ]
+  | _ -> []
+
+let get_config_header conf os features =
+  let open Configurator.C_define in
+  let includes value =
+    Value.Switch (List.exists (( = ) value) features)
+  in
+  let os_str =
+    match os with
+    | Android -> "android"
+    | IOS -> "ios"
+    | Linux -> "linux"
+    | Mac -> "mac"
+    | Windows -> "windows"
+  in
+  let is_os os_b = Value.Switch (os = os_b) in
+  gen_header_file
+    conf
+    [ "PLATFORM_NAME", Value.String os_str
+    ; "ENABLE_TEXT_SHAPING", includes Text_shaping
+    ; "ENABLE_SVG", includes SVG
+    ; "IS_OS", is_os IOS
+    ; "IS_MACOS", is_os Mac
+    ; "IS_ANDROID", is_os Android
+    ; "IS_LINUX", is_os Linux
+    ; "IS_WINDOWS", is_os Windows
+    ]
+
+let skia_lib_flags () =
+  let base_libs = [ "-lskia" ] in
+  let text_shaping_libs =
+    match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
+    | Some flag when str_true flag ->
+      [ "-lskshaper"; "-lskunicode"; "-lskparagraph" ]
+    | _ -> []
+  in
+  let svg_libs =
+    match Sys.getenv_opt "SKIA_ENABLE_SVG" with
+    | Some flag when str_true flag -> [ "-lsvg"; "-lskresources" ]
+    | _ -> []
+  in
+  (*TODO: remove duplicate libs *)
+  base_libs @ text_shaping_libs @ svg_libs
 
 (* Library flags for linking (plain strings for clang) *)
 let c_library_flags prefix = function
   | Android ->
     []
-    @ skia_lib_flags
+    @ skia_lib_flags ()
     @ [ "-lGLESv2"; "-llog"; "-landroid"; "-L" ^ skia_lib_path prefix ]
   | IOS ->
     []
-    @ skia_lib_flags
+    @ skia_lib_flags ()
     @ [ "-framework"
       ; "CoreFoundation"
       ; "-framework"
@@ -120,7 +175,7 @@ let c_library_flags prefix = function
       ]
   | Mac ->
     []
-    @ skia_lib_flags
+    @ skia_lib_flags ()
     @ [ "-framework"
       ; "ApplicationServices"
       ; "-framework"
@@ -135,11 +190,11 @@ let c_library_flags prefix = function
       ]
   | Linux ->
     []
-    @ skia_lib_flags
+    @ skia_lib_flags ()
     @ [ "-lfontconfig"; "-lGL"; "-L" ^ skia_lib_path prefix ]
   | Windows ->
     []
-    @ skia_lib_flags
+    @ skia_lib_flags ()
     @ [ "-lopengl32"
       ; "-lgdi32"
       ; "-luser32"
@@ -165,6 +220,10 @@ let () =
 
   Configurator.main ~args ~name:"skia" (fun conf ->
     let os = get_os conf in
+    let feature_flags = get_feature_flags () in
+    (* Write feature config for ppx_optcomp *)
+    get_config_header conf os feature_flags ~fname:"config.h";
+
     Configurator.Flags.write_sexp "flags.sexp" (flags !vendor os);
     Configurator.Flags.write_lines "c_flags.txt" (cflags !vendor os);
     Configurator.Flags.write_sexp "c_flags.sexp" (cflags !vendor os);

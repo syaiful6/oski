@@ -25,10 +25,10 @@ GIT_SYNC_DEPS_FILE="$5"
 
 # --- Argument Validation ---
 if [ -z "$OS_NAME" ] || [ -z "$ARCH_NAME" ] || [ -z "$LIB_EXT" ] || [ -z "$GN_ARGS_FILE" ] || [ -z "$GIT_SYNC_DEPS_FILE" ]; then
-    echo "Error: Missing arguments."
-    echo "Usage: $0 <os_name> <arch_name> <lib_ext> <gn_args_file> <git_sync_deps_file>"
-    echo "Example: $0 mac x64 a config/gn_args.txt DEPS"
-    exit 1
+  echo "Error: Missing arguments."
+  echo "Usage: $0 <os_name> <arch_name> <lib_ext> <gn_args_file> <git_sync_deps_file>"
+  echo "Example: $0 mac x64 a config/gn_args.txt DEPS"
+  exit 1
 fi
 
 echo "--- Starting Skia Source Build ---"
@@ -39,16 +39,17 @@ echo "GN Args File: $GN_ARGS_FILE, Git Sync DEPS File: $GIT_SYNC_DEPS_FILE"
 SKIA_SRC_DIR="${SKIA_SRC_DIR:-"skia"}" # Path to the cloned Skia repository, default to skia
 SKIA_RELATIVE_DIR="out/$OS_NAME/$ARCH_NAME"
 SKIA_OUT_DIR="$SKIA_SRC_DIR/$SKIA_RELATIVE_DIR" # Ninja build output directory
-SKIA_PREFIX_INSTALL_ROOT="prefix/skia"   # Final installation directory for Skia artifacts
+SKIA_PREFIX_INSTALL_ROOT="prefix/skia"          # Final installation directory for Skia artifacts
 
-# Environment variable to control SkShaper (from original build-vendor.sh)
+# Environment variables to control features (from original build-vendor.sh)
 SKIA_ENABLE_SHAPING="${SKIA_ENABLE_SHAPING:-}" # Default to empty string if not set
+SKIA_ENABLE_SVG="${SKIA_ENABLE_SVG:-}"         # Default to empty string if not set
 
 # --- Step 0: Ensure Skia source is present and synced ---
 echo "Syncing Skia dependencies using git-sync-deps..."
 if [ ! -d "$SKIA_SRC_DIR" ]; then
-    echo "Error: Skia source directory '$SKIA_SRC_DIR' not found. Please clone Skia."
-    exit 1
+  echo "Error: Skia source directory '$SKIA_SRC_DIR' not found. Please clone Skia."
+  exit 1
 fi
 
 # Copy the DEPS file into the Skia directory as OSKI_DEPS,
@@ -57,30 +58,40 @@ OSKI_DEPS_IN_SKIA="$SKIA_SRC_DIR/OSKI_DEPS"
 echo "Copying $GIT_SYNC_DEPS_FILE to $OSKI_DEPS_IN_SKIA..."
 cp "$GIT_SYNC_DEPS_FILE" "$OSKI_DEPS_IN_SKIA"
 
-(cd "$SKIA_SRC_DIR" && \
- export GIT_SYNC_DEPS_PATH="OSKI_DEPS" && \
- echo "Running python3 tools/git-sync-deps (GIT_SYNC_DEPS_PATH=$GIT_SYNC_DEPS_PATH)" && \
- python3 tools/git-sync-deps)
+(cd "$SKIA_SRC_DIR" &&
+  export GIT_SYNC_DEPS_PATH="OSKI_DEPS" &&
+  echo "Running python3 tools/git-sync-deps (GIT_SYNC_DEPS_PATH=$GIT_SYNC_DEPS_PATH)" &&
+  python3 tools/git-sync-deps)
 
 # --- Step 1: Generate Ninja build files using GN ---
 echo "Generating Ninja build files with GN..."
 if [ ! -f "$GN_ARGS_FILE" ]; then
-    echo "Error: GN arguments file '$GN_ARGS_FILE' not found."
-    exit 1
+  echo "Error: GN arguments file '$GN_ARGS_FILE' not found."
+  exit 1
 fi
 GN_ARGS=$(cat "$GN_ARGS_FILE")
 mkdir -p "$SKIA_OUT_DIR" # Ensure the output directory exists before GN runs
-(cd "$SKIA_SRC_DIR" && \
+(cd "$SKIA_SRC_DIR" &&
   bin/gn gen "$SKIA_RELATIVE_DIR" --args="$GN_ARGS")
 
 # --- Step 2: Prepare Ninja targets and copy lists (from original build-vendor.sh) ---
-NINJA_TARGETS="skia modules/skottie modules/svg"
-COPY_LIBS_BASE="libskia libsvg libskottie libskresources libsksg libskshaper libskunicode"
+NINJA_TARGETS="skia"
+COPY_LIBS_BASE="libskia libskottie libsksg"
 
-if [[ "$SKIA_ENABLE_SHAPING" = "1" || "$SKIA_ENABLE_SHAPING" = "yes" ]]; then
+# Conditional SVG support
+if [[ "$SKIA_ENABLE_SVG" = "1" || "$SKIA_ENABLE_SVG" = "yes" || "$SKIA_ENABLE_SVG" = "on" ]]; then
+  echo "SKIA_ENABLE_SVG is enabled. Including SVG modules."
+  NINJA_TARGETS="$NINJA_TARGETS modules/svg"
+  COPY_LIBS_BASE="$COPY_LIBS_BASE libsvg libskresources"
+else
+  echo "SKIA_ENABLE_SVG is disabled. Excluding SVG modules."
+fi
+
+# Conditional text shaping support
+if [[ "$SKIA_ENABLE_SHAPING" = "1" || "$SKIA_ENABLE_SHAPING" = "yes" || "$SKIA_ENABLE_SHAPING" = "on" ]]; then
   echo "SKIA_ENABLE_SHAPING is enabled. Including SkShaper."
   NINJA_TARGETS="$NINJA_TARGETS modules/skshaper modules/skparagraph"
-  COPY_LIBS_BASE="$COPY_LIBS_BASE libskparagraph"
+  COPY_LIBS_BASE="$COPY_LIBS_BASE libskshaper libskunicode libskparagraph"
 else
   echo "SKIA_ENABLE_SHAPING is disabled. Excluding SkShaper."
 fi
@@ -119,7 +130,7 @@ find "$SKIA_SRC_DIR"/modules/ -maxdepth 2 -type d -name "include" -print0 | whil
   relative_path_from_skia_root="${module_include_dir_path#$SKIA_SRC_DIR/}"
   dest_dir="${SKIA_PREFIX_INSTALL_ROOT}/${relative_path_from_skia_root}"
 
-  mkdir -p "$dest_dir" # Create the destination module include directory
+  mkdir -p "$dest_dir"                              # Create the destination module include directory
   cp -r "${module_include_dir_path}"/* "$dest_dir"/ # Copy header files
 done
 

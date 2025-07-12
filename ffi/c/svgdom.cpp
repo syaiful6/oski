@@ -1,5 +1,5 @@
 #include "svgdom.h"
-
+#ifdef ENABLE_SVG
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
@@ -34,3 +34,4 @@ void oski_svgdom_ref(const oski_svgdom_t *svg) {
 void oski_svgdom_unref(const oski_svgdom_t *svg) {
   SkSafeUnref(reinterpret_cast<const SkSVGDOM *>(svg));
 }
+#endif

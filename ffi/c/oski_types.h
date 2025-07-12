@@ -22,6 +22,7 @@
 
 OSKI_PLUS_PLUS_BEGIN_GUARD
 
+#include "config.h"
 #include "include/c/sk_types.h"
 
 // for SkV4 binding to C++ structure

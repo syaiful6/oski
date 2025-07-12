@@ -129,37 +129,46 @@ module GnArgs = struct
     target_args @ t.args @ cflags @ ldflags
 
   let setup_args t =
-    ( t
-    |> arg ~name:"is_official_build" "true"
-    |> arg ~name:"is_debug" "false"
-    |> arg ~name:"is_component_build" "false"
-    |> arg ~name:"skia_enable_tools" "false"
-    |> arg ~name:"skia_enable_svg" "true"
-    |> arg ~name:"skia_use_piex" "true"
-    |> arg ~name:"skia_use_sfntly" "false"
-    |> arg ~name:"skia_use_system_expat" "false"
-    |> arg ~name:"skia_use_system_libjpeg_turbo" "false"
-    |> arg ~name:"skia_use_system_libpng" "false"
-    |> arg ~name:"skia_use_system_libwebp" "false"
-    |> arg ~name:"skia_use_system_zlib" "false"
-    |> arg ~name:"skia_enable_skottie" "true"
-    |> arg ~name:"skia_enable_pdf" "true"
-    (* Text layout / sharping *)
+    ( ( t
+      |> arg ~name:"is_official_build" "true"
+      |> arg ~name:"is_debug" "false"
+      |> arg ~name:"is_component_build" "false"
+      |> arg ~name:"skia_enable_tools" "false"
+      |> arg ~name:"skia_use_piex" "true"
+      |> arg ~name:"skia_use_sfntly" "false"
+      |> arg ~name:"skia_use_system_expat" "false"
+      |> arg ~name:"skia_use_system_libjpeg_turbo" "false"
+      |> arg ~name:"skia_use_system_libpng" "false"
+      |> arg ~name:"skia_use_system_libwebp" "false"
+      |> arg ~name:"skia_use_system_zlib" "false"
+      |> arg ~name:"skia_enable_pdf" "true"
+      (* Text layout / sharping *)
+      |> fun t ->
+        match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
+        | Some x when str_true x ->
+          t
+          |> arg ~name:"skia_enable_skshaper" "true"
+          |> arg ~name:"skia_use_icu" "true"
+          |> arg ~name:"skia_use_system_icu" "false"
+          |> arg ~name:"skia_use_harfbuzz" "true"
+          |> arg ~name:"skia_pdf_subset_harfbuzz" "true"
+          |> arg ~name:"skia_use_system_harfbuzz" "false"
+          |> arg ~name:"skia_enable_skparagraph" "true"
+        | _ ->
+          t
+          |> arg ~name:"skia_use_icu" "false"
+          |> arg ~name:"skia_use_harfbuzz" "false" )
+    (* SVG support *)
     |> fun t ->
-      match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
+      match Sys.getenv_opt "SKIA_ENABLE_SVG" with
       | Some x when str_true x ->
         t
-        |> arg ~name:"skia_enable_skshaper" "true"
-        |> arg ~name:"skia_use_icu" "true"
-        |> arg ~name:"skia_use_system_icu" "false"
-        |> arg ~name:"skia_use_harfbuzz" "true"
-        |> arg ~name:"skia_pdf_subset_harfbuzz" "true"
-        |> arg ~name:"skia_use_system_harfbuzz" "false"
-        |> arg ~name:"skia_enable_skparagraph" "true"
+        |> arg ~name:"skia_enable_svg" "true"
+        |> arg ~name:"skia_svg_parser" "true"
       | _ ->
         t
-        |> arg ~name:"skia_use_icu" "false"
-        |> arg ~name:"skia_use_harfbuzz" "false" )
+        |> arg ~name:"skia_enable_svg" "false"
+        |> arg ~name:"skia_svg_parser" "false" )
     |> fun t ->
     match t.target.os with
     | Linux ->

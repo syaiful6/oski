@@ -10,7 +10,7 @@
 with ocamlPackages;
 
 pkgs.mkShell {
-  inputsFrom = with packages; [ oskia ];
+  inputsFrom = with packages; [ oski ];
   SKIA_NINJA_COMMAND = "${pkgs.ninja}/bin/ninja";
   SKIA_GN_COMMAND = "${pkgs.gn}/bin/gn";
 
@@ -32,6 +32,7 @@ pkgs.mkShell {
       ocamlformat
       alcotest
       utop
+      ppx_optcomp
       llvmPkgs.clang
       ninja
       gn

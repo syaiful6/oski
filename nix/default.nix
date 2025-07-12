@@ -48,8 +48,8 @@ let
 in
 
 rec {
-  oskia = buildOskia {
-    pname = "oskia";
+  oski = buildOskia {
+    pname = "oski";
     src = genSrc {
       dirs = [
         "config"
@@ -58,12 +58,13 @@ rec {
         "ffi"
         "vendor"
       ];
-      files = [ "oskia.opam" ];
+      files = [ "oski.opam" ];
     };
     propagatedBuildInputs = [
       ctypes
       dune
       dune-configurator
+      ppx_optcomp
     ];
   };
 }

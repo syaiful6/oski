@@ -24,6 +24,7 @@
    ocaml
    dune
    (ctypes (>= 0.14.0))
+   (ppx_optcomp (>= v0.14.0))
    (alcotest :with-test)
    (dune-site :with-test)
    (ocaml-lsp-server :with-dev-setup)
