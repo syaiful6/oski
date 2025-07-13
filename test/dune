@@ -1,3 +1,4 @@
 (test
- (name test_ffi)
- (libraries alcotest oski.ffi))
+ (name main)
+ (modules main test_oski test_ffi)
+ (libraries alcotest oski oski.ffi))

@@ -1,4 +1,4 @@
 (library
  (name oski)
  (public_name oski)
- (libraries oski.ffi oski.types))
+ (libraries ctypes oski.ffi oski.types))
