@@ -209,7 +209,7 @@ let cxx_library_flags vendor os =
 (* Combined flags for OCaml (with ccopt/cclib) *)
 let flags prefix os =
   (cflags prefix os |> List.map (fun s -> ccopt s) |> List.flatten)
-  @ (c_library_flags prefix os |> List.map (fun s -> cclib s) |> List.flatten)
+  @ (cxx_library_flags prefix os |> List.map (fun s -> cclib s) |> List.flatten)
 
 let () =
   let vendor = ref "" in

@@ -187,6 +187,16 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_persp1 matrix = C.(getf !@matrix T.Matrix.persp1)
     let get_persp2 matrix = C.(getf !@matrix T.Matrix.persp2)
 
+    let set_translate =
+      foreign
+        "oski_stub_matrix_set_translate"
+        C.(t @-> float @-> float @-> returning void)
+
+    let set_scale =
+      foreign
+        "oski_stub_matrix_set_scale"
+        C.(t @-> float @-> float @-> float @-> float @-> returning void)
+
     let try_invert =
       foreign "sk_matrix_try_invert" C.(t @-> t @-> returning bool)
 
@@ -674,6 +684,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "oski_typeface_get_unique_id" C.(t @-> returning T.Typeface.id)
 
     let equal = foreign "oski_typeface_equal" C.(t @-> t @-> returning bool)
+    let unref = foreign "sk_typeface_unref" C.(t @-> returning void)
 
     let get_family_name =
       foreign "sk_typeface_get_family_name" C.(t @-> returning String.t)

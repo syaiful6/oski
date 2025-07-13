@@ -19,7 +19,7 @@ let
       include = [ "dune-project" ] ++ files ++ (builtins.map inDirectory dirs);
     };
 
-  buildOskia =
+  buildOski =
     args:
     buildDunePackage (
       {
@@ -48,7 +48,7 @@ let
 in
 
 rec {
-  oski = buildOskia {
+  oski = buildOski {
     pname = "oski";
     src = genSrc {
       dirs = [
