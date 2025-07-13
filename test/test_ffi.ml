@@ -72,15 +72,13 @@ let test_font_manager_match_family_style () =
   | None -> ()
   | Some typeface -> Typeface.unref typeface
 
-let () =
-  Alcotest.run
-    "FFI"
-    [ ( "Matrix"
-      , [ "set translate", `Quick, test_matrix_set_translate
-        ; "set scale", `Quick, test_matrix_set_scale
-        ] )
-    ; ( "Font manager"
-      , [ "Count families", `Quick, test_font_manager_count_families
-        ; "match family styles", `Quick, test_font_manager_match_family_style
-        ] )
-    ]
+let tests =
+  [ ( "Matrix"
+    , [ "set translate", `Quick, test_matrix_set_translate
+      ; "set scale", `Quick, test_matrix_set_scale
+      ] )
+  ; ( "Font manager"
+    , [ "Count families", `Quick, test_font_manager_count_families
+      ; "match family styles", `Quick, test_font_manager_match_family_style
+      ] )
+  ]
