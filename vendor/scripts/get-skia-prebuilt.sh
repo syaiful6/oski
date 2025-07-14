@@ -3,14 +3,15 @@ set -euo pipefail
 
 # This script downloads a prebuilt Skia artifact from a direct URL (HTTP/HTTPS)
 # or a local file path (file://) provided via the SKIA_PREBUILT_URL environment variable.
-# It then extracts it into the 'prefix/skia' directory.
+# It extracts only the libraries to the 'artifacts' directory.
+# Headers are expected to be used directly from the Skia source.
 #
 # Prerequisites:
 # - 'curl' utility must be available for HTTP/HTTPS downloads.
 # - 'tar' utility must be available for .tar.gz extraction.
 
 # --- Define common paths and variables ---
-TARGET_DIR="prefix/skia"
+TARGET_DIR="artifacts"
 TMP_DOWNLOAD_DIR="./.tmp_skia_download"
 TMP_ARCHIVE_PATH="$TMP_DOWNLOAD_DIR/skia-prebuilt.tar.gz" # Changed to .tar.gz
 
@@ -81,10 +82,12 @@ fi
 
 echo "Successfully obtained artifact at: $(basename "$TMP_ARCHIVE_PATH")"
 
-# --- Step 4: Extract the archive ---
-echo "Extracting '$(basename "$TMP_ARCHIVE_PATH")' to '$TARGET_DIR'..."
-# Use tar for extraction. -x: extract, -v: verbose, -z: gzip, -f: file, -C: change directory
-if ! tar -xvzf "$TMP_ARCHIVE_PATH" -C "$TARGET_DIR"; then
+# --- Step 4: Extract library files from the archive ---
+echo "Extracting libraries from '$(basename "$TMP_ARCHIVE_PATH")' to '$TARGET_DIR'..."
+# Create artifacts directory
+mkdir -p "$TARGET_DIR"
+# Extract directly to artifacts directory
+if ! tar -xvzf "$TMP_ARCHIVE_PATH" -C "$TARGET_DIR" --strip-components=1; then
     echo "Error: Failed to extract prebuilt Skia archive."
     rm -rf "$TMP_DOWNLOAD_DIR" # Clean up temp directory on failure
     exit 1

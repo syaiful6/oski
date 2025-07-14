@@ -65,9 +65,9 @@ let ccopt s = [ "-ccopt"; s ]
 let cclib s = [ "-cclib"; s ]
 
 (* Paths relative to _build/default *)
-let skia_base_path vendor = Format.sprintf "%s/prefix/skia" vendor
+let skia_base_path vendor = Format.sprintf "%s/artifacts" vendor
 let skia_source_path vendor = Format.sprintf "%s/skia" vendor
-let skia_lib_path vendor = skia_base_path vendor ^ "/lib"
+let skia_lib_path vendor = skia_base_path vendor
 let skia_include_flags vendor = [ "-I" ^ skia_source_path vendor ]
 
 (* C flags for compilation (plain strings for clang) *)

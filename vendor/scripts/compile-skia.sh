@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # This script compiles Skia from source and copies the necessary artifacts
-# to a 'prefix/skia' directory. It replicates the full source build process
+# to an 'artifacts' directory. It replicates the full source build process
 # previously handled across multiple Dune rules and the build-vendor.sh script.
 
 # Usage: scripts/compile-skia.sh <os_name> <arch_name> <lib_ext> <gn_args_file> <git_sync_deps_file>
@@ -39,7 +39,7 @@ echo "GN Args File: $GN_ARGS_FILE, Git Sync DEPS File: $GIT_SYNC_DEPS_FILE"
 SKIA_SRC_DIR="${SKIA_SRC_DIR:-"skia"}" # Path to the cloned Skia repository, default to skia
 SKIA_RELATIVE_DIR="out/$OS_NAME/$ARCH_NAME"
 SKIA_OUT_DIR="$SKIA_SRC_DIR/$SKIA_RELATIVE_DIR" # Ninja build output directory
-SKIA_PREFIX_INSTALL_ROOT="prefix/skia"          # Final installation directory for Skia artifacts
+SKIA_PREFIX_INSTALL_ROOT="artifacts"            # Final installation directory for Skia artifacts
 
 # Environment variables to control features (from original build-vendor.sh)
 SKIA_ENABLE_SHAPING="${SKIA_ENABLE_SHAPING:-}" # Default to empty string if not set
@@ -76,13 +76,13 @@ mkdir -p "$SKIA_OUT_DIR" # Ensure the output directory exists before GN runs
 
 # --- Step 2: Prepare Ninja targets and copy lists (from original build-vendor.sh) ---
 NINJA_TARGETS="skia"
-COPY_LIBS_BASE="libskia libskottie libsksg"
+COPY_LIBS_BASE="libskia"
 
 # Conditional SVG support
 if [[ "$SKIA_ENABLE_SVG" = "1" || "$SKIA_ENABLE_SVG" = "yes" || "$SKIA_ENABLE_SVG" = "on" ]]; then
   echo "SKIA_ENABLE_SVG is enabled. Including SVG modules."
   NINJA_TARGETS="$NINJA_TARGETS modules/svg"
-  COPY_LIBS_BASE="$COPY_LIBS_BASE libsvg libskresources"
+  COPY_LIBS_BASE="$COPY_LIBS_BASE libsvg libskresources libskshaper"
 else
   echo "SKIA_ENABLE_SVG is disabled. Excluding SVG modules."
 fi
@@ -100,38 +100,18 @@ fi
 echo "Building Skia libraries and modules with Ninja..."
 ninja -C "$SKIA_OUT_DIR" $NINJA_TARGETS
 
-# --- Step 4: Copy compiled libraries and headers to prefix/skia/ ---
-echo "Copying compiled artifacts to '$SKIA_PREFIX_INSTALL_ROOT/'..."
+# --- Step 4: Copy compiled libraries to artifacts/ ---
+echo "Copying compiled libraries to '$SKIA_PREFIX_INSTALL_ROOT/'..."
 
-# Create necessary destination directories
-mkdir -p "${SKIA_PREFIX_INSTALL_ROOT}/lib"
-mkdir -p "${SKIA_PREFIX_INSTALL_ROOT}/include"
-mkdir -p "${SKIA_PREFIX_INSTALL_ROOT}/modules"
+# Create artifacts destination directory
+mkdir -p "${SKIA_PREFIX_INSTALL_ROOT}"
 
-# Copy compiled libraries
+# Copy compiled libraries directly to artifacts directory
 LIBS_CP_COMMAND=""
 for lib_name in $COPY_LIBS_BASE; do
-  LIBS_CP_COMMAND+="cp -f $SKIA_OUT_DIR/${lib_name}.$LIB_EXT ${SKIA_PREFIX_INSTALL_ROOT}/lib/ || true && "
+  LIBS_CP_COMMAND+="cp -f $SKIA_OUT_DIR/${lib_name}.$LIB_EXT ${SKIA_PREFIX_INSTALL_ROOT}/ || true && "
 done
 # Execute the concatenated copy commands. Remove trailing " && " first.
 eval "${LIBS_CP_COMMAND% && }"
-
-# --- Header Copying ---
-# Copy the entire 'include' directory contents from skia/include/ to prefix/skia/include/
-echo "Copying core Skia headers ($SKIA_SRC_DIR/include/ -> ${SKIA_PREFIX_INSTALL_ROOT}/include/)..."
-cp -r "$SKIA_SRC_DIR"/include/* "${SKIA_PREFIX_INSTALL_ROOT}/include/"
-
-# Copy module headers, preserving their path structure under 'modules/'.
-# This command finds all 'include' directories within 'skia/modules/' (up to 2 levels deep).
-echo "Copying module headers ($SKIA_SRC_DIR/modules/*/include/ -> ${SKIA_PREFIX_INSTALL_ROOT}/modules/*/include/)..."
-find "$SKIA_SRC_DIR"/modules/ -maxdepth 2 -type d -name "include" -print0 | while IFS= read -r -d $'\0' module_include_dir_path; do
-  # Example: module_include_dir_path might be "skia/modules/svg/include"
-  # We want "modules/svg/include" to form the destination path.
-  relative_path_from_skia_root="${module_include_dir_path#$SKIA_SRC_DIR/}"
-  dest_dir="${SKIA_PREFIX_INSTALL_ROOT}/${relative_path_from_skia_root}"
-
-  mkdir -p "$dest_dir"                              # Create the destination module include directory
-  cp -r "${module_include_dir_path}"/* "$dest_dir"/ # Copy header files
-done
 
 echo "--- Skia Source Build Complete ---"

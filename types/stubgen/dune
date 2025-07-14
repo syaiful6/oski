@@ -24,8 +24,8 @@
   (:ctypes_path ctypes_path.txt)
   (:c_flags ../../config/c_flags.txt)
   (:oski_lib
-   ../../vendor/prefix/skia/lib/libskia.%{read-lines:../../vendor/lib_ext.txt})
-  (:oski_types_header ../../vendor/prefix/skia/include/c/sk_types.h)
+   ../../vendor/artifacts/libskia.%{read-lines:../../vendor/lib_ext.txt})
+  (:oski_types_header ../../vendor/skia/include/c/sk_types.h)
   ../../vendor/os.txt
   ../../vendor/lib_ext.txt)
  (action

@@ -10,7 +10,7 @@
  (targets oski_stubs.c)
  (deps
   (:stubgen ../stubgen/ffi_stubgen.exe)
-  ../../vendor/prefix/skia/include/c/sk_types.h)
+  ../../vendor/skia/include/c/sk_types.h)
  (action
   (with-stdout-to
    %{targets}
