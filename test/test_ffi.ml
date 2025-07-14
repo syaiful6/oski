@@ -73,11 +73,11 @@ let test_font_manager_match_family_style () =
   | Some typeface -> Typeface.unref typeface
 
 let tests =
-  [ ( "Matrix"
+  [ ( "FFI Matrix"
     , [ "set translate", `Quick, test_matrix_set_translate
       ; "set scale", `Quick, test_matrix_set_scale
       ] )
-  ; ( "Font manager"
+  ; ( "FFI Font manager"
     , [ "Count families", `Quick, test_font_manager_count_families
       ; "match family styles", `Quick, test_font_manager_match_family_style
       ] )
