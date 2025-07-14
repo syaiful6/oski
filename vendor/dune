@@ -32,7 +32,7 @@
 
 (rule
  (targets
-  (dir prefix))
+  (dir artifacts))
  (deps
   (source_tree skia)
   scripts/get-skia-prebuilt.sh)
@@ -45,7 +45,7 @@
 
 (rule
  (targets
-  (dir prefix))
+  (dir artifacts))
  (deps
   (source_tree skia)
   os.txt

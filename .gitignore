@@ -19,5 +19,5 @@ esy.lock
 
 # local tools
 .envrc
-_prebuild/
+_prebuilt/
 .vscode

@@ -27,7 +27,7 @@
   oski_types.h
   config.h
   (:cpp bindings.h bindings.cpp)
-  ../../vendor/prefix/skia/lib
+  ../../vendor/artifacts
   ../../config/cxx_flags.sexp)
  (action
   (run %{cxx} %{read-lines:../../config/cxx_flags.txt} -c %{cpp})))
@@ -38,7 +38,7 @@
   oski_types.h
   config.h
   (:cpp svgdom.h svgdom.cpp)
-  ../../vendor/prefix/skia/lib
+  ../../vendor/artifacts
   ../../config/cxx_flags.sexp)
  (action
   (run %{cxx} %{read-lines:../../config/cxx_flags.txt} -c %{cpp})))
@@ -49,7 +49,7 @@
   oski_types.h
   config.h
   (:c c_stubs.h c_stubs.c)
-  ../../vendor/prefix/skia/lib
+  ../../vendor/artifacts
   ../../config/cxx_flags.sexp)
  (action
   (run %{cc} %{read-lines:../../config/c_flags.txt} -c %{c})))
