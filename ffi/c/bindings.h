@@ -8,6 +8,8 @@ OSKI_PLUS_PLUS_BEGIN_GUARD
 OSKI_BINDINGS_API sk_color_t oski_color_hsv_to_color(unsigned int alpha, const float hsv[3]);
 OSKI_BINDINGS_API void oski_color_rgb_to_hsv(unsigned int red, unsigned int green,
                                              unsigned int blue, float hsv[3]);
+// Matrix
+OSKI_BINDINGS_API void oski_matrix_set_rsxform(sk_matrix_t* matrix, const sk_rsxform_t* rsxform);
 // M44 operation helper
 OSKI_BINDINGS_API void oski_m44_concat(const sk_matrix44_t* a, const sk_matrix44_t* b,
                                        sk_matrix44_t* result);
