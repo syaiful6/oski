@@ -35,7 +35,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Color4f = struct
-    type t = T.Color4f.t C.ptr
+    type t = T.Color4f.t C.structure C.ptr
 
     let t = C.ptr T.Color4f.t
     let to_color = foreign "sk_color4f_to_color" C.(t @-> returning Color.t)
@@ -45,7 +45,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Color_space = struct
-    type t = T.Color_space.t C.ptr
+    type t = T.Color_space.t C.structure C.ptr
 
     let t = C.ptr T.Color_space.t
     let ref = foreign "sk_colorspace_ref" C.(t @-> returning void)
@@ -57,7 +57,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Point = struct
-    type t = T.Point.t C.ptr
+    type t = T.Point.t C.structure C.ptr
 
     let t = C.ptr T.Point.t
 
@@ -74,7 +74,7 @@ module M (F : Ctypes.FOREIGN) = struct
   module Vector = Point
 
   module Rect = struct
-    type t = T.Rect.t C.ptr
+    type t = T.Rect.t C.structure C.ptr
 
     let t = C.ptr T.Rect.t
 
@@ -102,7 +102,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Point3 = struct
-    type t = T.Point3.t C.ptr
+    type t = T.Point3.t C.structure C.ptr
 
     let t = C.ptr T.Point3.t
 
@@ -119,7 +119,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module ISize = struct
-    type t = T.ISize.t C.ptr
+    type t = T.ISize.t C.structure C.ptr
 
     let t = C.ptr T.ISize.t
 
@@ -134,7 +134,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module IPoint = struct
-    type t = T.IPoint.t C.ptr
+    type t = T.IPoint.t C.structure C.ptr
 
     let t = C.ptr T.IPoint.t
 
@@ -149,7 +149,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Matrix = struct
-    type t = T.Matrix.t C.ptr
+    type t = T.Matrix.t C.structure C.ptr
 
     let t = C.ptr T.Matrix.t
     let make () = C.allocate_n T.Matrix.t ~count:1
@@ -235,6 +235,11 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let map_radius =
       foreign "sk_matrix_map_radius" C.(t @-> float @-> returning float)
+
+    let set_rsxform =
+      foreign
+        "oski_matrix_set_rsxform"
+        C.(t @-> ptr T.RSXform.t @-> returning void)
   end
 
   module Matrix44 = struct
@@ -292,7 +297,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module IRect = struct
-    type t = T.IRect.t C.ptr
+    type t = T.IRect.t C.structure C.ptr
 
     let t = C.ptr T.IRect.t
 
@@ -311,7 +316,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module RRect = struct
-    type t = T.RRect.t C.ptr
+    type t = T.RRect.t C.structure C.ptr
 
     let t = C.ptr T.RRect.t
 
@@ -385,12 +390,12 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_rrect_transform" C.(t @-> Matrix.t @-> t @-> returning bool)
   end
 
-  type data = T.Data.t C.ptr
+  type data = T.Data.t C.structure C.ptr
 
   let data = C.ptr T.Data.t
 
   module Stream = struct
-    type t = T.Stream.t C.ptr
+    type t = T.Stream.t C.structure C.ptr
 
     let t = C.ptr T.Stream.t
     let t_opt = C.ptr_opt T.Stream.t
@@ -444,14 +449,14 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Stream_asset = struct
-    type t = T.Stream.asset C.ptr
+    type t = T.Stream.asset C.structure C.ptr
 
     let t = C.ptr T.Stream.asset
     let delete = foreign "sk_stream_asset_destroy" C.(t @-> returning void)
   end
 
   module File_stream = struct
-    type t = T.Stream.file C.ptr
+    type t = T.Stream.file C.structure C.ptr
 
     let t = C.ptr T.Stream.file
     let t_opt = C.ptr_opt T.Stream.file
@@ -462,7 +467,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Memory_stream = struct
-    type t = T.Stream.memory C.ptr
+    type t = T.Stream.memory C.structure C.ptr
 
     let t = C.ptr T.Stream.memory
     let t_opt = C.ptr_opt T.Stream.memory
@@ -485,7 +490,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module WStream = struct
-    type t = T.Stream.Writable.t C.ptr
+    type t = T.Stream.Writable.t C.structure C.ptr
 
     let t = C.ptr T.Stream.Writable.t
 
@@ -551,7 +556,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module File_wstream = struct
-    type t = T.Stream.Writable.file C.ptr
+    type t = T.Stream.Writable.file C.structure C.ptr
 
     let t = C.ptr T.Stream.Writable.file
     let t_opt = C.ptr_opt T.Stream.Writable.file
@@ -563,7 +568,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Dynamic_memory_wstream = struct
-    type t = T.Stream.Writable.dynamic_memory C.ptr
+    type t = T.Stream.Writable.dynamic_memory C.structure C.ptr
 
     let t = C.ptr T.Stream.Writable.dynamic_memory
     let t_opt = C.ptr_opt T.Stream.Writable.dynamic_memory
@@ -626,7 +631,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module String = struct
-    type t = T.String.t C.ptr
+    type t = T.String.t C.structure C.ptr
 
     let t = C.ptr T.String.t
     let t_opt = C.ptr_opt T.String.t
@@ -643,7 +648,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Font_style = struct
-    type t = T.Font_style.t C.ptr
+    type t = T.Font_style.t C.structure C.ptr
 
     let t = C.ptr T.Font_style.t
 
@@ -667,7 +672,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Typeface = struct
-    type t = T.Typeface.t C.ptr
+    type t = T.Typeface.t C.structure C.ptr
 
     let t = C.ptr T.Typeface.t
     let t_opt = C.ptr_opt T.Typeface.t
@@ -778,7 +783,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Font_style_set = struct
-    type t = T.Font_style.set C.ptr
+    type t = T.Font_style.set C.structure C.ptr
 
     let t = C.ptr T.Font_style.set
     let t_opt = C.ptr_opt T.Font_style.set
@@ -802,7 +807,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Font_manager = struct
-    type t = T.Font_manager.t C.ptr
+    type t = T.Font_manager.t C.structure C.ptr
 
     let t = C.ptr T.Font_manager.t
 
@@ -865,7 +870,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Font_metrics = struct
-    type t = T.Font_metrics.t C.ptr
+    type t = T.Font_metrics.t C.structure C.ptr
 
     let t = C.ptr T.Font_metrics.t
     let get_make () = C.allocate_n ~count:1 T.Font_metrics.t
@@ -894,7 +899,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Blender = struct
-    type t = T.Blender.t C.ptr
+    type t = T.Blender.t C.structure C.ptr
 
     let t = C.ptr T.Blender.t
     let t_opt = C.ptr_opt T.Blender.t
@@ -909,7 +914,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Path = struct
-    type t = T.Path.t C.ptr
+    type t = T.Path.t C.structure C.ptr
 
     let t = C.ptr T.Path.t
     let make = foreign "sk_path_new" C.(void @-> returning t)
@@ -1167,7 +1172,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Path_iterator = struct
-    type t = T.Path.iterator C.ptr
+    type t = T.Path.iterator C.structure C.ptr
 
     let t = C.ptr T.Path.iterator
 
@@ -1211,7 +1216,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_pathop_as_winding" C.(Path.t @-> Path.t @-> returning bool)
 
     module Builder = struct
-      type t = T.Path.op_builder C.ptr
+      type t = T.Path.op_builder C.structure C.ptr
 
       let t = C.ptr T.Path.op_builder
       let make = foreign "sk_opbuilder_new" C.(void @-> returning t)
@@ -1228,7 +1233,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Path_measure = struct
-    type t = T.Path_measure.t C.ptr
+    type t = T.Path_measure.t C.structure C.ptr
 
     let t = C.ptr T.Path_measure.t
     let t_opt = C.ptr_opt T.Path_measure.t
@@ -1275,7 +1280,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Path_effect = struct
-    type t = T.Path_effect.t C.ptr
+    type t = T.Path_effect.t C.structure C.ptr
 
     let t = C.ptr T.Path_effect.t
 
@@ -1328,7 +1333,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Region = struct
-    type t = T.Region.t C.ptr
+    type t = T.Region.t C.structure C.ptr
 
     let t = C.ptr T.Region.t
     let t_opt = C.ptr_opt T.Region.t
@@ -1397,7 +1402,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let is_complex = foreign "sk_region_is_complex" C.(t @-> returning bool)
 
     module Iterator = struct
-      type t = T.Region.region C.ptr
+      type t = T.Region.region C.structure C.ptr
 
       let t = C.ptr T.Region.region
 
@@ -1414,7 +1419,7 @@ module M (F : Ctypes.FOREIGN) = struct
     end
 
     module Cliperator = struct
-      type t = T.Region.cliperator C.ptr
+      type t = T.Region.cliperator C.structure C.ptr
 
       let t = C.ptr T.Region.cliperator
 
@@ -1434,7 +1439,7 @@ module M (F : Ctypes.FOREIGN) = struct
     end
 
     module Spanerator = struct
-      type t = T.Region.spanerator C.ptr
+      type t = T.Region.spanerator C.structure C.ptr
 
       let t = C.ptr T.Region.spanerator
 
@@ -1454,7 +1459,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Color_filter = struct
-    type t = T.Color_filter.t C.ptr
+    type t = T.Color_filter.t C.structure C.ptr
 
     let t = C.ptr T.Color_filter.t
     let t_opt = C.ptr_opt T.Color_filter.t
@@ -1514,7 +1519,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Shader = struct
-    type t = T.Shader.t C.ptr
+    type t = T.Shader.t C.structure C.ptr
 
     let t = C.ptr T.Shader.t
 
@@ -1622,7 +1627,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Mask_filter = struct
-    type t = T.Mask_filter.t C.ptr
+    type t = T.Mask_filter.t C.structure C.ptr
 
     let t = C.ptr T.Mask_filter.t
     let ref = foreign "sk_maskfilter_ref" C.(t @-> returning void)
@@ -1643,7 +1648,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Image_info = struct
-    type t = T.Image_info.t C.ptr
+    type t = T.Image_info.t C.structure C.ptr
 
     let t = C.ptr T.Image_info.t
 
@@ -1704,7 +1709,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Pixmap = struct
-    type t = T.Pixmap.t C.ptr
+    type t = T.Pixmap.t C.structure C.ptr
 
     let t = C.ptr T.Pixmap.t
     let t_opt = C.ptr_opt T.Pixmap.t
@@ -1799,7 +1804,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Bitmap = struct
-    type t = T.Bitmap.t C.ptr
+    type t = T.Bitmap.t C.structure C.ptr
 
     let t = C.ptr T.Bitmap.t
 
@@ -1896,7 +1901,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Image = struct
-    type t = T.Image.t C.ptr
+    type t = T.Image.t C.structure C.ptr
 
     let t = C.ptr T.Image.t
     let t_opt = C.ptr_opt T.Image.t
@@ -1913,7 +1918,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Paint = struct
-    type t = T.Paint.t C.ptr
+    type t = T.Paint.t C.structure C.ptr
 
     let t = C.ptr T.Paint.t
     let t_opt = C.ptr_opt T.Paint.t
@@ -2038,7 +2043,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Font = struct
-    type t = T.Font.t C.ptr
+    type t = T.Font.t C.structure C.ptr
 
     let t = C.ptr T.Font.t
     let t_opt = C.ptr_opt T.Font.t
@@ -2213,13 +2218,13 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Drawable = struct
-    type t = T.Drawable.t C.ptr
+    type t = T.Drawable.t C.structure C.ptr
 
     let t = C.ptr T.Drawable.t
   end
 
   module Canvas = struct
-    type t = T.Canvas.t C.ptr
+    type t = T.Canvas.t C.structure C.ptr
 
     let t = C.ptr T.Canvas.t
     let destroy = foreign "sk_canvas_destroy" C.(t @-> returning void)
@@ -2625,7 +2630,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Image_filter = struct
-    type t = T.Image_filter.t C.ptr
+    type t = T.Image_filter.t C.structure C.ptr
 
     let t = C.ptr T.Image_filter.t
     let t_opt = C.ptr_opt T.Image_filter.t
@@ -2871,7 +2876,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Surface = struct
-    type t = T.Surface.t C.ptr
+    type t = T.Surface.t C.structure C.ptr
 
     let t = C.ptr T.Surface.t
     let t_opt = C.ptr_opt T.Surface.t
@@ -2936,7 +2941,7 @@ module M (F : Ctypes.FOREIGN) = struct
   end
 
   module Document = struct
-    type t = T.Document.t C.ptr
+    type t = T.Document.t C.structure C.ptr
 
     let t = C.ptr T.Document.t
     let t_opt = C.ptr_opt T.Document.t

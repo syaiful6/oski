@@ -35,6 +35,11 @@ bool oski_m44_invert(const sk_matrix44_t* src, sk_matrix44_t* dst) {
   return mSrc.invert(&mDst);
 }
 
+void oski_matrix_set_rsxform(sk_matrix_t* matrix, const sk_rsxform_t* rsxform) {
+  SkMatrix& mMatrix = reinterpret_cast<SkMatrix&>(*matrix);
+  mMatrix.setRSXform(reinterpret_cast<const SkRSXform&>(*rsxform));
+}
+
 oski_typeface_id oski_typeface_get_unique_id(const sk_typeface_t* typeface) {
   return reinterpret_cast<const SkTypeface*>(typeface)->uniqueID();
 }
