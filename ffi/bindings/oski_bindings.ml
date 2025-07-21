@@ -118,6 +118,8 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_z point3 = C.(getf !@point3 T.Point3.z)
   end
 
+  module Vec3 = Point3
+
   module ISize = struct
     type t = T.ISize.t C.structure C.ptr
 
@@ -779,6 +781,11 @@ module M (F : Ctypes.FOREIGN) = struct
     let open_stream =
       foreign
         "sk_typeface_open_stream"
+        C.(t @-> ptr_opt int @-> returning (ptr_opt T.Stream.asset))
+
+    let open_existing_stream =
+      foreign
+        "oski_typeface_open_existing_stream"
         C.(t @-> ptr_opt int @-> returning (ptr_opt T.Stream.asset))
   end
 
