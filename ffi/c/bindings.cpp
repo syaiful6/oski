@@ -2,6 +2,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "oski_types.h"
 
@@ -47,4 +48,10 @@ oski_typeface_id oski_typeface_get_unique_id(const sk_typeface_t* typeface) {
 bool oski_typeface_equal(const sk_typeface_t* typeface, const sk_typeface_t* typeface2) {
   return SkTypeface::Equal(reinterpret_cast<const SkTypeface*>(typeface),
                            reinterpret_cast<const SkTypeface*>(typeface2));
+}
+
+sk_stream_asset_t* oski_typeface_open_existing_stream(const sk_typeface_t* typeface,
+                                                      int* ttcIndex) {
+  return reinterpret_cast<sk_stream_asset_t*>(
+      reinterpret_cast<const SkTypeface*>(typeface)->openExistingStream(ttcIndex).release());
 }

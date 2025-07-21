@@ -15,9 +15,12 @@ OSKI_BINDINGS_API void oski_m44_concat(const sk_matrix44_t* a, const sk_matrix44
                                        sk_matrix44_t* result);
 OSKI_BINDINGS_API bool oski_m44_invert(const sk_matrix44_t* src, sk_matrix44_t* dst);
 
+// typeface
 OSKI_BINDINGS_API oski_typeface_id oski_typeface_get_unique_id(const sk_typeface_t* typeface);
 OSKI_BINDINGS_API bool oski_typeface_equal(const sk_typeface_t* typeface,
                                            const sk_typeface_t* typeface2);
+OSKI_BINDINGS_API sk_stream_asset_t* oski_typeface_open_existing_stream(
+    const sk_typeface_t* typeface, int* ttcIndex);
 
 OSKI_PLUS_PLUS_END_GUARD
 #endif

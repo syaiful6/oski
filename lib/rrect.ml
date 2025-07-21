@@ -6,7 +6,6 @@ type type_ = T.RRect.type_
 type corner = T.RRect.corner
 
 let as_native t = t
-let as_native_ptr t = Ctypes.addr t
 
 let make () =
   let rrect = Bindings.RRect.make () in
@@ -19,8 +18,17 @@ let copy original =
   rrect
 
 let get_type = Bindings.RRect.get_type
-let get_rect = Bindings.RRect.get_rect
-let get_radii = Bindings.RRect.get_radii
+
+let get_rect t =
+  let rect = Ctypes.make T.Rect.t in
+  Bindings.RRect.get_rect t (Ctypes.addr rect);
+  Rect.of_native rect
+
+let get_radii t corner =
+  let vec2 = Ctypes.make T.Vector.t in
+  Bindings.RRect.get_radii t corner (Ctypes.addr vec2);
+  Vec2.of_native vec2
+
 let get_width = Bindings.RRect.get_width
 let get_height = Bindings.RRect.get_height
 let set_empty = Bindings.RRect.set_empty

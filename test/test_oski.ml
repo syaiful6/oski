@@ -36,9 +36,10 @@ let test_vec4_dot_product () =
   Alcotest.(check (float 0.001)) "Vec4 dot product" 40. dot
 
 let test_point_integer () =
-  let p1 = Oski.Point.make 10 20 in
-  let p2 = Oski.Point.make 5 8 in
-  let sum = Oski.Point.add p1 p2 in
+  let open Oski.Point in
+  let p1 = IPoint.make 10 20 in
+  let p2 = IPoint.make 5 8 in
+  let sum = IPoint.add p1 p2 in
   Alcotest.(check int) "Point add x" 15 sum.x;
   Alcotest.(check int) "Point add y" 28 sum.y
 

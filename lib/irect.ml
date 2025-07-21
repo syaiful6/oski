@@ -32,13 +32,17 @@ let area t = width t * height t
 let is_empty t = t.left >= t.right || t.top >= t.bottom
 let center_x t = (t.left + t.right) / 2
 let center_y t = (t.top + t.bottom) / 2
-let center t = Point.make (center_x t) (center_y t)
+
+let center t =
+  let open Point in
+  IPoint.make (center_x t) (center_y t)
 
 let contains_point t pt =
-  pt.Point.x >= t.left
-  && pt.Point.x <= t.right
-  && pt.Point.y >= t.top
-  && pt.Point.y <= t.bottom
+  let open Point in
+  pt.IPoint.x >= t.left
+  && pt.IPoint.x <= t.right
+  && pt.IPoint.y >= t.top
+  && pt.IPoint.y <= t.bottom
 
 let intersects a b =
   not
