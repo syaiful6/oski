@@ -33,6 +33,33 @@ module Color : sig
   val blue : t -> int
   val to_rgb : t -> RGB.t
   val to_hsv : t -> HSV.t
+
+  module Color4f : sig
+    type t =
+      { r : float
+      ; g : float
+      ; b : float
+      ; a : float
+      }
+
+    val make : float -> float -> float -> float -> t
+    val to_native : t -> Oski_types.M.Color4f.t Ctypes.structure
+    val to_native_ptr : t -> Oski_ffi.M.Color4f.t
+    val of_native : Oski_types.M.Color4f.t Ctypes.structure -> t
+    val of_color : Unsigned.uint32 -> t
+    val to_color : t -> Unsigned.uint32
+    val transparent : t
+    val black : t
+    val grey : t
+    val light_grey : t
+    val white : t
+    val red : t
+    val green : t
+    val blue : t
+    val yellow : t
+    val cyan : t
+    val magenta : t
+  end
 end
 
 module Vec2 : sig
@@ -56,8 +83,8 @@ module Vec2 : sig
   val length : t -> float
   val normalize : t -> t
   val is_zero : t -> bool
-  val as_native : t -> Oski_types.M.Vector.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Vector.t
+  val to_native : t -> Oski_types.M.Vector.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Vector.t
   val of_native : Oski_types.M.Vector.t Ctypes.structure -> t
 end
 
@@ -69,8 +96,8 @@ module Vec3 : sig
     }
 
   val make : float -> float -> float -> t
-  val as_native : t -> Oski_types.M.Vector3.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Vec3.t
+  val to_native : t -> Oski_types.M.Vector3.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Vec3.t
   val of_native : Oski_types.M.Vector3.t Ctypes.structure -> t
   val dot : t -> t -> float
   val cross : t -> t -> t
@@ -99,9 +126,9 @@ module Vec4 : sig
     }
 
   val make : float -> float -> float -> float -> t
-  val as_native : t -> Oski_types.M.Vector4.t Ctypes.structure
+  val to_native : t -> Oski_types.M.Vector4.t Ctypes.structure
   val of_native : Oski_types.M.Vector4.t Ctypes.structure -> t
-  val as_native_ptr : t -> Oski_types.M.Vector4.t Ctypes.structure Ctypes.ptr
+  val to_native_ptr : t -> Oski_types.M.Vector4.t Ctypes.structure Ctypes.ptr
   val dot : t -> t -> float
   val add : t -> t -> t
   val sub : t -> t -> t
@@ -139,8 +166,8 @@ module Point : sig
   val length : t -> float
   val normalize : t -> t
   val is_zero : t -> bool
-  val as_native : t -> Oski_types.M.Point.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Point.t
+  val to_native : t -> Oski_types.M.Point.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Point.t
   val of_native : Oski_types.M.Point.t Ctypes.structure -> t
 
   module IPoint : sig
@@ -150,9 +177,9 @@ module Point : sig
       }
 
     val make : int -> int -> t
-    val as_native : t -> Oski_types.M.IPoint.t Ctypes.structure
+    val to_native : t -> Oski_types.M.IPoint.t Ctypes.structure
     val of_native : Oski_types.M.IPoint.t Ctypes.structure -> t
-    val as_native_ptr : t -> Oski_ffi.M.IPoint.t
+    val to_native_ptr : t -> Oski_ffi.M.IPoint.t
     val add : t -> t -> t
     val sub : t -> t -> t
     val mul : t -> t -> t
@@ -172,9 +199,9 @@ module Size : sig
     }
 
   val make : float -> float -> t
-  val as_native : t -> Oski_types.M.Size.t Ctypes.structure
+  val to_native : t -> Oski_types.M.Size.t Ctypes.structure
   val of_native : Oski_types.M.Size.t Ctypes.structure -> t
-  val as_native_ptr : t -> Oski_types.M.Size.t Ctypes.structure Ctypes.ptr
+  val to_native_ptr : t -> Oski_types.M.Size.t Ctypes.structure Ctypes.ptr
   val area : t -> float
   val is_empty : t -> bool
   val is_zero : t -> bool
@@ -197,9 +224,9 @@ module ISize : sig
     }
 
   val make : int -> int -> t
-  val as_native : t -> Oski_types.M.ISize.t Ctypes.structure
+  val to_native : t -> Oski_types.M.ISize.t Ctypes.structure
   val of_native : Oski_types.M.ISize.t Ctypes.structure -> t
-  val as_native_ptr : t -> Oski_types.M.ISize.t Ctypes.structure Ctypes.ptr
+  val to_native_ptr : t -> Oski_types.M.ISize.t Ctypes.structure Ctypes.ptr
   val area : t -> int
   val is_empty : t -> bool
   val is_zero : t -> bool
@@ -223,8 +250,8 @@ module Rect : sig
     }
 
   val make : left:float -> top:float -> right:float -> bottom:float -> t
-  val as_native : t -> Oski_types.M.Rect.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Rect.t
+  val to_native : t -> Oski_types.M.Rect.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Rect.t
   val of_native : Oski_types.M.Rect.t Ctypes.structure -> t
   val width : t -> float
   val height : t -> float
@@ -251,8 +278,8 @@ module IRect : sig
     }
 
   val make : left:int -> top:int -> right:int -> bottom:int -> t
-  val as_native : t -> Oski_types.M.IRect.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.IRect.t
+  val to_native : t -> Oski_types.M.IRect.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.IRect.t
   val of_native : Oski_types.M.IRect.t Ctypes.structure -> t
   val width : t -> int
   val height : t -> int
@@ -296,8 +323,8 @@ module Matrix : sig
     -> persp2:float
     -> t
 
-  val as_native : t -> Oski_types.M.Matrix.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Matrix.t
+  val to_native : t -> Oski_types.M.Matrix.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Matrix.t
   val of_native : Oski_types.M.Matrix.t Ctypes.structure -> t
   val identity : unit -> t
   val translate : x:float -> y:float -> t
@@ -310,7 +337,7 @@ module RRect : sig
   type type_ = Oski_types.M.RRect.type_
   type corner = Oski_types.M.RRect.corner
 
-  val as_native : t -> Oski_ffi.M.RRect.t
+  val to_native : t -> Oski_ffi.M.RRect.t
   val make : unit -> t
   val copy : t -> t
   val get_type : t -> type_
@@ -370,8 +397,8 @@ module Matrix44 : sig
     -> m33:float
     -> t
 
-  val as_native : t -> Oski_types.M.Matrix44.t Ctypes.structure
-  val as_native_ptr : t -> Oski_types.M.Matrix44.t Ctypes.structure Ctypes.ptr
+  val to_native : t -> Oski_types.M.Matrix44.t Ctypes.structure
+  val to_native_ptr : t -> Oski_types.M.Matrix44.t Ctypes.structure Ctypes.ptr
   val of_native : Oski_types.M.Matrix44.t Ctypes.structure -> t
   val pp : Format.formatter -> t -> unit
   val to_string : t -> string
@@ -391,8 +418,8 @@ module RSXform : sig
     }
 
   val make : scos:float -> ssin:float -> tx:float -> ty:float -> t
-  val as_native : t -> Oski_types.M.RSXform.t Ctypes.structure
-  val as_native_ptr : t -> Oski_types.M.RSXform.t Ctypes.structure Ctypes.ptr
+  val to_native : t -> Oski_types.M.RSXform.t Ctypes.structure
+  val to_native_ptr : t -> Oski_types.M.RSXform.t Ctypes.structure Ctypes.ptr
   val of_native : Oski_types.M.RSXform.t Ctypes.structure -> t
   val identity : unit -> t
   val from_rotation_translation : angle:float -> tx:float -> ty:float -> t
@@ -424,8 +451,8 @@ module Stream : sig
 
   (** {1 Native Interface} *)
 
-  val as_native : t -> Oski_ffi.M.Stream.t
-  (** [as_native stream] returns the underlying FFI stream handle.
+  val to_native : t -> Oski_ffi.M.Stream.t
+  (** [to_native stream] returns the underlying FFI stream handle.
         Use this when interfacing with other Skia functions that expect a native stream. *)
 
   (** {1 Stream Operations} *)
@@ -514,8 +541,8 @@ module Data : sig
 
   (** {1 Native Interface} *)
 
-  val as_native : t -> Oski_ffi.M.Data.t
-  (** [as_native data] returns the underlying FFI data handle.
+  val to_native : t -> Oski_ffi.M.Data.t
+  (** [to_native data] returns the underlying FFI data handle.
       Use this when interfacing with other Skia functions that expect native data. *)
 
   (** {1 Creation} *)

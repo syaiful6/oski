@@ -8,7 +8,7 @@ module IPoint = struct
 
   let make x y = { x; y }
 
-  let as_native t =
+  let to_native t =
     let ipoint = Ctypes.make T.IPoint.t in
     Ctypes.(
       setf ipoint T.IPoint.x (Int32.of_int t.x);
@@ -20,7 +20,7 @@ module IPoint = struct
       (Ctypes.getf t T.IPoint.x |> Int32.to_int)
       (Ctypes.getf t T.IPoint.y |> Int32.to_int)
 
-  let as_native_ptr t = as_native t |> Ctypes.addr
+  let to_native_ptr t = to_native t |> Ctypes.addr
   let add a b = make (a.x + b.x) (a.y + b.y)
   let sub a b = make (a.x - b.x) (a.y - b.y)
   let mul a b = make (a.x * b.x) (a.y * b.y)

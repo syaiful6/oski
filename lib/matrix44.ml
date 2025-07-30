@@ -57,7 +57,7 @@ let make
   ; m33
   }
 
-let as_native t =
+let to_native t =
   let matrix = Ctypes.make T.Matrix44.t in
   Ctypes.(
     setf matrix T.Matrix44.m00 t.m00;
@@ -97,7 +97,7 @@ let of_native matrix =
     ~m32:(Ctypes.getf matrix T.Matrix44.m32)
     ~m33:(Ctypes.getf matrix T.Matrix44.m33)
 
-let as_native_ptr t = as_native t |> Ctypes.addr
+let to_native_ptr t = to_native t |> Ctypes.addr
 
 let pp ppf m =
   let pp_row ppf r0 r1 r2 r3 =
@@ -173,8 +173,8 @@ let scale ~x ~y ~z =
     ~m33:1.
 
 let concat a b =
-  let a_native = as_native a in
-  let b_native = as_native b in
+  let a_native = to_native a in
+  let b_native = to_native b in
   let result = Ctypes.make T.Matrix44.t in
   Matrix44.concat
     (Ctypes.addr a_native)
@@ -183,7 +183,7 @@ let concat a b =
   of_native result
 
 let invert m =
-  let src_native = as_native m in
+  let src_native = to_native m in
   let dst = Ctypes.make T.Matrix44.t in
   if Matrix44.invert (Ctypes.addr src_native) (Ctypes.addr dst)
   then Some (of_native dst)

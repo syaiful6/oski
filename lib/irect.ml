@@ -9,7 +9,7 @@ type t =
 
 let make ~left ~top ~right ~bottom = { left; top; right; bottom }
 
-let as_native t =
+let to_native t =
   let irect = Ctypes.make T.IRect.t in
   Ctypes.(
     setf irect T.IRect.left (Int32.of_int t.left);
@@ -25,7 +25,7 @@ let of_native irect =
     ~right:(Ctypes.getf irect T.IRect.right |> Int32.to_int)
     ~bottom:(Ctypes.getf irect T.IRect.bottom |> Int32.to_int)
 
-let as_native_ptr t = as_native t |> Ctypes.addr
+let to_native_ptr t = to_native t |> Ctypes.addr
 let width t = t.right - t.left
 let height t = t.bottom - t.top
 let area t = width t * height t

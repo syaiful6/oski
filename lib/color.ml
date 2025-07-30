@@ -67,7 +67,7 @@ module Color4f = struct
 
   let make r g b a = { r; g; b; a }
 
-  let as_native t =
+  let to_native t =
     let color = Ctypes.make Oski_types.M.Color4f.t in
     Ctypes.(
       setf color Oski_types.M.Color4f.red t.r;
@@ -76,7 +76,7 @@ module Color4f = struct
       setf color Oski_types.M.Color4f.alpha t.a);
     color
 
-  let as_native_ptr t = as_native t |> Ctypes.addr
+  let to_native_ptr t = to_native t |> Ctypes.addr
 
   let of_native color =
     make
@@ -90,7 +90,7 @@ module Color4f = struct
     Oski_ffi.M.Color4f.of_color color (Ctypes.addr self);
     of_native self
 
-  let to_color t = Oski_ffi.M.Color4f.to_color (as_native_ptr t)
+  let to_color t = Oski_ffi.M.Color4f.to_color (to_native_ptr t)
   let transparent = make 0. 0. 0. 0.
   let black = make 0. 0. 0. 1.
   let grey = make 0.25 0.25 0.25 1.

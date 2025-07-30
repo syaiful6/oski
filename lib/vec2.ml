@@ -19,7 +19,7 @@ let length a = length_squared a |> Float.sqrt
 let normalize v = mul_float v (1. /. length v)
 let is_zero t = t.x = 0. && t.y = 0.
 
-let as_native t =
+let to_native t =
   let v2 = Ctypes.make T.Point.t in
   Ctypes.(
     setf v2 T.Point.x t.x;
@@ -27,4 +27,4 @@ let as_native t =
   v2
 
 let of_native t = make (Ctypes.getf t T.Point.x) (Ctypes.getf t T.Point.y)
-let as_native_ptr t = Ctypes.addr (as_native t)
+let to_native_ptr t = Ctypes.addr (to_native t)

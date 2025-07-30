@@ -25,7 +25,7 @@ let make
   =
   { scale_x; skew_x; trans_x; skew_y; scale_y; trans_y; persp0; persp1; persp2 }
 
-let as_native t =
+let to_native t =
   let matrix = Ctypes.make T.Matrix.t in
   Ctypes.(
     setf matrix T.Matrix.scaleX t.scale_x;
@@ -51,7 +51,7 @@ let of_native matrix =
     ~persp1:(Ctypes.getf matrix T.Matrix.persp1)
     ~persp2:(Ctypes.getf matrix T.Matrix.persp2)
 
-let as_native_ptr t = as_native t |> Ctypes.addr
+let to_native_ptr t = to_native t |> Ctypes.addr
 
 let identity () =
   make

@@ -9,7 +9,7 @@ type t =
 
 let make x y z w = { x; y; z; w }
 
-let as_native t =
+let to_native t =
   let v4 = Ctypes.make T.Vector4.t in
   Ctypes.(
     setf v4 T.Vector4.x t.x;
@@ -25,7 +25,7 @@ let of_native t =
     (Ctypes.getf t T.Vector4.z)
     (Ctypes.getf t T.Vector4.w)
 
-let as_native_ptr t = as_native t |> Ctypes.addr
+let to_native_ptr t = to_native t |> Ctypes.addr
 let dot a b = (a.x *. b.x) +. (a.y *. b.y) +. (a.z *. b.z) +. (a.w *. b.w)
 let add a b = make (a.x +. b.x) (a.y +. b.y) (a.z +. b.z) (a.w +. b.w)
 let sub a b = make (a.x -. b.x) (a.y -. b.y) (a.z -. b.z) (a.w -. b.w)
