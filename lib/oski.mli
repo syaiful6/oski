@@ -531,6 +531,13 @@ module Stream : sig
         Returns [Some string] on success, [None] if EOF is reached before reading [len] bytes. *)
 end
 
+module Stream_asset : sig
+  type t
+
+  val delete : t -> unit
+  val to_stream : t -> Stream.t
+end
+
 module Data : sig
   (** Data interface for working with immutable byte arrays from Skia.
 
@@ -563,4 +570,14 @@ module Data : sig
   val to_string : t -> string
   (** [to_string data] converts the data to a string.
       The data is interpreted as raw bytes. *)
+end
+
+module Font_style : sig
+  type t
+  type slant = Oski_types.M.Font_style.slant
+
+  val make : int -> int -> slant -> t
+  val get_slant : t -> slant
+  val get_weight : t -> int
+  val get_width : t -> int
 end

@@ -13,3 +13,5 @@ module Vec3 = Vec3
 module Vec4 = Vec4
 module Data = Data
 module Stream = Stream
+module Stream_asset = Stream_asset
+module Font_style = Font_style

@@ -663,8 +663,8 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let delete = foreign "sk_fontstyle_delete" C.(t @-> returning void)
     let get_slant = foreign "sk_fontstyle_get_slant" C.(t @-> returning slant)
-    let get_weight = foreign "sk_fontstyle_get_width" C.(t @-> returning int)
-    let get_height = foreign "sk_fontstyle_get_weight" C.(t @-> returning int)
+    let get_width = foreign "sk_fontstyle_get_width" C.(t @-> returning int)
+    let get_weight = foreign "sk_fontstyle_get_weight" C.(t @-> returning int)
   end
 
   module Text_encoding = struct
