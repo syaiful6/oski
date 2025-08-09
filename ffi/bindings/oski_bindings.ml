@@ -408,6 +408,9 @@ module M (F : Ctypes.FOREIGN) = struct
     let fork = foreign "sk_stream_fork" C.(t @-> returning t_opt)
 
     (* Reading data*)
+    let get_memory_base =
+      foreign "sk_stream_get_memory_base" C.(t @-> returning (ptr void))
+
     let read =
       foreign
         "sk_stream_read"
@@ -465,7 +468,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let make = foreign "sk_filestream_new" C.(string @-> returning t_opt)
     let delete = foreign "sk_filestream_destroy" C.(t @-> returning void)
     let is_valid = foreign "sk_filestream_is_valid" C.(t @-> returning bool)
-    let as_stream file = C.coerce t Stream.t file
+    let to_stream file = C.coerce t Stream.t file
   end
 
   module Memory_stream = struct
@@ -488,7 +491,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_memorystream_new_with_skdata" C.(data @-> returning t_opt)
 
     let delete = foreign "sk_memorystream_destroy" C.(t @-> returning void)
-    let as_stream memory = C.coerce t Stream.t memory
+    let to_stream memory = C.coerce t Stream.t memory
   end
 
   module WStream = struct
@@ -566,7 +569,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let delete = foreign "sk_filewstream_destroy" C.(t @-> returning void)
     let is_valid = foreign "sk_filewstream_is_valid" C.(t @-> returning bool)
     let as_wstream file = C.coerce t WStream.t file
-    let as_stream file = C.coerce t Stream.t file
+    let to_stream file = C.coerce t Stream.t file
   end
 
   module Dynamic_memory_wstream = struct
@@ -599,8 +602,8 @@ module M (F : Ctypes.FOREIGN) = struct
     let delete =
       foreign "sk_dynamicmemorywstream_destroy" C.(t @-> returning void)
 
-    let as_wstream memory = C.coerce t WStream.t memory
-    let as_stream memory = C.coerce t Stream.t memory
+    let to_wstream memory = C.coerce t WStream.t memory
+    let to_stream memory = C.coerce t Stream.t memory
   end
 
   module Data = struct
@@ -649,6 +652,12 @@ module M (F : Ctypes.FOREIGN) = struct
     let delete = foreign "sk_string_destructor" C.(t @-> returning void)
   end
 
+  module Text_encoding = struct
+    type t = T.Text_encoding.t
+
+    let t = T.Text_encoding.t
+  end
+
   module Font_style = struct
     type t = T.Font_style.t C.structure C.ptr
 
@@ -661,16 +670,13 @@ module M (F : Ctypes.FOREIGN) = struct
     let make =
       foreign "sk_fontstyle_new" C.(int @-> int @-> slant @-> returning t)
 
+    let make_empty =
+      foreign "oski_fontstyle_create_empty" C.(void @-> returning t)
+
     let delete = foreign "sk_fontstyle_delete" C.(t @-> returning void)
     let get_slant = foreign "sk_fontstyle_get_slant" C.(t @-> returning slant)
     let get_width = foreign "sk_fontstyle_get_width" C.(t @-> returning int)
     let get_weight = foreign "sk_fontstyle_get_weight" C.(t @-> returning int)
-  end
-
-  module Text_encoding = struct
-    type t = T.Text_encoding.t
-
-    let t = T.Text_encoding.t
   end
 
   module Typeface = struct
@@ -796,6 +802,9 @@ module M (F : Ctypes.FOREIGN) = struct
     let t_opt = C.ptr_opt T.Font_style.set
     let unref = foreign "sk_fontstyleset_unref" C.(t @-> returning void)
     let get_count = foreign "sk_fontstyleset_get_count" C.(t @-> returning int)
+
+    let make_empty =
+      foreign "oski_fontstyleset_create_empty" C.(void @-> returning t)
 
     let get_style =
       foreign

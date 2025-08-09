@@ -529,6 +529,9 @@ module Stream : sig
   val really_read_string : t -> int -> string option
   (** [really_read_string stream len] reads exactly [len] bytes and returns them as a string.
         Returns [Some string] on success, [None] if EOF is reached before reading [len] bytes. *)
+
+  val get_memory_base : t -> unit Ctypes.ptr
+  (** Returns the starting address for the data. *)
 end
 
 module Stream_asset : sig
@@ -536,6 +539,23 @@ module Stream_asset : sig
 
   val delete : t -> unit
   val to_stream : t -> Stream.t
+
+  val to_native : t -> Oski_ffi.M.Stream_asset.t
+  (** [to_native asset] returns the underlying FFI stream asset handle.
+      Use this when interfacing with other Skia functions that expect a native stream asset. *)
+end
+
+module File_stream : sig
+  type t
+
+  val make : string -> t option
+  val is_valid : t -> bool
+  val delete : t -> unit
+  val to_stream : t -> Stream.t
+
+  val to_native : t -> Oski_ffi.M.File_stream.t
+  (** [to_native file] returns the underlying FFI file stream handle.
+      Use this when interfacing with other Skia functions that expect a native file stream. *)
 end
 
 module Data : sig
@@ -572,6 +592,33 @@ module Data : sig
       The data is interpreted as raw bytes. *)
 end
 
+module Memory_stream : sig
+  type t
+
+  val of_string : string -> int -> t option
+  val of_data : Data.t -> t option
+  val to_stream : t -> Stream.t
+end
+
+module Typeface : sig
+  type t
+  type id = Oski_types.M.Typeface.id
+  type font_table_tag = Oski_types.M.Typeface.font_table_tag
+
+  val of_name : string -> Font_style.t -> t option
+  val of_file : string -> int -> t option
+  val of_asset : Stream_asset.t -> int -> t option
+  val of_data : Data.t -> int -> t option
+  val open_stream : t -> Stream_asset.t option * int
+  val open_existing_stream : t -> Stream_asset.t option * int
+  val get_unique_id : t -> id
+  val equal : t -> t -> bool
+  val copy_table_data : t -> font_table_tag -> Data.t option
+  val get_font_style : t -> Font_style.t
+  val get_family_name : t -> string
+  val get_units_per_em : t -> int
+end
+
 module Font_style : sig
   type t
   type slant = Oski_types.M.Font_style.slant
@@ -580,4 +627,37 @@ module Font_style : sig
   val get_slant : t -> slant
   val get_weight : t -> int
   val get_width : t -> int
+end
+
+module Font_manager : sig
+  module Font_style_set : sig
+    type t
+
+    val get_count : t -> int
+    val make_empty : unit -> t
+    val get_style : t -> int -> Font_style.t * string option
+    val make_typeface : t -> int -> Typeface.t option
+    val match_style : t -> Font_style.t -> Typeface.t option
+  end
+
+  type t
+
+  val make : unit -> t
+  val make_style_set : t -> int -> Font_style_set.t option
+
+  val match_family : t -> string -> Font_style_set.t option
+  (** [match_family mgr family] returns a Font_style_set for the given family name.
+      Returns [None] if the family is not found. *)
+
+  val match_family_style : t -> string -> Font_style.t -> Typeface.t option
+  val get_family_name : t -> int -> string
+  val count_families : t -> int
+
+  val match_family_style_character :
+     t
+    -> string
+    -> Font_style.t
+    -> string list
+    -> Uchar.t
+    -> Typeface.t option
 end

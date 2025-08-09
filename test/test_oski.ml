@@ -111,6 +111,68 @@ let test_conversions () =
   Alcotest.(check (float 0.001)) "Vec2 to Size conversion" vec2.x vec2_back.x;
   Alcotest.(check (float 0.001)) "Vec2 to Size conversion" vec2.y vec2_back.y
 
+let test_font_mgr_count_families () =
+  let mgr = Oski.Font_manager.make () in
+  let count = Oski.Font_manager.count_families mgr in
+  Alcotest.(check bool) "Font manager has families" (count > 0) true
+
+let test_font_mgr_match_family_style () =
+  let mgr = Oski.Font_manager.make () in
+  let style = Oski.Font_style.make 400 5 `Upright in
+  let maybe_typeface = Oski.Font_manager.match_family_style mgr "Arial" style in
+  let maybe_name = Option.map Oski.Typeface.get_family_name maybe_typeface in
+  Alcotest.(check (option string))
+    "Typeface family name"
+    (Some "Arial")
+    maybe_name
+
+let test_font_mgr_match_family_style_character () =
+  let mgr = Oski.Font_manager.make () in
+  let style = Oski.Font_style.make 400 5 `Upright in
+  (* The emoji 😁 has the Unicode code point U+1F601, which is 128513 in
+     decimal. *)
+  let emoji = Uchar.of_int 0x1F601 in
+  let maybe_typeface =
+    Oski.Font_manager.match_family_style_character
+      mgr
+      "Arial"
+      style
+      [ "en_US" ]
+      emoji
+  in
+  Alcotest.(check bool)
+    "Typeface found for emoji"
+    (Option.is_some maybe_typeface)
+    true
+
+let test_font_mgr_get_styleset mgr name =
+  let maybe_styleset = Oski.Font_manager.match_family mgr name in
+  Alcotest.(check bool)
+    "Font manager matches Arial family"
+    (Option.is_some maybe_styleset)
+    true;
+  Option.get maybe_styleset
+
+let test_font_mgr_match_family () =
+  let mgr = Oski.Font_manager.make () in
+  ignore (test_font_mgr_get_styleset mgr "Arial")
+
+let test_font_mgr_styleset_get_style () =
+  let mgr = Oski.Font_manager.make () in
+  let styleset = test_font_mgr_get_styleset mgr "Arial" in
+  let _, maybe_name = Oski.Font_manager.Font_style_set.get_style styleset 0 in
+  let valid_names = [ "Regular"; "Bold"; "Italic" ] in
+  Alcotest.(check bool)
+    "Font style name is valid"
+    (Option.is_some maybe_name)
+    true;
+  let name = Option.get maybe_name in
+  (* Check if the name is one of the valid names *)
+  Alcotest.(check bool)
+    "Font style name is valid"
+    (List.mem name valid_names)
+    true
+
 let tests =
   [ ( "Color"
     , [ "color make rgb", `Quick, test_color_make_rgba
@@ -128,4 +190,13 @@ let tests =
   ; "ISize", [ "isize operations", `Quick, test_isize_operations ]
   ; "RSXform", [ "rsxform rotation", `Quick, test_rsxform_rotation ]
   ; "Conversions", [ "type conversions", `Quick, test_conversions ]
+  ; ( "Font_manager"
+    , [ "match family style", `Quick, test_font_mgr_match_family_style
+      ; "match family", `Quick, test_font_mgr_match_family
+      ; "count families", `Quick, test_font_mgr_count_families
+      ; ( "match family style character"
+        , `Quick
+        , test_font_mgr_match_family_style_character )
+      ; "Font styleset get style", `Quick, test_font_mgr_styleset_get_style
+      ] )
   ]

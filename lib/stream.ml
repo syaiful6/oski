@@ -104,3 +104,5 @@ let really_read_string stream len =
     done;
     Some (Bytes.to_string bytes)
   | None -> None
+
+let get_memory_base = F.Stream.get_memory_base

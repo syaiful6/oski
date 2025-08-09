@@ -1,6 +1,8 @@
 #include "bindings.h"
 
 #include "include/core/SkColor.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
@@ -54,4 +56,12 @@ sk_stream_asset_t* oski_typeface_open_existing_stream(const sk_typeface_t* typef
                                                       int* ttcIndex) {
   return reinterpret_cast<sk_stream_asset_t*>(
       reinterpret_cast<const SkTypeface*>(typeface)->openExistingStream(ttcIndex).release());
+}
+
+sk_fontstyle_t* oski_fontstyle_create_empty() {
+  return reinterpret_cast<sk_fontstyle_t*>(new SkFontStyle());
+}
+
+sk_fontstyleset_t* oski_fontstyleset_create_empty() {
+  return reinterpret_cast<sk_fontstyleset_t*>(SkFontStyleSet::CreateEmpty().release());
 }

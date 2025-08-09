@@ -21,6 +21,10 @@ OSKI_BINDINGS_API bool oski_typeface_equal(const sk_typeface_t* typeface,
                                            const sk_typeface_t* typeface2);
 OSKI_BINDINGS_API sk_stream_asset_t* oski_typeface_open_existing_stream(
     const sk_typeface_t* typeface, int* ttcIndex);
+// font style
+OSKI_BINDINGS_API sk_fontstyle_t* oski_fontstyle_create_empty();
+// Font manager
+OSKI_BINDINGS_API sk_fontstyleset_t* oski_fontstyleset_create_empty();
 
 OSKI_PLUS_PLUS_END_GUARD
 #endif
