@@ -13,6 +13,16 @@ module M (F : Ctypes.TYPE) = struct
       |> List.map (fun (constructor, constant_name) ->
         constructor, constant (constant_name ^ "_SK_" ^ label) int64_t))
 
+  let skia_c_enum_no_prefix label typedef mapping =
+    enum
+      typedef
+      ~typedef:true
+      ~unexpected:(fun i ->
+        invalid_arg (Printf.sprintf "Unsupported %s enum: %Ld" typedef i))
+      (mapping
+      |> List.map (fun (constructor, constant_name) ->
+        constructor, constant (constant_name ^ "_" ^ label) int64_t))
+
   module Color = struct
     let t = uint32_t
   end
@@ -1381,5 +1391,84 @@ module M (F : Ctypes.TYPE) = struct
     let backdrop = field save_layer_rec "fBackdrop" (ptr Image_filter.t)
     let flags = field save_layer_rec "fFlags" save_layer_rec_flags
     let () = seal save_layer_rec
+  end
+
+  module Gr = struct
+    type surface_origin =
+      [ `Top_left
+      | `Bottom_left
+      ]
+
+    let surface_origin : surface_origin typ =
+      skia_c_enum_no_prefix
+        "GR_SURFACE_ORIGIN"
+        "gr_surfaceorigin_t"
+        [ `Top_left, "TOP_LEFT"; `Bottom_left, "BOTTOM_LEFT" ]
+
+    module Context = struct
+      type t
+
+      let t : t structure typ = structure "gr_direct_context_t"
+
+      module Options = struct
+        type t
+
+        let t : t structure typ = structure "gr_context_options_t"
+        let t = typedef t "gr_context_options_t"
+        let avoid_stencil_buffers = field t "fAvoidStencilBuffers" bool
+        let runtime_program_cache_size = field t "fRuntimeProgramCacheSize" int
+
+        let glyph_cache_texture_maximum_bytes =
+          field t "fGlyphCacheTextureMaximumBytes" size_t
+
+        let allow_path_mask_caching = field t "fAllowPathMaskCaching" bool
+        let do_manual_mipmapping = field t "fDoManualMipmapping" bool
+        let buffer_map_threshold = field t "fBufferMapThreshold" int
+        let () = seal t
+      end
+    end
+
+    module Recording_context = struct
+      type t
+
+      let t : t structure typ = structure "gr_recording_context_t"
+    end
+
+    module Backend = struct
+      type t
+
+      let t : t structure typ = structure "gr_backend_t"
+
+      type backend_type =
+        [ `OpenGL
+        | `Vulkan
+        | `Metal
+        | `Direct3D
+        | `Unsupported
+        ]
+
+      let backend_type : backend_type typ =
+        skia_c_enum_no_prefix
+          "GR_BACKEND"
+          "gr_backend_t"
+          [ `OpenGL, "OPENGL"
+          ; `Vulkan, "VULKAN"
+          ; `Metal, "METAL"
+          ; `Direct3D, "DIRECT3D"
+          ; `Unsupported, "UNSUPPORTED"
+          ]
+    end
+
+    module Backend_render_target = struct
+      type t
+
+      let t : t structure typ = structure "gr_backendrendertarget_t"
+    end
+
+    module Backend_texture = struct
+      type t
+
+      let t : t structure typ = structure "gr_backendtexture_t"
+    end
   end
 end

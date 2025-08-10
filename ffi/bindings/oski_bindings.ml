@@ -409,7 +409,7 @@ module M (F : Ctypes.FOREIGN) = struct
 
     (* Reading data*)
     let get_memory_base =
-      foreign "sk_stream_get_memory_base" C.(t @-> returning (ptr void))
+      foreign "sk_stream_get_memory_base" C.(t @-> returning (ptr (const void)))
 
     let read =
       foreign
@@ -633,6 +633,19 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let get_bytes =
       foreign "sk_data_get_bytes" C.(t @-> returning (ptr (const uint8_t)))
+
+    let release_proc =
+      C.static_funptr Ctypes.(ptr (const void) @-> ptr void @-> returning void)
+
+    let new_with_proc =
+      foreign
+        "sk_data_new_with_proc"
+        C.(
+          ptr (const void)
+          @-> size_t
+          @-> release_proc
+          @-> ptr void
+          @-> returning t_opt)
   end
 
   module String = struct
@@ -1840,8 +1853,9 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let t = C.ptr T.Bitmap.t
 
-    (* let release_proc = C.static_funptr (ptr void @-> ptr void @-> returning
-       void) *)
+    let release_proc =
+      C.static_funptr Ctypes.(ptr void @-> ptr void @-> returning void)
+
     let delete = foreign "sk_bitmap_destructor" C.(t @-> returning void)
     let make = foreign "sk_bitmap_new" C.(void @-> returning t)
 
@@ -1901,9 +1915,17 @@ module M (F : Ctypes.FOREIGN) = struct
     let ready_to_draw =
       foreign "sk_bitmap_ready_to_draw" C.(t @-> returning bool)
 
-    (* let install_pixels = foreign "sk_bitmap_install_pixels" C.( t @->
-       Image_info.t @-> ptr void @-> size_t @-> release_proc @-> ptr void @->
-       returning bool) *)
+    let install_pixels =
+      foreign
+        "sk_bitmap_install_pixels"
+        C.(
+          t
+          @-> Image_info.t
+          @-> ptr void
+          @-> size_t
+          @-> release_proc
+          @-> ptr void
+          @-> returning bool)
 
     let install_pixels_with_pixmap =
       foreign
@@ -1944,6 +1966,28 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_image_new_raster_copy"
         C.(Image_info.t @-> ptr void @-> size_t @-> returning t_opt)
+
+    let of_raster_copy_with_pixmap =
+      foreign
+        "sk_image_new_raster_copy_with_pixmap"
+        C.(const Pixmap.t @-> returning t_opt)
+
+    let of_raster_data =
+      foreign
+        "sk_image_new_raster_data"
+        C.(Image_info.t @-> Data.t @-> size_t @-> returning t_opt)
+
+    let raster_release_proc =
+      C.static_funptr Ctypes.(ptr (const void) @-> ptr void @-> returning void)
+
+    let of_raster =
+      foreign
+        "sk_image_new_raster"
+        C.(
+          const Pixmap.t
+          @-> raster_release_proc
+          @-> ptr void
+          @-> returning t_opt)
 
     let of_encoded =
       foreign "sk_image_new_from_encoded" C.(Data.t @-> returning t_opt)
@@ -2922,10 +2966,20 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(
           Image_info.t @-> size_t @-> ptr T.Surface_props.t @-> returning t_opt)
 
-    (* let make_raster_direct = foreign "sk_surface_new_raster_direct" C.(
-       Image_info.t @-> ptr void @-> size_t @-> C.static_funptr
-       T.Surface.raster_release_proc @-> ptr void @-> T.Surface_props.t @->
-       returning t_opt) *)
+    let release_proc =
+      C.static_funptr Ctypes.(ptr void @-> ptr void @-> returning void)
+
+    let make_raster_direct =
+      foreign
+        "sk_surface_new_raster_direct"
+        C.(
+          Image_info.t
+          @-> ptr void (* pixels *)
+          @-> size_t (* row_bytes *)
+          @-> release_proc
+          @-> ptr void (* context *)
+          @-> ptr T.Surface_props.t
+          @-> returning t_opt)
 
     let unref = foreign "sk_surface_unref" C.(t @-> returning void)
 
