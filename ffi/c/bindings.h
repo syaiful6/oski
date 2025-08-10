@@ -26,5 +26,11 @@ OSKI_BINDINGS_API sk_fontstyle_t* oski_fontstyle_create_empty();
 // Font manager
 OSKI_BINDINGS_API sk_fontstyleset_t* oski_fontstyleset_create_empty();
 
+// Path
+OSKI_BINDINGS_API sk_path_t* oski_path_make_from(const sk_point_t pts[], int point_count,
+                                                 const uint8_t verbs[], int verb_count,
+                                                 const float weights[], int weight_count,
+                                                 sk_path_filltype_t fill_type, bool is_volatile);
+
 OSKI_PLUS_PLUS_END_GUARD
 #endif

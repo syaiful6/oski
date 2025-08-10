@@ -889,7 +889,7 @@ module M (F : Ctypes.FOREIGN) = struct
     type t = T.Font_metrics.t C.structure C.ptr
 
     let t = C.ptr T.Font_metrics.t
-    let get_make () = C.allocate_n ~count:1 T.Font_metrics.t
+    let make () = C.allocate_n ~count:1 T.Font_metrics.t
     let get_ascent m = C.(getf !@m T.Font_metrics.ascent)
     let get_descent m = C.(getf !@m T.Font_metrics.descent)
     let get_bottom m = C.(getf !@m T.Font_metrics.bottom)
@@ -919,9 +919,11 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let t = C.ptr T.Blender.t
     let t_opt = C.ptr_opt T.Blender.t
+    let ref = foreign "sk_blender_ref" C.(t @-> returning void)
+    let unref = foreign "sk_blender_unref" C.(t @-> returning void)
 
     let of_mode =
-      foreign "sk_blender_new_mode" C.(T.Blendmode.t @-> returning t_opt)
+      foreign "sk_blender_new_mode" C.(T.Blend_mode.t @-> returning t)
 
     let of_arithmetic =
       foreign
@@ -935,6 +937,20 @@ module M (F : Ctypes.FOREIGN) = struct
     let t = C.ptr T.Path.t
     let make = foreign "sk_path_new" C.(void @-> returning t)
     let delete = foreign "sk_path_delete" C.(t @-> returning void)
+
+    let make_from =
+      foreign
+        "oski_path_make_from"
+        C.(
+          Point.t
+          @-> int
+          @-> ptr uint8_t
+          @-> int
+          @-> ptr float
+          @-> int
+          @-> T.Path.fill_type
+          @-> bool
+          @-> returning (ptr_opt T.Path.t))
 
     type direction = T.Path.direction
 
@@ -1484,7 +1500,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_mode =
       foreign
         "sk_colorfilter_new_mode"
-        C.(Color.t @-> T.Blendmode.t @-> returning t_opt)
+        C.(Color.t @-> T.Blend_mode.t @-> returning t_opt)
 
     let of_lighting =
       foreign
@@ -2028,10 +2044,10 @@ module M (F : Ctypes.FOREIGN) = struct
     let set_blendmode =
       foreign
         "sk_paint_set_blendmode"
-        C.(t @-> T.Blendmode.t @-> returning void)
+        C.(t @-> T.Blend_mode.t @-> returning void)
 
     let get_blendmode =
-      foreign "sk_paint_get_blendmode" C.(t @-> returning T.Blendmode.t)
+      foreign "sk_paint_get_blendmode" C.(t @-> returning T.Blend_mode.t)
 
     let set_blender =
       foreign "sk_paint_set_blender" C.(t @-> Blender.t @-> returning void)
@@ -2260,12 +2276,12 @@ module M (F : Ctypes.FOREIGN) = struct
     let draw_color =
       foreign
         "sk_canvas_draw_color"
-        C.(t @-> Color.t @-> T.Blendmode.t @-> returning void)
+        C.(t @-> Color.t @-> T.Blend_mode.t @-> returning void)
 
     let draw_color4f =
       foreign
         "sk_canvas_draw_color4f"
-        C.(t @-> T.Color4f.t @-> T.Blendmode.t @-> returning void)
+        C.(t @-> T.Color4f.t @-> T.Blend_mode.t @-> returning void)
 
     let draw_points =
       foreign
@@ -2528,7 +2544,7 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(
           t
           @-> ptr T.Vertices.t
-          @-> T.Blendmode.t
+          @-> T.Blend_mode.t
           @-> Paint.t
           @-> returning void)
 
@@ -2559,7 +2575,7 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> Rect.t
           @-> ptr Color.t
           @-> int
-          @-> T.Blendmode.t
+          @-> T.Blend_mode.t
           @-> ptr Sampling_options.t
           @-> Rect.t
           @-> Paint.t
@@ -2573,7 +2589,7 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> Point.t
           @-> ptr Color.t
           @-> Point.t
-          @-> T.Blendmode.t
+          @-> T.Blend_mode.t
           @-> Paint.t
           @-> returning void)
 
@@ -2669,7 +2685,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_blend =
       foreign
         "sk_imagefilter_new_blend"
-        C.(T.Blendmode.t @-> t_opt @-> t_opt @-> Rect.t @-> returning t_opt)
+        C.(T.Blend_mode.t @-> t_opt @-> t_opt @-> Rect.t @-> returning t_opt)
 
     let of_blender =
       foreign

@@ -661,3 +661,168 @@ module Font_manager : sig
     -> Uchar.t
     -> Typeface.t option
 end
+
+module Text_encoding : sig
+  type t = Oski_types.M.Text_encoding.t
+end
+
+module Font_metrics : sig
+  type t =
+    { flags : Unsigned.uint32
+    ; top : float
+    ; ascent : float
+    ; descent : float
+    ; bottom : float
+    ; leading : float
+    ; avg_char_width : float
+    ; max_char_width : float
+    ; xmin : float
+    ; xmax : float
+    ; xheight : float
+    ; cap_height : float
+    ; underline_thickness : float
+    ; underline_position : float
+    ; strikeout_thickness : float
+    ; strikeout_position : float
+    }
+
+  val to_native : t -> Oski_types.M.Font_metrics.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Font_metrics.t
+  val of_native : Oski_types.M.Font_metrics.t Ctypes.structure -> t
+end
+
+module Blend_mode : sig
+  type t = Oski_types.M.Blend_mode.t
+end
+
+module Blender : sig
+  type t
+
+  val of_mode : Blend_mode.t -> t
+  (** [of_mode mode] creates a Blender for the given blend mode. *)
+
+  val of_arithmetic :
+     k1:float
+    -> k2:float
+    -> k3:float
+    -> k4:float
+    -> enforce_premul:bool
+    -> t option
+  (** [of_arithmetic k1 k2 k3 k4 enforce_premul] creates a Blender with the given arithmetic coefficients.
+      Returns [Some blender] on success, [None] if the coefficients are invalid. *)
+end
+
+module Path : sig
+  type t
+  type direction = Oski_types.M.Path.direction
+  type arc_size = Oski_types.M.Path.arc_size
+  type fill_type = Oski_types.M.Path.fill_type
+  type add_mode = Oski_types.M.Path.add_mode
+  type verb = Oski_types.M.Path.verb
+
+  val make : unit -> t
+  (** [make ()] creates a new empty path. *)
+
+  val make_from :
+     Point.t list
+    -> int list
+    -> float list
+    -> fill_type
+    -> bool
+    -> t option
+  (** [make_from points verbs conic_weights fill_type is_volatile] creates a new path with specified segements.
+
+      The points and weights array are read in order, based, on the sequence of verbs.
+
+      Move 1 point
+      Line 1 point
+      Quad 2 point
+      Conic 2 points and 1 weight
+      Cubic 3 points
+      Close 0 points
+
+      If an illegal sequence of verbs is encountered, or the specified of points
+      or weights is not sufficient given the verbs, and empty Path is returned.
+
+      A legal sequence of verbs consists of any number of Contours. A contour always begins
+      with a Move verb, followed by 0 or more segements: Line, Quad, Conic, Cubic, followed
+      by an optional Close. *)
+
+  val reset : t -> unit
+  (** [reset path] clears the path, removing all segments and contours. *)
+
+  val rewind : t -> unit
+  (** [rewind path] rewinds the path, resetting the current point to the start of the first contour.
+      This does not clear the path, but allows for reusing it without starting from scratch. *)
+
+  val count_points : t -> int
+  (** [count_points path] returns the number of points in the path. *)
+
+  val count_verbs : t -> int
+  (** [count_verbs path] returns the number of verbs in the path.
+      This includes Move, Line, Quad, Conic, Cubic, and Close verbs. *)
+
+  val get_fill_type : t -> fill_type
+  (** [get_fill_type path] returns the current fill type of the path. *)
+
+  val set_fill_type : t -> fill_type -> unit
+  (** [set_fill_type path fill_type] sets the fill type of the path.
+      - `fill_type`: the fill type to set, e.g., `Winding`, `Even_odd`, etc. *)
+
+  val move_to : t -> Point.t -> unit
+  (** [move_to path point] Adds beginning of contour to the path at the given point. 
+
+      - `x`: x-axis value of contour start 
+      - `y`: y-axis value of contour start *)
+
+  val line_to : t -> Point.t -> unit
+  (** [line_to path point] Adds a line segment to the path from the current point to the given point.
+
+      - `x`: x-axis value of line end
+      - `y`: y-axis value of line end *)
+
+  val quad_to : t -> Point.t -> Point.t -> unit
+  (** [quad_to path pt1 pt2] Adds a quadratic bezier curve to the path.
+      - `pt1`: control point of the curve
+      - `pt2`: end point of the curve *)
+
+  val conic_to : t -> Point.t -> Point.t -> float -> unit
+  (** [conic_to path pt1 pt2 weight] Adds a conic curve to the path.
+      - `pt1`: control point of the curve
+      - `pt2`: end point of the curve
+      - `weight`: weight of the conic curve *)
+
+  val cubic_to : t -> Point.t -> Point.t -> Point.t -> unit
+  (** [cubic_to path pt1 pt2 pt3] Adds a cubic bezier curve to the path.
+      - `pt1`: first control point of the curve
+      - `pt2`: second control point of the curve
+      - `pt3`: end point of the curve *)
+
+  val arc_to :
+     t
+    -> Rect.t
+    -> start_angle:float
+    -> sweep_angle:float
+    -> force_move_to:bool
+    -> unit
+  (** [arc_to path oval ~start_angle ~sweep_angle ~force_move_to] Adds an arc to the path.
+      - `oval`: bounding rectangle of the arc
+      - `start_angle`: starting angle of the arc in degrees
+      - `sweep_angle`: angle to sweep for the arc in degrees
+      - `force_move_to`: if true, forces a move to the start point of the arc *)
+
+  val arc_to_with_oval :
+     t
+    -> Rect.t
+    -> start_angle:float
+    -> sweep_angle:float
+    -> force_move_to:bool
+    -> unit
+
+  val add_rect :
+     t
+    -> Rect.t
+    -> ?dir_start:(direction * int) option
+    -> unit
+    -> unit
+end

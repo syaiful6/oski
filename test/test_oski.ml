@@ -157,6 +157,19 @@ let test_font_mgr_match_family () =
   let mgr = Oski.Font_manager.make () in
   ignore (test_font_mgr_get_styleset mgr "Arial")
 
+let test_font_mgr_styleset_get_count () =
+  let mgr = Oski.Font_manager.make () in
+  let styleset = test_font_mgr_get_styleset mgr "Arial" in
+  let count = Oski.Font_manager.Font_style_set.get_count styleset in
+  Alcotest.(check bool) "Font style set count" (count > 0) true;
+  for i = 0 to count - 1 do
+    let _, maybe_name = Oski.Font_manager.Font_style_set.get_style styleset i in
+    Alcotest.(check bool)
+      ("Style " ^ string_of_int i ^ " has a name")
+      (Option.is_some maybe_name)
+      true
+  done
+
 let test_font_mgr_styleset_get_style () =
   let mgr = Oski.Font_manager.make () in
   let styleset = test_font_mgr_get_styleset mgr "Arial" in
@@ -198,5 +211,6 @@ let tests =
         , `Quick
         , test_font_mgr_match_family_style_character )
       ; "Font styleset get style", `Quick, test_font_mgr_styleset_get_style
+      ; "Font styleset get count", `Quick, test_font_mgr_styleset_get_count
       ] )
   ]

@@ -721,7 +721,7 @@ module M (F : Ctypes.TYPE) = struct
     let () = seal t
   end
 
-  module Blendmode = struct
+  module Blend_mode = struct
     type t =
       [ `Clear
       | `Src
