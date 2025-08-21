@@ -42,16 +42,14 @@ let of_data data ix =
   | None -> None
 
 let open_stream face =
-  let idx = Ctypes.CArray.make Ctypes.int 1 in
-  let stream = F.Typeface.open_stream face (Some (Ctypes.CArray.start idx)) in
-  stream, Ctypes.CArray.get idx 0
+  let idx_ptr = Ctypes.allocate Ctypes.int 0 in
+  let stream = F.Typeface.open_stream face (Some idx_ptr) in
+  stream, Ctypes.(!@ idx_ptr)
 
 let open_existing_stream face =
-  let idx = Ctypes.CArray.make Ctypes.int 1 in
-  let stream =
-    F.Typeface.open_existing_stream face (Some (Ctypes.CArray.start idx))
-  in
-  stream, Ctypes.CArray.get idx 0
+  let idx_ptr = Ctypes.allocate Ctypes.int 0 in
+  let stream = F.Typeface.open_existing_stream face (Some idx_ptr) in
+  stream, Ctypes.(!@ idx_ptr)
 
 let get_font_style face =
   let style = F.Typeface.get_font_style face in

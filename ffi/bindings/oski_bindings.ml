@@ -1970,7 +1970,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_raster_copy_with_pixmap =
       foreign
         "sk_image_new_raster_copy_with_pixmap"
-        C.(const Pixmap.t @-> returning t_opt)
+        C.(Pixmap.t @-> returning t_opt)
 
     let of_raster_data =
       foreign
@@ -1984,7 +1984,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_image_new_raster"
         C.(
-          const Pixmap.t
+          Pixmap.t
           @-> raster_release_proc
           @-> ptr void
           @-> returning t_opt)
