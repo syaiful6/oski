@@ -6,7 +6,7 @@ type t = F.Stream.t
 type bigstring =
   (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
-let as_native stream = stream
+let to_native stream = stream
 
 let duplicate stream =
   match F.Stream.duplicate stream with
@@ -104,3 +104,5 @@ let really_read_string stream len =
     done;
     Some (Bytes.to_string bytes)
   | None -> None
+
+let get_memory_base = F.Stream.get_memory_base

@@ -7,7 +7,7 @@ type t =
 
 let make w h = { w; h }
 
-let as_native t =
+let to_native t =
   let isize = Ctypes.make T.ISize.t in
   Ctypes.(
     setf isize T.ISize.w (Int32.of_int t.w);
@@ -19,7 +19,7 @@ let of_native isize =
     (Ctypes.getf isize T.ISize.w |> Int32.to_int)
     (Ctypes.getf isize T.ISize.h |> Int32.to_int)
 
-let as_native_ptr t = as_native t |> Ctypes.addr
+let to_native_ptr t = to_native t |> Ctypes.addr
 let area t = t.w * t.h
 let is_empty t = t.w <= 0 || t.h <= 0
 let is_zero t = t.w = 0 && t.h = 0

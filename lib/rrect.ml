@@ -5,7 +5,7 @@ type t = Bindings.RRect.t
 type type_ = T.RRect.type_
 type corner = T.RRect.corner
 
-let as_native t = t
+let to_native t = t
 
 let make () =
   let rrect = Bindings.RRect.make () in
@@ -34,34 +34,34 @@ let get_height = Bindings.RRect.get_height
 let set_empty = Bindings.RRect.set_empty
 
 let set_rect t rect =
-  let native = Rect.as_native_ptr rect in
+  let native = Rect.to_native_ptr rect in
   Bindings.RRect.set_rect t native
 
 let set_oval t rect =
-  let native = Rect.as_native_ptr rect in
+  let native = Rect.to_native_ptr rect in
   Bindings.RRect.set_oval t native
 
 let set_rect_xy t rect x y =
-  let native = Rect.as_native_ptr rect in
+  let native = Rect.to_native_ptr rect in
   Bindings.RRect.set_rect_xy t native x y
 
 let set_nine_patch t rect left top right bottom =
-  let native = Rect.as_native_ptr rect in
+  let native = Rect.to_native_ptr rect in
   Bindings.RRect.set_nine_patch t native left top right bottom
 
 let set_rect_radii t rect vec =
   Bindings.RRect.set_rect_radii
     t
-    (Rect.as_native_ptr rect)
-    (Vec2.as_native_ptr vec)
+    (Rect.to_native_ptr rect)
+    (Vec2.to_native_ptr vec)
 
 let inset = Bindings.RRect.inset
 let outset = Bindings.RRect.outset
 let offset = Bindings.RRect.offset
 let is_valid = Bindings.RRect.is_valid
-let contains t rect = Bindings.RRect.contains t (Rect.as_native_ptr rect)
+let contains t rect = Bindings.RRect.contains t (Rect.to_native_ptr rect)
 
 let transform t matrix =
   let dest = make () in
-  let ret = Bindings.RRect.transform t (Matrix.as_native_ptr matrix) dest in
+  let ret = Bindings.RRect.transform t (Matrix.to_native_ptr matrix) dest in
   if ret then Some dest else None

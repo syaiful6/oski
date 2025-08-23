@@ -21,6 +21,16 @@ OSKI_BINDINGS_API bool oski_typeface_equal(const sk_typeface_t* typeface,
                                            const sk_typeface_t* typeface2);
 OSKI_BINDINGS_API sk_stream_asset_t* oski_typeface_open_existing_stream(
     const sk_typeface_t* typeface, int* ttcIndex);
+// font style
+OSKI_BINDINGS_API sk_fontstyle_t* oski_fontstyle_create_empty();
+// Font manager
+OSKI_BINDINGS_API sk_fontstyleset_t* oski_fontstyleset_create_empty();
+
+// Path
+OSKI_BINDINGS_API sk_path_t* oski_path_make_from(const sk_point_t pts[], int point_count,
+                                                 const uint8_t verbs[], int verb_count,
+                                                 const float weights[], int weight_count,
+                                                 sk_path_filltype_t fill_type, bool is_volatile);
 
 OSKI_PLUS_PLUS_END_GUARD
 #endif

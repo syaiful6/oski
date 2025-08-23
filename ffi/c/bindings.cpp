@@ -1,7 +1,10 @@
 #include "bindings.h"
 
 #include "include/core/SkColor.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "oski_types.h"
@@ -54,4 +57,20 @@ sk_stream_asset_t* oski_typeface_open_existing_stream(const sk_typeface_t* typef
                                                       int* ttcIndex) {
   return reinterpret_cast<sk_stream_asset_t*>(
       reinterpret_cast<const SkTypeface*>(typeface)->openExistingStream(ttcIndex).release());
+}
+
+sk_fontstyle_t* oski_fontstyle_create_empty() {
+  return reinterpret_cast<sk_fontstyle_t*>(new SkFontStyle());
+}
+
+sk_fontstyleset_t* oski_fontstyleset_create_empty() {
+  return reinterpret_cast<sk_fontstyleset_t*>(SkFontStyleSet::CreateEmpty().release());
+}
+
+sk_path_t* oski_path_make_from(const sk_point_t pts[], int point_count, const uint8_t verbs[],
+                               int verb_count, const float weights[], int weight_count,
+                               sk_path_filltype_t fill_type, bool is_volatile) {
+  return reinterpret_cast<sk_path_t*>(
+      new SkPath(SkPath::Make(reinterpret_cast<const SkPoint*>(pts), point_count, verbs, verb_count,
+                              weights, weight_count, (SkPathFillType) fill_type, is_volatile)));
 }

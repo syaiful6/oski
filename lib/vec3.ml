@@ -8,7 +8,7 @@ type t =
 
 let make x y z = { x; y; z }
 
-let as_native t =
+let to_native t =
   let v3 = Ctypes.make T.Point3.t in
   Ctypes.(
     setf v3 T.Point3.x t.x;
@@ -22,7 +22,7 @@ let of_native t =
     (Ctypes.getf t T.Point3.y)
     (Ctypes.getf t T.Point3.z)
 
-let as_native_ptr t = as_native t |> Ctypes.addr
+let to_native_ptr t = to_native t |> Ctypes.addr
 let dot a b = (a.x *. b.x) +. (a.y *. b.y) +. (a.z *. b.z)
 
 let cross a b =

@@ -36,6 +36,7 @@ pkgs.mkShell {
       llvmPkgs.clang
       ninja
       gn
+      git
       fontconfig
       libiconv
       python3

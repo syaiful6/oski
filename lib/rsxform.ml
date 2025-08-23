@@ -9,7 +9,7 @@ type t =
 
 let make ~scos ~ssin ~tx ~ty = { scos; ssin; tx; ty }
 
-let as_native t =
+let to_native t =
   let rsxform = Ctypes.make T.RSXform.t in
   Ctypes.(
     setf rsxform T.RSXform.scos t.scos;
@@ -25,7 +25,7 @@ let of_native rsxform =
     ~tx:(Ctypes.getf rsxform T.RSXform.tx)
     ~ty:(Ctypes.getf rsxform T.RSXform.ty)
 
-let as_native_ptr t = as_native t |> Ctypes.addr
+let to_native_ptr t = to_native t |> Ctypes.addr
 let identity () = make ~scos:1. ~ssin:0. ~tx:0. ~ty:0.
 
 let from_rotation_translation ~angle ~tx ~ty =

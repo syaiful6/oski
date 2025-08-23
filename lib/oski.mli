@@ -33,6 +33,33 @@ module Color : sig
   val blue : t -> int
   val to_rgb : t -> RGB.t
   val to_hsv : t -> HSV.t
+
+  module Color4f : sig
+    type t =
+      { r : float
+      ; g : float
+      ; b : float
+      ; a : float
+      }
+
+    val make : float -> float -> float -> float -> t
+    val to_native : t -> Oski_types.M.Color4f.t Ctypes.structure
+    val to_native_ptr : t -> Oski_ffi.M.Color4f.t
+    val of_native : Oski_types.M.Color4f.t Ctypes.structure -> t
+    val of_color : Unsigned.uint32 -> t
+    val to_color : t -> Unsigned.uint32
+    val transparent : t
+    val black : t
+    val grey : t
+    val light_grey : t
+    val white : t
+    val red : t
+    val green : t
+    val blue : t
+    val yellow : t
+    val cyan : t
+    val magenta : t
+  end
 end
 
 module Vec2 : sig
@@ -56,8 +83,8 @@ module Vec2 : sig
   val length : t -> float
   val normalize : t -> t
   val is_zero : t -> bool
-  val as_native : t -> Oski_types.M.Vector.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Vector.t
+  val to_native : t -> Oski_types.M.Vector.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Vector.t
   val of_native : Oski_types.M.Vector.t Ctypes.structure -> t
 end
 
@@ -69,8 +96,8 @@ module Vec3 : sig
     }
 
   val make : float -> float -> float -> t
-  val as_native : t -> Oski_types.M.Vector3.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Vec3.t
+  val to_native : t -> Oski_types.M.Vector3.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Vec3.t
   val of_native : Oski_types.M.Vector3.t Ctypes.structure -> t
   val dot : t -> t -> float
   val cross : t -> t -> t
@@ -99,9 +126,9 @@ module Vec4 : sig
     }
 
   val make : float -> float -> float -> float -> t
-  val as_native : t -> Oski_types.M.Vector4.t Ctypes.structure
+  val to_native : t -> Oski_types.M.Vector4.t Ctypes.structure
   val of_native : Oski_types.M.Vector4.t Ctypes.structure -> t
-  val as_native_ptr : t -> Oski_types.M.Vector4.t Ctypes.structure Ctypes.ptr
+  val to_native_ptr : t -> Oski_types.M.Vector4.t Ctypes.structure Ctypes.ptr
   val dot : t -> t -> float
   val add : t -> t -> t
   val sub : t -> t -> t
@@ -139,8 +166,8 @@ module Point : sig
   val length : t -> float
   val normalize : t -> t
   val is_zero : t -> bool
-  val as_native : t -> Oski_types.M.Point.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Point.t
+  val to_native : t -> Oski_types.M.Point.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Point.t
   val of_native : Oski_types.M.Point.t Ctypes.structure -> t
 
   module IPoint : sig
@@ -150,9 +177,9 @@ module Point : sig
       }
 
     val make : int -> int -> t
-    val as_native : t -> Oski_types.M.IPoint.t Ctypes.structure
+    val to_native : t -> Oski_types.M.IPoint.t Ctypes.structure
     val of_native : Oski_types.M.IPoint.t Ctypes.structure -> t
-    val as_native_ptr : t -> Oski_ffi.M.IPoint.t
+    val to_native_ptr : t -> Oski_ffi.M.IPoint.t
     val add : t -> t -> t
     val sub : t -> t -> t
     val mul : t -> t -> t
@@ -172,9 +199,9 @@ module Size : sig
     }
 
   val make : float -> float -> t
-  val as_native : t -> Oski_types.M.Size.t Ctypes.structure
+  val to_native : t -> Oski_types.M.Size.t Ctypes.structure
   val of_native : Oski_types.M.Size.t Ctypes.structure -> t
-  val as_native_ptr : t -> Oski_types.M.Size.t Ctypes.structure Ctypes.ptr
+  val to_native_ptr : t -> Oski_types.M.Size.t Ctypes.structure Ctypes.ptr
   val area : t -> float
   val is_empty : t -> bool
   val is_zero : t -> bool
@@ -197,9 +224,9 @@ module ISize : sig
     }
 
   val make : int -> int -> t
-  val as_native : t -> Oski_types.M.ISize.t Ctypes.structure
+  val to_native : t -> Oski_types.M.ISize.t Ctypes.structure
   val of_native : Oski_types.M.ISize.t Ctypes.structure -> t
-  val as_native_ptr : t -> Oski_types.M.ISize.t Ctypes.structure Ctypes.ptr
+  val to_native_ptr : t -> Oski_types.M.ISize.t Ctypes.structure Ctypes.ptr
   val area : t -> int
   val is_empty : t -> bool
   val is_zero : t -> bool
@@ -223,8 +250,8 @@ module Rect : sig
     }
 
   val make : left:float -> top:float -> right:float -> bottom:float -> t
-  val as_native : t -> Oski_types.M.Rect.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Rect.t
+  val to_native : t -> Oski_types.M.Rect.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Rect.t
   val of_native : Oski_types.M.Rect.t Ctypes.structure -> t
   val width : t -> float
   val height : t -> float
@@ -251,8 +278,8 @@ module IRect : sig
     }
 
   val make : left:int -> top:int -> right:int -> bottom:int -> t
-  val as_native : t -> Oski_types.M.IRect.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.IRect.t
+  val to_native : t -> Oski_types.M.IRect.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.IRect.t
   val of_native : Oski_types.M.IRect.t Ctypes.structure -> t
   val width : t -> int
   val height : t -> int
@@ -296,8 +323,8 @@ module Matrix : sig
     -> persp2:float
     -> t
 
-  val as_native : t -> Oski_types.M.Matrix.t Ctypes.structure
-  val as_native_ptr : t -> Oski_ffi.M.Matrix.t
+  val to_native : t -> Oski_types.M.Matrix.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Matrix.t
   val of_native : Oski_types.M.Matrix.t Ctypes.structure -> t
   val identity : unit -> t
   val translate : x:float -> y:float -> t
@@ -310,7 +337,7 @@ module RRect : sig
   type type_ = Oski_types.M.RRect.type_
   type corner = Oski_types.M.RRect.corner
 
-  val as_native : t -> Oski_ffi.M.RRect.t
+  val to_native : t -> Oski_ffi.M.RRect.t
   val make : unit -> t
   val copy : t -> t
   val get_type : t -> type_
@@ -370,8 +397,8 @@ module Matrix44 : sig
     -> m33:float
     -> t
 
-  val as_native : t -> Oski_types.M.Matrix44.t Ctypes.structure
-  val as_native_ptr : t -> Oski_types.M.Matrix44.t Ctypes.structure Ctypes.ptr
+  val to_native : t -> Oski_types.M.Matrix44.t Ctypes.structure
+  val to_native_ptr : t -> Oski_types.M.Matrix44.t Ctypes.structure Ctypes.ptr
   val of_native : Oski_types.M.Matrix44.t Ctypes.structure -> t
   val pp : Format.formatter -> t -> unit
   val to_string : t -> string
@@ -391,8 +418,8 @@ module RSXform : sig
     }
 
   val make : scos:float -> ssin:float -> tx:float -> ty:float -> t
-  val as_native : t -> Oski_types.M.RSXform.t Ctypes.structure
-  val as_native_ptr : t -> Oski_types.M.RSXform.t Ctypes.structure Ctypes.ptr
+  val to_native : t -> Oski_types.M.RSXform.t Ctypes.structure
+  val to_native_ptr : t -> Oski_types.M.RSXform.t Ctypes.structure Ctypes.ptr
   val of_native : Oski_types.M.RSXform.t Ctypes.structure -> t
   val identity : unit -> t
   val from_rotation_translation : angle:float -> tx:float -> ty:float -> t
@@ -424,8 +451,8 @@ module Stream : sig
 
   (** {1 Native Interface} *)
 
-  val as_native : t -> Oski_ffi.M.Stream.t
-  (** [as_native stream] returns the underlying FFI stream handle.
+  val to_native : t -> Oski_ffi.M.Stream.t
+  (** [to_native stream] returns the underlying FFI stream handle.
         Use this when interfacing with other Skia functions that expect a native stream. *)
 
   (** {1 Stream Operations} *)
@@ -502,6 +529,33 @@ module Stream : sig
   val really_read_string : t -> int -> string option
   (** [really_read_string stream len] reads exactly [len] bytes and returns them as a string.
         Returns [Some string] on success, [None] if EOF is reached before reading [len] bytes. *)
+
+  val get_memory_base : t -> unit Ctypes.ptr
+  (** Returns the starting address for the data. *)
+end
+
+module Stream_asset : sig
+  type t
+
+  val delete : t -> unit
+  val to_stream : t -> Stream.t
+
+  val to_native : t -> Oski_ffi.M.Stream_asset.t
+  (** [to_native asset] returns the underlying FFI stream asset handle.
+      Use this when interfacing with other Skia functions that expect a native stream asset. *)
+end
+
+module File_stream : sig
+  type t
+
+  val make : string -> t option
+  val is_valid : t -> bool
+  val delete : t -> unit
+  val to_stream : t -> Stream.t
+
+  val to_native : t -> Oski_ffi.M.File_stream.t
+  (** [to_native file] returns the underlying FFI file stream handle.
+      Use this when interfacing with other Skia functions that expect a native file stream. *)
 end
 
 module Data : sig
@@ -514,8 +568,8 @@ module Data : sig
 
   (** {1 Native Interface} *)
 
-  val as_native : t -> Oski_ffi.M.Data.t
-  (** [as_native data] returns the underlying FFI data handle.
+  val to_native : t -> Oski_ffi.M.Data.t
+  (** [to_native data] returns the underlying FFI data handle.
       Use this when interfacing with other Skia functions that expect native data. *)
 
   (** {1 Creation} *)
@@ -536,4 +590,306 @@ module Data : sig
   val to_string : t -> string
   (** [to_string data] converts the data to a string.
       The data is interpreted as raw bytes. *)
+end
+
+module Memory_stream : sig
+  type t
+
+  val of_string : string -> int -> t option
+  val of_data : Data.t -> t option
+  val to_stream : t -> Stream.t
+end
+
+module Typeface : sig
+  type t
+  type id = Oski_types.M.Typeface.id
+  type font_table_tag = Oski_types.M.Typeface.font_table_tag
+
+  val of_name : string -> Font_style.t -> t option
+  val of_file : string -> int -> t option
+  val of_asset : Stream_asset.t -> int -> t option
+  val of_data : Data.t -> int -> t option
+  val open_stream : t -> Stream_asset.t option * int
+  val open_existing_stream : t -> Stream_asset.t option * int
+  val get_unique_id : t -> id
+  val equal : t -> t -> bool
+  val copy_table_data : t -> font_table_tag -> Data.t option
+  val get_font_style : t -> Font_style.t
+  val get_family_name : t -> string
+  val get_units_per_em : t -> int
+end
+
+module Font_style : sig
+  type t
+  type slant = Oski_types.M.Font_style.slant
+
+  val make : int -> int -> slant -> t
+  val get_slant : t -> slant
+  val get_weight : t -> int
+  val get_width : t -> int
+end
+
+module Font_manager : sig
+  module Font_style_set : sig
+    type t
+
+    val get_count : t -> int
+    val make_empty : unit -> t
+    val get_style : t -> int -> Font_style.t * string option
+    val make_typeface : t -> int -> Typeface.t option
+    val match_style : t -> Font_style.t -> Typeface.t option
+  end
+
+  type t
+
+  val make : unit -> t
+  val make_style_set : t -> int -> Font_style_set.t option
+
+  val match_family : t -> string -> Font_style_set.t option
+  (** [match_family mgr family] returns a Font_style_set for the given family name.
+      Returns [None] if the family is not found. *)
+
+  val match_family_style : t -> string -> Font_style.t -> Typeface.t option
+  val get_family_name : t -> int -> string
+  val count_families : t -> int
+
+  val match_family_style_character :
+     t
+    -> string
+    -> Font_style.t
+    -> string list
+    -> Uchar.t
+    -> Typeface.t option
+end
+
+module Text_encoding : sig
+  type t = Oski_types.M.Text_encoding.t
+end
+
+module Font_metrics : sig
+  type t =
+    { flags : Unsigned.uint32
+    ; top : float
+    ; ascent : float
+    ; descent : float
+    ; bottom : float
+    ; leading : float
+    ; avg_char_width : float
+    ; max_char_width : float
+    ; xmin : float
+    ; xmax : float
+    ; xheight : float
+    ; cap_height : float
+    ; underline_thickness : float
+    ; underline_position : float
+    ; strikeout_thickness : float
+    ; strikeout_position : float
+    }
+
+  val to_native : t -> Oski_types.M.Font_metrics.t Ctypes.structure
+  val to_native_ptr : t -> Oski_ffi.M.Font_metrics.t
+  val of_native : Oski_types.M.Font_metrics.t Ctypes.structure -> t
+end
+
+module Blend_mode : sig
+  type t = Oski_types.M.Blend_mode.t
+end
+
+module Blender : sig
+  type t
+
+  val of_mode : Blend_mode.t -> t
+  (** [of_mode mode] creates a Blender for the given blend mode. *)
+
+  val of_arithmetic :
+     k1:float
+    -> k2:float
+    -> k3:float
+    -> k4:float
+    -> enforce_premul:bool
+    -> t option
+  (** [of_arithmetic k1 k2 k3 k4 enforce_premul] creates a Blender with the given arithmetic coefficients.
+      Returns [Some blender] on success, [None] if the coefficients are invalid. *)
+end
+
+module Path : sig
+  type t
+  type direction = Oski_types.M.Path.direction
+  type arc_size = Oski_types.M.Path.arc_size
+  type fill_type = Oski_types.M.Path.fill_type
+  type add_mode = Oski_types.M.Path.add_mode
+  type verb = Oski_types.M.Path.verb
+
+  val make : unit -> t
+  (** [make ()] creates a new empty path. *)
+
+  val to_native : t -> Oski_ffi.M.Path.t
+  (** [to_native path] returns the underlying FFI path handle.
+      Use this when interfacing with other Skia functions that expect a native path. *)
+
+  val make_from :
+     Point.t list
+    -> int list
+    -> float list
+    -> fill_type
+    -> bool
+    -> t option
+  (** [make_from points verbs conic_weights fill_type is_volatile] creates a new path with specified segements.
+
+      The points and weights array are read in order, based, on the sequence of verbs.
+
+      Move 1 point
+      Line 1 point
+      Quad 2 point
+      Conic 2 points and 1 weight
+      Cubic 3 points
+      Close 0 points
+
+      If an illegal sequence of verbs is encountered, or the specified of points
+      or weights is not sufficient given the verbs, and empty Path is returned.
+
+      A legal sequence of verbs consists of any number of Contours. A contour always begins
+      with a Move verb, followed by 0 or more segements: Line, Quad, Conic, Cubic, followed
+      by an optional Close. *)
+
+  val reset : t -> unit
+  (** [reset path] clears the path, removing all segments and contours. *)
+
+  val rewind : t -> unit
+  (** [rewind path] rewinds the path, resetting the current point to the start of the first contour.
+      This does not clear the path, but allows for reusing it without starting from scratch. *)
+
+  val count_points : t -> int
+  (** [count_points path] returns the number of points in the path. *)
+
+  val count_verbs : t -> int
+  (** [count_verbs path] returns the number of verbs in the path.
+      This includes Move, Line, Quad, Conic, Cubic, and Close verbs. *)
+
+  val get_fill_type : t -> fill_type
+  (** [get_fill_type path] returns the current fill type of the path. *)
+
+  val set_fill_type : t -> fill_type -> unit
+  (** [set_fill_type path fill_type] sets the fill type of the path.
+      - `fill_type`: the fill type to set, e.g., `Winding`, `Even_odd`, etc. *)
+
+  val move_to : t -> Point.t -> unit
+  (** [move_to path point] Adds beginning of contour to the path at the given point. 
+
+      - `x`: x-axis value of contour start 
+      - `y`: y-axis value of contour start *)
+
+  val line_to : t -> Point.t -> unit
+  (** [line_to path point] Adds a line segment to the path from the current point to the given point.
+
+      - `x`: x-axis value of line end
+      - `y`: y-axis value of line end *)
+
+  val quad_to : t -> Point.t -> Point.t -> unit
+  (** [quad_to path pt1 pt2] Adds a quadratic bezier curve to the path.
+      - `pt1`: control point of the curve
+      - `pt2`: end point of the curve *)
+
+  val conic_to : t -> Point.t -> Point.t -> float -> unit
+  (** [conic_to path pt1 pt2 weight] Adds a conic curve to the path.
+      - `pt1`: control point of the curve
+      - `pt2`: end point of the curve
+      - `weight`: weight of the conic curve *)
+
+  val cubic_to : t -> Point.t -> Point.t -> Point.t -> unit
+  (** [cubic_to path pt1 pt2 pt3] Adds a cubic bezier curve to the path.
+      - `pt1`: first control point of the curve
+      - `pt2`: second control point of the curve
+      - `pt3`: end point of the curve *)
+
+  val arc_to :
+     t
+    -> Rect.t
+    -> start_angle:float
+    -> sweep_angle:float
+    -> force_move_to:bool
+    -> unit
+  (** [arc_to path oval ~start_angle ~sweep_angle ~force_move_to] Adds an arc to the path.
+      - `oval`: bounding rectangle of the arc
+      - `start_angle`: starting angle of the arc in degrees
+      - `sweep_angle`: angle to sweep for the arc in degrees
+      - `force_move_to`: if true, forces a move to the start point of the arc *)
+
+  val rmove_to : t -> Point.t -> unit
+  (** [rmove_to path point] Adds a relative move to the path by the given offset.
+      - `dx`: x-axis offset from the current point
+      - `dy`: y-axis offset from the current point *)
+
+  val rline_to : t -> Point.t -> unit
+  (** [rline_to path point] Adds a relative line segment to the path by the given offset.
+      - `dx`: x-axis offset from the current point
+      - `dy`: y-axis offset from the current point *)
+
+  val rquad_to : t -> Point.t -> Point.t -> unit
+  (** [rquad_to path pt1 pt2] Adds a relative quadratic bezier curve to the path.
+      - `pt1`: control point offset from the current point
+      - `pt2`: end point offset from the current point *)
+
+  val rconic_to : t -> Point.t -> Point.t -> float -> unit
+  (** [rconic_to path pt1 pt2 weight] Adds a relative conic curve to the path.
+      - `pt1`: control point offset from the current point
+      - `pt2`: end point offset from the current point
+      - `weight`: weight of the conic curve *)
+
+  val rcubic_to : t -> Point.t -> Point.t -> Point.t -> unit
+  (** [rcubic_to path pt1 pt2 pt3] Adds a relative cubic bezier curve to the path.
+      - `pt1`: first control point offset from the current point
+      - `pt2`: second control point offset from the current point
+      - `pt3`: end point offset from the current point *)
+
+  val arc_to_with_oval :
+     t
+    -> Rect.t
+    -> start_angle:float
+    -> sweep_angle:float
+    -> force_move_to:bool
+    -> unit
+
+  val add_rect : t -> Rect.t -> ?dir_start:direction * int -> unit -> unit
+  val add_rrect : t -> RRect.t -> ?dir_start:direction * int -> unit -> unit
+  val add_oval : t -> Rect.t -> ?direction:direction -> unit -> unit
+
+  val add_circle :
+     t
+    -> x:float
+    -> y:float
+    -> radius:float
+    -> ?direction:direction
+    -> unit
+    -> unit
+
+  val transform : t -> Matrix.t -> unit
+
+  val close : t -> unit
+  (** Append Verb.Close to the path, closing the current contour. *)
+
+  val is_rect : t -> (Rect.t * bool * direction) option
+  (** [is_rect path] returns `Some(Rect.t * bool * direction)`` if path is equivalent
+      to Rect.t when filled.*)
+
+  val add_path : t -> t -> Point.t -> ?mode:add_mode -> unit -> unit
+  (** [add_path dst src offset ~mode] adds the source path to the destination path,
+      offset by the given point.
+      - `offset`: translation to apply to the source path before adding
+      - `mode`: how to combine the source and destination paths (default is `Append`) *)
+
+  val add_path_matrix : t -> t -> Matrix.t -> ?mode:add_mode -> unit -> unit
+  (** [add_path_matrix dst src matrix ~mode] adds the source path to the destination path,
+      transformed by the given matrix.
+      - `matrix`: transformation to apply to the source path before adding
+      - `mode`: how to combine the source and destination paths (default is `Append`) *)
+
+  val add_path_reverse : t -> t -> unit
+  (** [add_path_reverse path src] Appends src to path, from back to front. 
+      Reversed src always appends a new contour to path. *)
+
+  val get_points : t -> int -> int * Point.t list
+  (** [get_points path max_points] retrieves up to [max_points] points from the path.
+      Returns a list of points. If [max_points] is greater than the number of points in the path,
+      all points are returned. *)
 end

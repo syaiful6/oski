@@ -408,6 +408,9 @@ module M (F : Ctypes.FOREIGN) = struct
     let fork = foreign "sk_stream_fork" C.(t @-> returning t_opt)
 
     (* Reading data*)
+    let get_memory_base =
+      foreign "sk_stream_get_memory_base" C.(t @-> returning (ptr (const void)))
+
     let read =
       foreign
         "sk_stream_read"
@@ -465,7 +468,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let make = foreign "sk_filestream_new" C.(string @-> returning t_opt)
     let delete = foreign "sk_filestream_destroy" C.(t @-> returning void)
     let is_valid = foreign "sk_filestream_is_valid" C.(t @-> returning bool)
-    let as_stream file = C.coerce t Stream.t file
+    let to_stream file = C.coerce t Stream.t file
   end
 
   module Memory_stream = struct
@@ -488,7 +491,7 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_memorystream_new_with_skdata" C.(data @-> returning t_opt)
 
     let delete = foreign "sk_memorystream_destroy" C.(t @-> returning void)
-    let as_stream memory = C.coerce t Stream.t memory
+    let to_stream memory = C.coerce t Stream.t memory
   end
 
   module WStream = struct
@@ -566,7 +569,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let delete = foreign "sk_filewstream_destroy" C.(t @-> returning void)
     let is_valid = foreign "sk_filewstream_is_valid" C.(t @-> returning bool)
     let as_wstream file = C.coerce t WStream.t file
-    let as_stream file = C.coerce t Stream.t file
+    let to_stream file = C.coerce t Stream.t file
   end
 
   module Dynamic_memory_wstream = struct
@@ -599,8 +602,8 @@ module M (F : Ctypes.FOREIGN) = struct
     let delete =
       foreign "sk_dynamicmemorywstream_destroy" C.(t @-> returning void)
 
-    let as_wstream memory = C.coerce t WStream.t memory
-    let as_stream memory = C.coerce t Stream.t memory
+    let to_wstream memory = C.coerce t WStream.t memory
+    let to_stream memory = C.coerce t Stream.t memory
   end
 
   module Data = struct
@@ -630,6 +633,19 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let get_bytes =
       foreign "sk_data_get_bytes" C.(t @-> returning (ptr (const uint8_t)))
+
+    let release_proc =
+      C.static_funptr Ctypes.(ptr (const void) @-> ptr void @-> returning void)
+
+    let new_with_proc =
+      foreign
+        "sk_data_new_with_proc"
+        C.(
+          ptr (const void)
+          @-> size_t
+          @-> release_proc
+          @-> ptr void
+          @-> returning t_opt)
   end
 
   module String = struct
@@ -649,6 +665,12 @@ module M (F : Ctypes.FOREIGN) = struct
     let delete = foreign "sk_string_destructor" C.(t @-> returning void)
   end
 
+  module Text_encoding = struct
+    type t = T.Text_encoding.t
+
+    let t = T.Text_encoding.t
+  end
+
   module Font_style = struct
     type t = T.Font_style.t C.structure C.ptr
 
@@ -661,16 +683,13 @@ module M (F : Ctypes.FOREIGN) = struct
     let make =
       foreign "sk_fontstyle_new" C.(int @-> int @-> slant @-> returning t)
 
+    let make_empty =
+      foreign "oski_fontstyle_create_empty" C.(void @-> returning t)
+
     let delete = foreign "sk_fontstyle_delete" C.(t @-> returning void)
     let get_slant = foreign "sk_fontstyle_get_slant" C.(t @-> returning slant)
-    let get_weight = foreign "sk_fontstyle_get_width" C.(t @-> returning int)
-    let get_height = foreign "sk_fontstyle_get_weight" C.(t @-> returning int)
-  end
-
-  module Text_encoding = struct
-    type t = T.Text_encoding.t
-
-    let t = T.Text_encoding.t
+    let get_width = foreign "sk_fontstyle_get_width" C.(t @-> returning int)
+    let get_weight = foreign "sk_fontstyle_get_weight" C.(t @-> returning int)
   end
 
   module Typeface = struct
@@ -797,6 +816,9 @@ module M (F : Ctypes.FOREIGN) = struct
     let unref = foreign "sk_fontstyleset_unref" C.(t @-> returning void)
     let get_count = foreign "sk_fontstyleset_get_count" C.(t @-> returning int)
 
+    let make_empty =
+      foreign "oski_fontstyleset_create_empty" C.(void @-> returning t)
+
     let get_style =
       foreign
         "sk_fontstyleset_get_style"
@@ -880,7 +902,7 @@ module M (F : Ctypes.FOREIGN) = struct
     type t = T.Font_metrics.t C.structure C.ptr
 
     let t = C.ptr T.Font_metrics.t
-    let get_make () = C.allocate_n ~count:1 T.Font_metrics.t
+    let make () = C.allocate_n ~count:1 T.Font_metrics.t
     let get_ascent m = C.(getf !@m T.Font_metrics.ascent)
     let get_descent m = C.(getf !@m T.Font_metrics.descent)
     let get_bottom m = C.(getf !@m T.Font_metrics.bottom)
@@ -910,9 +932,11 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let t = C.ptr T.Blender.t
     let t_opt = C.ptr_opt T.Blender.t
+    let ref = foreign "sk_blender_ref" C.(t @-> returning void)
+    let unref = foreign "sk_blender_unref" C.(t @-> returning void)
 
     let of_mode =
-      foreign "sk_blender_new_mode" C.(T.Blendmode.t @-> returning t_opt)
+      foreign "sk_blender_new_mode" C.(T.Blend_mode.t @-> returning t)
 
     let of_arithmetic =
       foreign
@@ -926,6 +950,20 @@ module M (F : Ctypes.FOREIGN) = struct
     let t = C.ptr T.Path.t
     let make = foreign "sk_path_new" C.(void @-> returning t)
     let delete = foreign "sk_path_delete" C.(t @-> returning void)
+
+    let make_from =
+      foreign
+        "oski_path_make_from"
+        C.(
+          Point.t
+          @-> int
+          @-> ptr uint8_t
+          @-> int
+          @-> ptr float
+          @-> int
+          @-> T.Path.fill_type
+          @-> bool
+          @-> returning (ptr_opt T.Path.t))
 
     type direction = T.Path.direction
 
@@ -1176,6 +1214,12 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> Rect.t @-> ptr bool @-> ptr direction @-> returning bool)
 
     let is_convex = foreign "sk_path_is_convex" C.(t @-> returning bool)
+
+    let parse_svg_path =
+      foreign "sk_path_parse_svg_string" C.(t @-> string @-> returning bool)
+
+    let to_svg_string =
+      foreign "sk_path_to_svg_string" C.(t @-> String.t @-> returning void)
   end
 
   module Path_iterator = struct
@@ -1475,7 +1519,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_mode =
       foreign
         "sk_colorfilter_new_mode"
-        C.(Color.t @-> T.Blendmode.t @-> returning t_opt)
+        C.(Color.t @-> T.Blend_mode.t @-> returning t_opt)
 
     let of_lighting =
       foreign
@@ -1815,8 +1859,9 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let t = C.ptr T.Bitmap.t
 
-    (* let release_proc = C.static_funptr (ptr void @-> ptr void @-> returning
-       void) *)
+    let release_proc =
+      C.static_funptr Ctypes.(ptr void @-> ptr void @-> returning void)
+
     let delete = foreign "sk_bitmap_destructor" C.(t @-> returning void)
     let make = foreign "sk_bitmap_new" C.(void @-> returning t)
 
@@ -1876,9 +1921,17 @@ module M (F : Ctypes.FOREIGN) = struct
     let ready_to_draw =
       foreign "sk_bitmap_ready_to_draw" C.(t @-> returning bool)
 
-    (* let install_pixels = foreign "sk_bitmap_install_pixels" C.( t @->
-       Image_info.t @-> ptr void @-> size_t @-> release_proc @-> ptr void @->
-       returning bool) *)
+    let install_pixels =
+      foreign
+        "sk_bitmap_install_pixels"
+        C.(
+          t
+          @-> Image_info.t
+          @-> ptr void
+          @-> size_t
+          @-> release_proc
+          @-> ptr void
+          @-> returning bool)
 
     let install_pixels_with_pixmap =
       foreign
@@ -1919,6 +1972,24 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_image_new_raster_copy"
         C.(Image_info.t @-> ptr void @-> size_t @-> returning t_opt)
+
+    let of_raster_copy_with_pixmap =
+      foreign
+        "sk_image_new_raster_copy_with_pixmap"
+        C.(Pixmap.t @-> returning t_opt)
+
+    let of_raster_data =
+      foreign
+        "sk_image_new_raster_data"
+        C.(Image_info.t @-> Data.t @-> size_t @-> returning t_opt)
+
+    let raster_release_proc =
+      C.static_funptr Ctypes.(ptr (const void) @-> ptr void @-> returning void)
+
+    let of_raster =
+      foreign
+        "sk_image_new_raster"
+        C.(Pixmap.t @-> raster_release_proc @-> ptr void @-> returning t_opt)
 
     let of_encoded =
       foreign "sk_image_new_from_encoded" C.(Data.t @-> returning t_opt)
@@ -2019,10 +2090,10 @@ module M (F : Ctypes.FOREIGN) = struct
     let set_blendmode =
       foreign
         "sk_paint_set_blendmode"
-        C.(t @-> T.Blendmode.t @-> returning void)
+        C.(t @-> T.Blend_mode.t @-> returning void)
 
     let get_blendmode =
-      foreign "sk_paint_get_blendmode" C.(t @-> returning T.Blendmode.t)
+      foreign "sk_paint_get_blendmode" C.(t @-> returning T.Blend_mode.t)
 
     let set_blender =
       foreign "sk_paint_set_blender" C.(t @-> Blender.t @-> returning void)
@@ -2251,12 +2322,12 @@ module M (F : Ctypes.FOREIGN) = struct
     let draw_color =
       foreign
         "sk_canvas_draw_color"
-        C.(t @-> Color.t @-> T.Blendmode.t @-> returning void)
+        C.(t @-> Color.t @-> T.Blend_mode.t @-> returning void)
 
     let draw_color4f =
       foreign
         "sk_canvas_draw_color4f"
-        C.(t @-> T.Color4f.t @-> T.Blendmode.t @-> returning void)
+        C.(t @-> T.Color4f.t @-> T.Blend_mode.t @-> returning void)
 
     let draw_points =
       foreign
@@ -2519,7 +2590,7 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(
           t
           @-> ptr T.Vertices.t
-          @-> T.Blendmode.t
+          @-> T.Blend_mode.t
           @-> Paint.t
           @-> returning void)
 
@@ -2550,7 +2621,7 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> Rect.t
           @-> ptr Color.t
           @-> int
-          @-> T.Blendmode.t
+          @-> T.Blend_mode.t
           @-> ptr Sampling_options.t
           @-> Rect.t
           @-> Paint.t
@@ -2564,7 +2635,7 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> Point.t
           @-> ptr Color.t
           @-> Point.t
-          @-> T.Blendmode.t
+          @-> T.Blend_mode.t
           @-> Paint.t
           @-> returning void)
 
@@ -2660,7 +2731,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_blend =
       foreign
         "sk_imagefilter_new_blend"
-        C.(T.Blendmode.t @-> t_opt @-> t_opt @-> Rect.t @-> returning t_opt)
+        C.(T.Blend_mode.t @-> t_opt @-> t_opt @-> Rect.t @-> returning t_opt)
 
     let of_blender =
       foreign
@@ -2897,10 +2968,20 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(
           Image_info.t @-> size_t @-> ptr T.Surface_props.t @-> returning t_opt)
 
-    (* let make_raster_direct = foreign "sk_surface_new_raster_direct" C.(
-       Image_info.t @-> ptr void @-> size_t @-> C.static_funptr
-       T.Surface.raster_release_proc @-> ptr void @-> T.Surface_props.t @->
-       returning t_opt) *)
+    let release_proc =
+      C.static_funptr Ctypes.(ptr void @-> ptr void @-> returning void)
+
+    let make_raster_direct =
+      foreign
+        "sk_surface_new_raster_direct"
+        C.(
+          Image_info.t
+          @-> ptr void (* pixels *)
+          @-> size_t (* row_bytes *)
+          @-> release_proc
+          @-> ptr void (* context *)
+          @-> ptr T.Surface_props.t
+          @-> returning t_opt)
 
     let unref = foreign "sk_surface_unref" C.(t @-> returning void)
 

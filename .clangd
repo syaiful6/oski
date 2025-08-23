@@ -1,0 +1,4 @@
+CompileFlags:
+  Add:
+    - "-I$PWD/_build/default/config"
+    - "-I$PWD/vendor/skia"

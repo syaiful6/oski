@@ -24,4 +24,4 @@ let to_string data =
   let size = Unsigned.Size_t.to_int (F.Data.get_size data) in
   Ctypes.string_from_ptr ptr ~length:size
 
-let as_native data = data
+let to_native data = data
