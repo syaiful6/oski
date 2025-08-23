@@ -723,6 +723,10 @@ module Path : sig
   val make : unit -> t
   (** [make ()] creates a new empty path. *)
 
+  val to_native : t -> Oski_ffi.M.Path.t
+  (** [to_native path] returns the underlying FFI path handle.
+      Use this when interfacing with other Skia functions that expect a native path. *)
+
   val make_from :
      Point.t list
     -> int list
@@ -811,6 +815,33 @@ module Path : sig
       - `sweep_angle`: angle to sweep for the arc in degrees
       - `force_move_to`: if true, forces a move to the start point of the arc *)
 
+  val rmove_to : t -> Point.t -> unit
+  (** [rmove_to path point] Adds a relative move to the path by the given offset.
+      - `dx`: x-axis offset from the current point
+      - `dy`: y-axis offset from the current point *)
+
+  val rline_to : t -> Point.t -> unit
+  (** [rline_to path point] Adds a relative line segment to the path by the given offset.
+      - `dx`: x-axis offset from the current point
+      - `dy`: y-axis offset from the current point *)
+
+  val rquad_to : t -> Point.t -> Point.t -> unit
+  (** [rquad_to path pt1 pt2] Adds a relative quadratic bezier curve to the path.
+      - `pt1`: control point offset from the current point
+      - `pt2`: end point offset from the current point *)
+
+  val rconic_to : t -> Point.t -> Point.t -> float -> unit
+  (** [rconic_to path pt1 pt2 weight] Adds a relative conic curve to the path.
+      - `pt1`: control point offset from the current point
+      - `pt2`: end point offset from the current point
+      - `weight`: weight of the conic curve *)
+
+  val rcubic_to : t -> Point.t -> Point.t -> Point.t -> unit
+  (** [rcubic_to path pt1 pt2 pt3] Adds a relative cubic bezier curve to the path.
+      - `pt1`: first control point offset from the current point
+      - `pt2`: second control point offset from the current point
+      - `pt3`: end point offset from the current point *)
+
   val arc_to_with_oval :
      t
     -> Rect.t
@@ -819,10 +850,46 @@ module Path : sig
     -> force_move_to:bool
     -> unit
 
-  val add_rect :
+  val add_rect : t -> Rect.t -> ?dir_start:direction * int -> unit -> unit
+  val add_rrect : t -> RRect.t -> ?dir_start:direction * int -> unit -> unit
+  val add_oval : t -> Rect.t -> ?direction:direction -> unit -> unit
+
+  val add_circle :
      t
-    -> Rect.t
-    -> ?dir_start:(direction * int) option
+    -> x:float
+    -> y:float
+    -> radius:float
+    -> ?direction:direction
     -> unit
     -> unit
+
+  val transform : t -> Matrix.t -> unit
+
+  val close : t -> unit
+  (** Append Verb.Close to the path, closing the current contour. *)
+
+  val is_rect : t -> (Rect.t * bool * direction) option
+  (** [is_rect path] returns `Some(Rect.t * bool * direction)`` if path is equivalent
+      to Rect.t when filled.*)
+
+  val add_path : t -> t -> Point.t -> ?mode:add_mode -> unit -> unit
+  (** [add_path dst src offset ~mode] adds the source path to the destination path,
+      offset by the given point.
+      - `offset`: translation to apply to the source path before adding
+      - `mode`: how to combine the source and destination paths (default is `Append`) *)
+
+  val add_path_matrix : t -> t -> Matrix.t -> ?mode:add_mode -> unit -> unit
+  (** [add_path_matrix dst src matrix ~mode] adds the source path to the destination path,
+      transformed by the given matrix.
+      - `matrix`: transformation to apply to the source path before adding
+      - `mode`: how to combine the source and destination paths (default is `Append`) *)
+
+  val add_path_reverse : t -> t -> unit
+  (** [add_path_reverse path src] Appends src to path, from back to front. 
+      Reversed src always appends a new contour to path. *)
+
+  val get_points : t -> int -> int * Point.t list
+  (** [get_points path max_points] retrieves up to [max_points] points from the path.
+      Returns a list of points. If [max_points] is greater than the number of points in the path,
+      all points are returned. *)
 end

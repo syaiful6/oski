@@ -13,6 +13,8 @@ let make () =
   Gc.finalise F.Path.delete path;
   path
 
+let to_native path = path
+
 let make_from points verbs conic_weights fill_type is_volatile =
   let c_points =
     Ctypes.(
@@ -69,7 +71,7 @@ let arc_to_with_oval path rect ~start_angle ~sweep_angle ~force_move_to =
   let native_rect = Rect.to_native_ptr rect in
   F.Path.arc_to_with_oval path native_rect start_angle sweep_angle force_move_to
 
-let add_rect path rect ?(dir_start = None) () =
+let add_rect path rect ?dir_start () =
   let dir = Option.fold ~none:`CW ~some:Fun.id (Option.map fst dir_start) in
   let start = Option.fold ~none:0 ~some:Fun.id (Option.map snd dir_start) in
   F.Path.add_rect_start
@@ -77,3 +79,71 @@ let add_rect path rect ?(dir_start = None) () =
     (Rect.to_native_ptr rect)
     dir
     (Unsigned.UInt32.of_int start)
+
+let add_rrect path rrect ?dir_start () =
+  let dir = Option.fold ~none:`CW ~some:Fun.id (Option.map fst dir_start) in
+  let start = Option.fold ~none:0 ~some:Fun.id (Option.map snd dir_start) in
+  F.Path.add_rrect_start
+    path
+    (Rrect.to_native rrect)
+    dir
+    (Unsigned.UInt32.of_int start)
+
+let add_oval path rect ?(direction = `CW) () =
+  F.Path.add_oval path (Rect.to_native_ptr rect) direction
+
+let add_circle path ~x ~y ~radius ?(direction = `CW) () =
+  F.Path.add_circle path x y radius direction
+
+let rmove_to path point = F.Path.rmove_to path point.Point.x point.Point.y
+let rline_to path point = F.Path.rline_to path point.Point.x point.Point.y
+
+let rquad_to path pt1 pt2 =
+  F.Path.rquad_to path pt1.Point.x pt1.Point.y pt2.Point.x pt2.Point.y
+
+let rconic_to path pt1 pt2 weight =
+  F.Path.rconic_to path pt1.Point.x pt1.Point.y pt2.Point.x pt2.Point.y weight
+
+let rcubic_to path pt1 pt2 pt3 =
+  F.Path.rcubic_to
+    path
+    pt1.Point.x
+    pt1.Point.y
+    pt2.Point.x
+    pt2.Point.y
+    pt3.Point.x
+    pt3.Point.y
+
+let transform path matrix =
+  let native_matrix = Matrix.to_native_ptr matrix in
+  F.Path.transform path native_matrix
+
+let get_bounds path =
+  let open Ctypes in
+  let rect = F.Rect.of_empty () in
+  F.Path.get_bounds path rect;
+  Rect.of_native !@rect
+
+let close = F.Path.close
+
+let is_rect path =
+  let open Ctypes in
+  let rect = F.Rect.of_empty () in
+  let is_closed = allocate bool false in
+  let direction = allocate F.Path.direction `CW in
+  let ret = F.Path.is_rect path rect is_closed direction in
+  if ret then Some (Rect.of_native !@rect, !@is_closed, !@direction) else None
+
+let add_path path src point ?(mode = `Append) () =
+  F.Path.add_path_offset path src point.Point.x point.Point.y mode
+
+let add_path_matrix path src matrix ?(mode = `Append) () =
+  let native_matrix = Matrix.to_native_ptr matrix in
+  F.Path.add_path_matrix path src native_matrix mode
+
+let add_path_reverse path src = F.Path.add_path_reverse path src
+
+let get_points path max =
+  let points = Ctypes.(CArray.make Oski_types.M.Point.t max) in
+  let count = F.Path.get_points path (Ctypes.CArray.start points) max in
+  count, Ctypes.CArray.to_list points |> List.map Point.of_native

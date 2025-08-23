@@ -1214,6 +1214,12 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> Rect.t @-> ptr bool @-> ptr direction @-> returning bool)
 
     let is_convex = foreign "sk_path_is_convex" C.(t @-> returning bool)
+
+    let parse_svg_path =
+      foreign "sk_path_parse_svg_string" C.(t @-> string @-> returning bool)
+
+    let to_svg_string =
+      foreign "sk_path_to_svg_string" C.(t @-> String.t @-> returning void)
   end
 
   module Path_iterator = struct
@@ -1983,11 +1989,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_raster =
       foreign
         "sk_image_new_raster"
-        C.(
-          Pixmap.t
-          @-> raster_release_proc
-          @-> ptr void
-          @-> returning t_opt)
+        C.(Pixmap.t @-> raster_release_proc @-> ptr void @-> returning t_opt)
 
     let of_encoded =
       foreign "sk_image_new_from_encoded" C.(Data.t @-> returning t_opt)

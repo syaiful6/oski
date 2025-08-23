@@ -186,6 +186,18 @@ let test_font_mgr_styleset_get_style () =
     (List.mem name valid_names)
     true
 
+let test_path_get_points () =
+  let path = Oski.Path.make () in
+  Oski.Path.add_rect
+    path
+    (Oski.Rect.make ~left:0. ~top:0. ~right:10. ~bottom:10.)
+    ();
+  let points_count = Oski.Path.count_points path in
+  let count, points = Oski.Path.get_points path points_count in
+  Alcotest.(check int) "Path get points count" points_count (List.length points);
+  Alcotest.(check int) "Path get points returned count" points_count count;
+  Alcotest.(check int) "Path get points count" points_count 4
+
 let tests =
   [ ( "Color"
     , [ "color make rgb", `Quick, test_color_make_rgba
@@ -213,4 +225,5 @@ let tests =
       ; "Font styleset get style", `Quick, test_font_mgr_styleset_get_style
       ; "Font styleset get count", `Quick, test_font_mgr_styleset_get_count
       ] )
+  ; "Path", [ "get points", `Quick, test_path_get_points ]
   ]

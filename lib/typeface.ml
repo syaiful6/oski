@@ -44,12 +44,12 @@ let of_data data ix =
 let open_stream face =
   let idx_ptr = Ctypes.allocate Ctypes.int 0 in
   let stream = F.Typeface.open_stream face (Some idx_ptr) in
-  stream, Ctypes.(!@ idx_ptr)
+  stream, Ctypes.(!@idx_ptr)
 
 let open_existing_stream face =
   let idx_ptr = Ctypes.allocate Ctypes.int 0 in
   let stream = F.Typeface.open_existing_stream face (Some idx_ptr) in
-  stream, Ctypes.(!@ idx_ptr)
+  stream, Ctypes.(!@idx_ptr)
 
 let get_font_style face =
   let style = F.Typeface.get_font_style face in
