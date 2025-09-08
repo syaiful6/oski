@@ -41,6 +41,8 @@ let
           ++ lib.optionals stdenv.isLinux [
             pkgs.vulkan-headers
             pkgs.vulkan-loader
+            pkgs.mesa
+            pkgs.libglvnd
           ];
       }
       // args

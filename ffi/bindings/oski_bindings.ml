@@ -2827,11 +2827,6 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_imagefilter_new_matrix_transform"
         C.(Matrix.t @-> ptr Sampling_options.t @-> t_opt @-> returning t_opt)
 
-    let of_merge =
-      foreign
-        "sk_imagefilter_new_merge"
-        C.(ptr t @-> int @-> Rect.t @-> returning t_opt)
-
     let of_merge_simple =
       foreign
         "sk_imagefilter_new_merge_simple"
