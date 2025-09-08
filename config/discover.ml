@@ -189,7 +189,7 @@ let c_library_flags prefix = function
   | Linux ->
     []
     @ skia_lib_flags ()
-    @ [ "-lfontconfig"; "-lGL"; "-L" ^ skia_lib_path prefix ]
+    @ [ "-lfontconfig"; "-lfreetype"; "-lGL"; "-L" ^ skia_lib_path prefix ]
   | Windows ->
     []
     @ skia_lib_flags ()
@@ -203,7 +203,7 @@ let c_library_flags prefix = function
 let cxx_library_flags vendor os =
   match os with
   | IOS | Mac -> [] @ c_library_flags vendor os @ [ "-lc++"; "-lc++abi" ]
-  | Linux | Android -> [] @ c_library_flags vendor os @ [ "-static-libstdc++" ]
+  | Linux | Android -> [] @ c_library_flags vendor os @ [ "-lstdc++" ]
   | _ -> c_library_flags vendor os (* Adjust for Windows/IOS if needed *)
 
 (* Combined flags for OCaml (with ccopt/cclib) *)
