@@ -1124,6 +1124,18 @@ module M (F : Ctypes.TYPE) = struct
   end
 
   module Text_blob_builder = struct
+    module Run_buffer = struct
+      type t
+
+      let t : t structure typ = structure "sk_textblob_builder_runbuffer_t"
+      let t = typedef t "sk_textblob_builder_runbuffer_t"
+      let glyphs = field t "glyphs" (ptr void)
+      let pos = field t "pos" (ptr void)
+      let utf8text = field t "utf8text" (ptr void)
+      let clusters = field t "clusters" (ptr void)
+      let () = seal t
+    end
+
     type t
 
     let t : t structure typ = structure "sk_textblob_builder_t"

@@ -12,4 +12,6 @@ let of_srgb_linear () =
   Gc.finalise F.Color_space.unref cs;
   cs
 
+let equal = F.Color_space.equal
+
 external to_native : t -> F.Color_space.t = "%identity"

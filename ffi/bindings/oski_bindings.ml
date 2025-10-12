@@ -54,6 +54,9 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let of_srgb_linear =
       foreign "sk_colorspace_new_srgb_linear" C.(void @-> returning t)
+
+    let equal =
+      foreign "sk_colorspace_equals" C.(const t @-> const t @-> returning bool)
   end
 
   module Point = struct
@@ -2297,6 +2300,85 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let get_metrics =
       foreign "sk_font_get_metrics" C.(t @-> Font_metrics.t @-> returning float)
+  end
+
+  module Text_blob = struct
+    type t = T.Text_blob.t C.structure C.ptr
+
+    let t = C.ptr T.Text_blob.t
+    let t_opt = C.ptr_opt T.Text_blob.t
+    let ref = foreign "sk_textblob_ref" C.(t @-> returning void)
+    let unref = foreign "sk_textblob_unref" C.(t @-> returning void)
+
+    let get_unique_id =
+      foreign "sk_textblob_get_unique_id" C.(t @-> returning uint32_t)
+
+    let get_bounds =
+      foreign "sk_textblob_get_bounds" C.(t @-> Rect.t @-> returning void)
+
+    let get_intercepts =
+      foreign
+        "sk_textblob_get_intercepts"
+        C.(t @-> ptr float @-> ptr float @-> const Paint.t @-> returning int)
+  end
+
+  module Text_blob_builder = struct
+    module Run_buffer = struct
+      open T.Text_blob_builder
+
+      type t = Run_buffer.t C.structure C.ptr
+
+      let t = C.ptr Run_buffer.t
+      let make () = C.allocate_n ~count:1 Run_buffer.t
+      let glyphs buf = C.(getf !@buf Run_buffer.glyphs)
+      let pos buf = C.(getf !@buf Run_buffer.pos)
+      let utf8text buf = C.(getf !@buf Run_buffer.utf8text)
+      let clusters buf = C.(getf !@buf Run_buffer.clusters)
+    end
+
+    type t = T.Text_blob_builder.t C.structure C.ptr
+
+    let t = C.ptr T.Text_blob_builder.t
+    let make = foreign "sk_textblob_builder_new" C.(void @-> returning t)
+    let delete = foreign "sk_textblob_builder_delete" C.(t @-> returning void)
+
+    let build =
+      foreign "sk_textblob_builder_make" C.(t @-> returning Text_blob.t_opt)
+
+    let alloc_run =
+      foreign
+        "sk_textblob_builder_alloc_run"
+        C.(
+          t
+          @-> const Font.t
+          @-> int
+          @-> float
+          @-> float
+          @-> ptr_opt T.Rect.t
+          @-> Run_buffer.t
+          @-> returning void)
+
+    let alloc_run_pos =
+      foreign
+        "sk_textblob_builder_alloc_run_pos"
+        C.(
+          t
+          @-> const Font.t
+          @-> int
+          @-> ptr_opt T.Rect.t
+          @-> Run_buffer.t
+          @-> returning void)
+
+    let alloc_run_rsxform =
+      foreign
+        "sk_textblob_builder_alloc_run_rsxform"
+        C.(
+          t
+          @-> const Font.t
+          @-> int
+          @-> ptr_opt T.Rect.t
+          @-> Run_buffer.t
+          @-> returning void)
   end
 
   module Drawable = struct

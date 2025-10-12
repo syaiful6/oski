@@ -950,5 +950,6 @@ module Color_space : sig
 
   val of_srgb : unit -> t
   val of_srgb_linear : unit -> t
+  val equal : t -> t -> bool
   val to_native : t -> Oski_ffi.M.Color_space.t
 end
