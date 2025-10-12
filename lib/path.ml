@@ -38,6 +38,7 @@ let make_from points verbs conic_weights fill_type is_volatile =
     fill_type
     is_volatile
 
+let equal = F.Path.equal
 let get_fill_type = F.Path.get_fill_type
 let set_fill_type = F.Path.set_fill_type
 let reset = F.Path.reset

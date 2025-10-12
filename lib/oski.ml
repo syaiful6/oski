@@ -24,3 +24,7 @@ module Font_metrics = Font_metrics
 module Blend_mode = Blend_mode
 module Blender = Blender
 module Path = Path
+module Path_iterator = Path_iterator
+module Path_measure = Path_measure
+module Path_effect = Path_effect
+module Color_space = Color_space

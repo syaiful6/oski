@@ -752,6 +752,9 @@ module Path : sig
       with a Move verb, followed by 0 or more segements: Line, Quad, Conic, Cubic, followed
       by an optional Close. *)
 
+  val equal : t -> t -> bool
+  (** [equal path1 path2] returns true if the two paths are equal. *)
+
   val reset : t -> unit
   (** [reset path] clears the path, removing all segments and contours. *)
 
@@ -892,4 +895,60 @@ module Path : sig
   (** [get_points path max_points] retrieves up to [max_points] points from the path.
       Returns a list of points. If [max_points] is greater than the number of points in the path,
       all points are returned. *)
+end
+
+module Path_iterator : sig
+  type t
+
+  val make : Path.t -> bool -> t option
+  (** [make path force_close] creates a new path iterator for the given path. *)
+
+  val next : t -> Path.verb * Point.t list
+  (** [next iterator] retrieves the next verb and its associated points from the path.
+      Returns [Some (verb, points)] if there are more segments, or [None] if the end is reached. *)
+
+  val conic_weight : t -> float
+  (** [conic_weight iterator] returns the weight of the last conic segment returned by [next]. *)
+
+  val is_close_line : t -> bool
+  (** [is_close_line iterator] returns true if the last segment returned by [next] was a close line. *)
+
+  val is_closed_contour : t -> bool
+  (** [is_closed_contour iterator] returns true if the current contour is closed. *)
+end
+
+module Path_measure : sig
+  type t
+
+  val of_path : Path.t -> bool -> float -> t option
+  val make : unit -> t option
+  val set_path : t -> Path.t -> bool -> unit
+  val get_length : t -> float
+  val get_pos_tan : t -> float -> (Point.t * Vec2.t) option
+end
+
+module Path_effect : sig
+  module Style : sig
+    type t =
+      [ `Translate
+      | `Rotate
+      | `Morph
+      ]
+  end
+
+  type t
+
+  val compose : t -> t -> t
+  val sum : t -> t -> t
+  val create1d : style:Style.t -> advance:float -> phase:float -> Path.t -> t
+  val create2d_line : width:float -> matrix:Matrix.t -> t
+  val create2d_path : matrix:Matrix.t -> Path.t -> t
+end
+
+module Color_space : sig
+  type t
+
+  val of_srgb : unit -> t
+  val of_srgb_linear : unit -> t
+  val to_native : t -> Oski_ffi.M.Color_space.t
 end

@@ -984,6 +984,7 @@ module M (F : Ctypes.FOREIGN) = struct
     type verb = T.Path.verb
 
     let verb = T.Path.verb
+    let equal = foreign "oski_path_is_equal" C.(t @-> t @-> returning bool)
 
     let move_to =
       foreign "sk_path_move_to" C.(t @-> float @-> float @-> returning void)
@@ -1381,6 +1382,9 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_path_effect_create_trim"
         C.(float @-> float @-> trim_mode @-> returning t)
+
+    let is_need_ctm =
+      foreign "oski_path_effect_need_ctm" C.(t @-> returning bool)
   end
 
   module Region = struct
