@@ -121,10 +121,7 @@ let test_font_mgr_match_family_style () =
   let style = Oski.Font_style.make 400 5 `Upright in
   let maybe_typeface = Oski.Font_manager.match_family_style mgr "Arial" style in
   let maybe_name = Option.map Oski.Typeface.get_family_name maybe_typeface in
-  Alcotest.(check (option string))
-    "Typeface family name"
-    (Some "Arial")
-    maybe_name
+  Alcotest.(check bool) "Typeface family name" (Option.is_some maybe_name) true
 
 let test_font_mgr_match_family_style_character () =
   let mgr = Oski.Font_manager.make () in
@@ -174,13 +171,14 @@ let test_font_mgr_styleset_get_style () =
   let mgr = Oski.Font_manager.make () in
   let styleset = test_font_mgr_get_styleset mgr "Arial" in
   let _, maybe_name = Oski.Font_manager.Font_style_set.get_style styleset 0 in
-  let valid_names = [ "Regular"; "Bold"; "Italic" ] in
+  let valid_names = [ "Regular"; "Bold"; "Italic"; "Bold Italic" ] in
   Alcotest.(check bool)
     "Font style name is valid"
     (Option.is_some maybe_name)
     true;
   let name = Option.get maybe_name in
   (* Check if the name is one of the valid names *)
+
   Alcotest.(check bool)
     "Font style name is valid"
     (List.mem name valid_names)

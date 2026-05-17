@@ -85,19 +85,21 @@ let cflags vendor = function
 let cxxflags vendor os =
   match os with
   | Android | Linux ->
-    [] @ skia_include_flags vendor @ [ "-fPIC"; "-std=c++17" ]
+    []
+    @ skia_include_flags vendor
+    @ [ "-fPIC"; "-std=c++17"; "-Wno-return-type" ]
   | IOS ->
     let sdk_path = find_xcode_sysroot "iphoneos" in
     []
     @ [ "-isysroot"; sdk_path ]
     @ skia_include_flags vendor
-    @ [ "-std=c++17" ]
+    @ [ "-std=c++17"; "-Wno-return-type" ]
   | Mac ->
     let sdk_path = find_xcode_sysroot "macosx" in
     []
     @ [ "-isysroot"; sdk_path ]
     @ skia_include_flags vendor
-    @ [ "-std=c++17" ]
+    @ [ "-std=c++17"; "-Wno-return-type" ]
   | Windows -> [] @ skia_include_flags vendor @ [ "/std:c++17" ]
 
 let get_feature_flags () =
@@ -189,7 +191,7 @@ let c_library_flags prefix = function
   | Linux ->
     []
     @ skia_lib_flags ()
-    @ [ "-lfontconfig"; "-lGL"; "-L" ^ skia_lib_path prefix ]
+    @ [ "-lfontconfig"; "-lfreetype"; "-lGL"; "-L" ^ skia_lib_path prefix ]
   | Windows ->
     []
     @ skia_lib_flags ()
@@ -203,7 +205,7 @@ let c_library_flags prefix = function
 let cxx_library_flags vendor os =
   match os with
   | IOS | Mac -> [] @ c_library_flags vendor os @ [ "-lc++"; "-lc++abi" ]
-  | Linux | Android -> [] @ c_library_flags vendor os @ [ "-static-libstdc++" ]
+  | Linux | Android -> [] @ c_library_flags vendor os @ [ "-lstdc++" ]
   | _ -> c_library_flags vendor os (* Adjust for Windows/IOS if needed *)
 
 (* Combined flags for OCaml (with ccopt/cclib) *)

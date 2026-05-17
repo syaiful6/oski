@@ -55,8 +55,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let of_srgb_linear =
       foreign "sk_colorspace_new_srgb_linear" C.(void @-> returning t)
 
-    let equal =
-      foreign "sk_colorspace_equals" C.(const t @-> const t @-> returning bool)
+    let equal = foreign "sk_colorspace_equals" C.(t @-> t @-> returning bool)
   end
 
   module Point = struct
@@ -2319,7 +2318,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_intercepts =
       foreign
         "sk_textblob_get_intercepts"
-        C.(t @-> ptr float @-> ptr float @-> const Paint.t @-> returning int)
+        C.(t @-> ptr float @-> ptr float @-> Paint.t @-> returning int)
   end
 
   module Text_blob_builder = struct
@@ -2350,7 +2349,7 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_textblob_builder_alloc_run"
         C.(
           t
-          @-> const Font.t
+          @-> Font.t
           @-> int
           @-> float
           @-> float
@@ -2363,7 +2362,7 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_textblob_builder_alloc_run_pos"
         C.(
           t
-          @-> const Font.t
+          @-> Font.t
           @-> int
           @-> ptr_opt T.Rect.t
           @-> Run_buffer.t
@@ -2374,7 +2373,7 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_textblob_builder_alloc_run_rsxform"
         C.(
           t
-          @-> const Font.t
+          @-> Font.t
           @-> int
           @-> ptr_opt T.Rect.t
           @-> Run_buffer.t
@@ -2912,11 +2911,6 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_imagefilter_new_matrix_transform"
         C.(Matrix.t @-> ptr Sampling_options.t @-> t_opt @-> returning t_opt)
-
-    let of_merge =
-      foreign
-        "sk_imagefilter_new_merge"
-        C.(ptr t @-> int @-> Rect.t @-> returning t_opt)
 
     let of_merge_simple =
       foreign

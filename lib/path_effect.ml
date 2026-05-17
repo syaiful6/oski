@@ -18,16 +18,16 @@ let sum first second =
   result
 
 let create1d ~style ~advance ~phase path =
-  let effect = F.Path_effect.of_1d_path path advance phase style in
-  Gc.finalise F.Path_effect.unref effect;
-  effect
+  let eff = F.Path_effect.of_1d_path path advance phase style in
+  Gc.finalise F.Path_effect.unref eff;
+  eff
 
 let create2d_line ~width ~matrix =
-  let effect = F.Path_effect.of_2d_line width (Matrix.to_native_ptr matrix) in
-  Gc.finalise F.Path_effect.unref effect;
-  effect
+  let eff = F.Path_effect.of_2d_line width (Matrix.to_native_ptr matrix) in
+  Gc.finalise F.Path_effect.unref eff;
+  eff
 
 let create2d_path ~matrix path =
-  let effect = F.Path_effect.of_2d_path (Matrix.to_native_ptr matrix) path in
-  Gc.finalise F.Path_effect.unref effect;
-  effect
+  let eff = F.Path_effect.of_2d_path (Matrix.to_native_ptr matrix) path in
+  Gc.finalise F.Path_effect.unref eff;
+  eff

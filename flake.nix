@@ -1,39 +1,67 @@
 {
-  description = "Oski Flake";
+  description = "Oski - Nix Flake";
 
   inputs = {
-    nix-filter.url = "github:numtide/nix-filter";
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nix-ocaml/nix-overlays";
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-25.11";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.flake = false;
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      flake-utils,
-      nix-filter,
+      treefmt-nix,
     }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system}.extend (
-          self: super: {
-            ocamlPackages = super.ocaml-ng.ocamlPackages_5_2;
-          }
+    let
+      allSystems = nixpkgs.lib.systems.flakeExposed;
+      withPkgs =
+        pkgsCallback:
+        nixpkgs.lib.genAttrs allSystems (
+          system:
+          let
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [
+                (import ./nix/overlays)
+                (_final: _prev: {
+                  treefmt-nix = import treefmt-nix;
+                })
+                (import ./nix/overlays/development.nix)
+              ];
+            };
+          in
+          pkgsCallback { inherit pkgs system; }
         );
 
-        llvmPkgs = pkgs.llvmPackages_17;
-      in
-      rec {
-        packages = pkgs.callPackage ./nix/default.nix {
-          nix-filter = nix-filter.lib;
-          inherit llvmPkgs;
-        };
-        defaultPackage = packages.oski;
-        devShells = {
-          default = pkgs.callPackage ./nix/shell.nix { inherit packages llvmPkgs; };
-        };
-      }
-    );
+    in
+    {
+      packages = withPkgs (
+        { pkgs, system }:
+        {
+          default = self.packages.${system}.oski;
+          inherit (pkgs.ocamlPackages)
+            oski
+            ;
+        }
+      );
+
+      devShells = withPkgs (
+        { pkgs, ... }:
+        {
+          default = pkgs.oski.dev-shell;
+        }
+      );
+
+      overlays.default = import ./nix/overlays;
+
+      formatter = withPkgs ({ pkgs, ... }: pkgs.oski.treefmt);
+
+      checks = withPkgs (
+        { pkgs, ... }:
+        {
+          formatting = pkgs.oski.checks.formatting;
+        }
+      );
+    };
 }
