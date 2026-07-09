@@ -898,6 +898,44 @@ module M (F : Ctypes.TYPE) = struct
     end
   end
 
+  module Png_encoder_filter_flags = struct
+    type t =
+      [ `Zero
+      | `None
+      | `Sub
+      | `Up
+      | `Avg
+      | `Paeth
+      | `All
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "PNGENCODER_FILTER_FLAGS"
+        "sk_pngencoder_filterflags_t"
+        [ `Zero, "ZERO"
+        ; `None, "NONE"
+        ; `Sub, "SUB"
+        ; `Up, "UP"
+        ; `Avg, "AVG"
+        ; `Paeth, "PAETH"
+        ; `All, "ALL"
+        ]
+  end
+
+  module Png_encoder_options = struct
+    type t
+
+    let t : t structure typ = structure "sk_pngencoder_options_t"
+    let t = typedef t "sk_pngencoder_options_t"
+    let filter_flags = field t "fFilterFlags" Png_encoder_filter_flags.t
+    let zlib_level = field t "fZLibLevel" int
+    let comments = field t "fComments" (ptr void)
+    let icc_profile = field t "fICCProfile" (ptr void)
+    let icc_profile_description = field t "fICCProfileDescription" (ptr void)
+    let () = seal t
+  end
+
   module Document = struct
     type t
 
