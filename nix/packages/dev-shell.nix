@@ -1,16 +1,19 @@
 {
   lib,
   stdenv,
-  ocamlPackages,
-  packages,
+  mkShell,
+  treefmt,
   pkgs,
-  llvmPkgs,
+  ocamlPackages,
 }:
 
-with ocamlPackages;
-
-pkgs.mkShell {
-  inputsFrom = with packages; [ oski ];
+let
+  llvmPkgs = pkgs.llvmPackages_18;
+in
+mkShell {
+  inputsFrom = with ocamlPackages; [
+    oski
+  ];
   SKIA_NINJA_COMMAND = "${pkgs.ninja}/bin/ninja";
   SKIA_GN_COMMAND = "${pkgs.gn}/bin/gn";
 
@@ -23,16 +26,13 @@ pkgs.mkShell {
   '';
 
   buildInputs =
-    with pkgs;
-    [
-      ocaml
-      dune
-      dune-configurator
+    (with ocamlPackages; [
       ocaml-lsp
       ocamlformat
-      alcotest
-      utop
-      ppx_optcomp
+    ])
+    ++
+    (with pkgs;
+    [
       llvmPkgs.clang
       ninja
       gn
@@ -42,9 +42,10 @@ pkgs.mkShell {
       python3
       llvmPkgs.libcxx
       pkg-config
-    ]
+    ])
     ++ lib.optionals stdenv.isLinux [
       pkgs.vulkan-headers
       pkgs.vulkan-loader
+      pkgs.libGL
     ];
 }

@@ -85,19 +85,21 @@ let cflags vendor = function
 let cxxflags vendor os =
   match os with
   | Android | Linux ->
-    [] @ skia_include_flags vendor @ [ "-fPIC"; "-std=c++17" ]
+    []
+    @ skia_include_flags vendor
+    @ [ "-fPIC"; "-std=c++17"; "-Wno-return-type" ]
   | IOS ->
     let sdk_path = find_xcode_sysroot "iphoneos" in
     []
     @ [ "-isysroot"; sdk_path ]
     @ skia_include_flags vendor
-    @ [ "-std=c++17" ]
+    @ [ "-std=c++17"; "-Wno-return-type" ]
   | Mac ->
     let sdk_path = find_xcode_sysroot "macosx" in
     []
     @ [ "-isysroot"; sdk_path ]
     @ skia_include_flags vendor
-    @ [ "-std=c++17" ]
+    @ [ "-std=c++17"; "-Wno-return-type" ]
   | Windows -> [] @ skia_include_flags vendor @ [ "/std:c++17" ]
 
 let get_feature_flags () =

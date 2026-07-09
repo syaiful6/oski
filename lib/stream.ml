@@ -6,7 +6,7 @@ type t = F.Stream.t
 type bigstring =
   (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
-let to_native stream = stream
+external to_native : t -> F.Stream.t = "%identity"
 
 let duplicate stream =
   match F.Stream.duplicate stream with

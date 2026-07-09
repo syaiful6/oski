@@ -54,6 +54,8 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let of_srgb_linear =
       foreign "sk_colorspace_new_srgb_linear" C.(void @-> returning t)
+
+    let equal = foreign "sk_colorspace_equals" C.(t @-> t @-> returning bool)
   end
 
   module Point = struct
@@ -984,6 +986,7 @@ module M (F : Ctypes.FOREIGN) = struct
     type verb = T.Path.verb
 
     let verb = T.Path.verb
+    let equal = foreign "oski_path_is_equal" C.(t @-> t @-> returning bool)
 
     let move_to =
       foreign "sk_path_move_to" C.(t @-> float @-> float @-> returning void)
@@ -1381,6 +1384,9 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_path_effect_create_trim"
         C.(float @-> float @-> trim_mode @-> returning t)
+
+    let is_need_ctm =
+      foreign "oski_path_effect_need_ctm" C.(t @-> returning bool)
   end
 
   module Region = struct
@@ -2295,6 +2301,85 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign "sk_font_get_metrics" C.(t @-> Font_metrics.t @-> returning float)
   end
 
+  module Text_blob = struct
+    type t = T.Text_blob.t C.structure C.ptr
+
+    let t = C.ptr T.Text_blob.t
+    let t_opt = C.ptr_opt T.Text_blob.t
+    let ref = foreign "sk_textblob_ref" C.(t @-> returning void)
+    let unref = foreign "sk_textblob_unref" C.(t @-> returning void)
+
+    let get_unique_id =
+      foreign "sk_textblob_get_unique_id" C.(t @-> returning uint32_t)
+
+    let get_bounds =
+      foreign "sk_textblob_get_bounds" C.(t @-> Rect.t @-> returning void)
+
+    let get_intercepts =
+      foreign
+        "sk_textblob_get_intercepts"
+        C.(t @-> ptr float @-> ptr float @-> Paint.t @-> returning int)
+  end
+
+  module Text_blob_builder = struct
+    module Run_buffer = struct
+      open T.Text_blob_builder
+
+      type t = Run_buffer.t C.structure C.ptr
+
+      let t = C.ptr Run_buffer.t
+      let make () = C.allocate_n ~count:1 Run_buffer.t
+      let glyphs buf = C.(getf !@buf Run_buffer.glyphs)
+      let pos buf = C.(getf !@buf Run_buffer.pos)
+      let utf8text buf = C.(getf !@buf Run_buffer.utf8text)
+      let clusters buf = C.(getf !@buf Run_buffer.clusters)
+    end
+
+    type t = T.Text_blob_builder.t C.structure C.ptr
+
+    let t = C.ptr T.Text_blob_builder.t
+    let make = foreign "sk_textblob_builder_new" C.(void @-> returning t)
+    let delete = foreign "sk_textblob_builder_delete" C.(t @-> returning void)
+
+    let build =
+      foreign "sk_textblob_builder_make" C.(t @-> returning Text_blob.t_opt)
+
+    let alloc_run =
+      foreign
+        "sk_textblob_builder_alloc_run"
+        C.(
+          t
+          @-> Font.t
+          @-> int
+          @-> float
+          @-> float
+          @-> ptr_opt T.Rect.t
+          @-> Run_buffer.t
+          @-> returning void)
+
+    let alloc_run_pos =
+      foreign
+        "sk_textblob_builder_alloc_run_pos"
+        C.(
+          t
+          @-> Font.t
+          @-> int
+          @-> ptr_opt T.Rect.t
+          @-> Run_buffer.t
+          @-> returning void)
+
+    let alloc_run_rsxform =
+      foreign
+        "sk_textblob_builder_alloc_run_rsxform"
+        C.(
+          t
+          @-> Font.t
+          @-> int
+          @-> ptr_opt T.Rect.t
+          @-> Run_buffer.t
+          @-> returning void)
+  end
+
   module Drawable = struct
     type t = T.Drawable.t C.structure C.ptr
 
@@ -3021,6 +3106,38 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_surface_get_props"
         C.(t @-> returning (ptr (const T.Surface_props.t)))
+  end
+
+  module Png_encoder = struct
+    module Filter_flags = struct
+      type t = T.Png_encoder_filter_flags.t
+
+      let t = T.Png_encoder_filter_flags.t
+    end
+
+    module Options = struct
+      type t = T.Png_encoder_options.t C.structure C.ptr
+
+      let t = C.ptr T.Png_encoder_options.t
+
+      let make ~filter_flags ~zlib_level =
+        let options = C.allocate_n T.Png_encoder_options.t ~count:1 in
+        C.(
+          setf !@options T.Png_encoder_options.filter_flags filter_flags;
+          setf !@options T.Png_encoder_options.zlib_level zlib_level;
+          setf !@options T.Png_encoder_options.comments Ctypes.null;
+          setf !@options T.Png_encoder_options.icc_profile Ctypes.null;
+          setf
+            !@options
+            T.Png_encoder_options.icc_profile_description
+            Ctypes.null);
+        options
+    end
+
+    let encode =
+      foreign
+        "sk_pngencoder_encode"
+        C.(WStream.t @-> Pixmap.t @-> Options.t @-> returning bool)
   end
 
   module Document = struct

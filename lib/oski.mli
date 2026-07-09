@@ -752,6 +752,9 @@ module Path : sig
       with a Move verb, followed by 0 or more segements: Line, Quad, Conic, Cubic, followed
       by an optional Close. *)
 
+  val equal : t -> t -> bool
+  (** [equal path1 path2] returns true if the two paths are equal. *)
+
   val reset : t -> unit
   (** [reset path] clears the path, removing all segments and contours. *)
 
@@ -892,4 +895,190 @@ module Path : sig
   (** [get_points path max_points] retrieves up to [max_points] points from the path.
       Returns a list of points. If [max_points] is greater than the number of points in the path,
       all points are returned. *)
+end
+
+module Path_iterator : sig
+  type t
+
+  val make : Path.t -> bool -> t option
+  (** [make path force_close] creates a new path iterator for the given path. *)
+
+  val next : t -> Path.verb * Point.t list
+  (** [next iterator] retrieves the next verb and its associated points from the path.
+      Returns [Some (verb, points)] if there are more segments, or [None] if the end is reached. *)
+
+  val conic_weight : t -> float
+  (** [conic_weight iterator] returns the weight of the last conic segment returned by [next]. *)
+
+  val is_close_line : t -> bool
+  (** [is_close_line iterator] returns true if the last segment returned by [next] was a close line. *)
+
+  val is_closed_contour : t -> bool
+  (** [is_closed_contour iterator] returns true if the current contour is closed. *)
+end
+
+module Path_measure : sig
+  type t
+
+  val of_path : Path.t -> bool -> float -> t option
+  val make : unit -> t option
+  val set_path : t -> Path.t -> bool -> unit
+  val get_length : t -> float
+  val get_pos_tan : t -> float -> (Point.t * Vec2.t) option
+end
+
+module Path_effect : sig
+  module Style : sig
+    type t =
+      [ `Translate
+      | `Rotate
+      | `Morph
+      ]
+  end
+
+  type t
+
+  val compose : t -> t -> t
+  val sum : t -> t -> t
+  val create1d : style:Style.t -> advance:float -> phase:float -> Path.t -> t
+  val create2d_line : width:float -> matrix:Matrix.t -> t
+  val create2d_path : matrix:Matrix.t -> Path.t -> t
+end
+
+module Color_space : sig
+  type t
+
+  val of_srgb : unit -> t
+  val of_srgb_linear : unit -> t
+  val equal : t -> t -> bool
+  val to_native : t -> Oski_ffi.M.Color_space.t
+end
+
+module Image_info : sig
+  type t
+  type color_type = Oski_types.M.Color_type.t
+  type alpha_type = Oski_types.M.Alpha_type.t
+
+  val make :
+     ?color_space:Color_space.t
+    -> width:int
+    -> height:int
+    -> color_type:color_type
+    -> alpha_type:alpha_type
+    -> unit
+    -> t
+  (** [make ~width ~height ~color_type ~alpha_type ()] describes the pixel
+      layout of a raster surface: dimensions, color type, and alpha type. *)
+
+  val make_n32_premul :
+     ?color_space:Color_space.t
+    -> width:int
+    -> height:int
+    -> unit
+    -> t
+  (** [make_n32_premul ~width ~height ()] is a convenience constructor using
+      the common native 32-bit premultiplied RGBA layout. *)
+
+  val width : t -> int
+  val height : t -> int
+  val color_type : t -> color_type
+  val alpha_type : t -> alpha_type
+  val to_native : t -> Oski_ffi.M.Image_info.t
+end
+
+module Paint : sig
+  type t
+  type style = Oski_types.M.Paint.style
+  type stroke_cap = Oski_types.M.Paint.stroke_cap
+  type stroke_join = Oski_types.M.Paint.stroke_join
+
+  val make : unit -> t
+  val clone : t -> t
+  val reset : t -> unit
+  val is_antialias : t -> bool
+  val set_antialias : t -> bool -> unit
+  val is_dither : t -> bool
+  val set_dither : t -> bool -> unit
+  val get_color : t -> Color.t
+  val set_color : t -> Color.t -> unit
+  val get_color4f : t -> Color.Color4f.t
+  val set_color4f : ?color_space:Color_space.t -> t -> Color.Color4f.t -> unit
+  val get_style : t -> style
+  val set_style : t -> style -> unit
+  val get_stroke_width : t -> float
+  val set_stroke_width : t -> float -> unit
+  val get_stroke_miter : t -> float
+  val set_stroke_miter : t -> float -> unit
+  val get_stroke_cap : t -> stroke_cap
+  val set_stroke_cap : t -> stroke_cap -> unit
+  val get_stroke_join : t -> stroke_join
+  val set_stroke_join : t -> stroke_join -> unit
+
+  val make_fill : ?antialias:bool -> Color.t -> t
+  (** [make_fill color] is a convenience constructor for an antialiased fill paint. *)
+
+  val make_stroke : ?antialias:bool -> ?width:float -> Color.t -> t
+  (** [make_stroke color] is a convenience constructor for an antialiased stroke paint. *)
+
+  val to_native : t -> Oski_ffi.M.Paint.t
+end
+
+module Canvas : sig
+  type t
+  type clip_op = Oski_types.M.Clip_op.t
+
+  val clear : t -> Color.t -> unit
+  val clear_color4f : t -> Color.Color4f.t -> unit
+  val discard : t -> unit
+  val get_save_count : t -> int
+  val restore_to_count : t -> int -> unit
+  val save : t -> int
+  val save_layer : t -> Rect.t -> Paint.t -> int
+  val restore : t -> unit
+  val draw_color : t -> Color.t -> Blend_mode.t -> unit
+  val draw_color4f : t -> Color.Color4f.t -> Blend_mode.t -> unit
+  val draw_paint : t -> Paint.t -> unit
+  val draw_point : t -> Point.t -> Paint.t -> unit
+  val draw_line : t -> Point.t -> Point.t -> Paint.t -> unit
+  val draw_rect : t -> Rect.t -> Paint.t -> unit
+  val draw_round_rect : t -> Rect.t -> rx:float -> ry:float -> Paint.t -> unit
+  val draw_rrect : t -> RRect.t -> Paint.t -> unit
+  val draw_circle : t -> Point.t -> float -> Paint.t -> unit
+  val draw_oval : t -> Rect.t -> Paint.t -> unit
+  val draw_path : t -> Path.t -> Paint.t -> unit
+  val clip_rect : ?op:clip_op -> ?antialias:bool -> t -> Rect.t -> unit
+  val clip_path : ?op:clip_op -> ?antialias:bool -> t -> Path.t -> unit
+  val clip_rrect : ?op:clip_op -> ?antialias:bool -> t -> RRect.t -> unit
+  val quick_reject : t -> Rect.t -> bool
+  val translate : t -> float -> float -> unit
+  val scale : t -> float -> float -> unit
+  val rotate_degrees : t -> float -> unit
+  val rotate_radians : t -> float -> unit
+  val skew : t -> float -> float -> unit
+  val reset_matrix : t -> unit
+  val to_native : t -> Oski_ffi.M.Canvas.t
+end
+
+module Surface : sig
+  type t
+
+  val make_raster : ?row_bytes:int -> Image_info.t -> t
+  (** [make_raster info] allocates a raster surface backed by CPU memory
+      matching [info]'s dimensions and pixel layout. *)
+
+  val get_canvas : t -> Canvas.t
+  (** [get_canvas surface] returns the canvas used to draw into [surface].
+      The canvas is owned by the surface and must not be freed separately. *)
+
+  val save_png :
+     ?zlib_level:int
+    -> ?filter_flags:Oski_types.M.Png_encoder_filter_flags.t
+    -> t
+    -> string
+    -> unit
+  (** [save_png surface path] encodes the current contents of [surface] as a
+      PNG file at [path]. Raises [Invalid_argument] if the surface's pixels
+      cannot be read directly or if writing fails. *)
+
+  val to_native : t -> Oski_ffi.M.Surface.t
 end
