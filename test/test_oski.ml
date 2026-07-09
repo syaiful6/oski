@@ -196,6 +196,25 @@ let test_path_get_points () =
   Alcotest.(check int) "Path get points returned count" points_count count;
   Alcotest.(check int) "Path get points count" points_count 4
 
+let test_surface_draw_and_save_png () =
+  let info = Oski.Image_info.make_n32_premul ~width:64 ~height:64 () in
+  let surface = Oski.Surface.make_raster info in
+  let canvas = Oski.Surface.get_canvas surface in
+  Oski.Canvas.clear canvas (Oski.Color.of_argb 255 255 255 255);
+  let paint = Oski.Paint.make_fill (Oski.Color.of_argb 255 220 20 60) in
+  Oski.Canvas.draw_circle canvas (Oski.Point.make 32. 32.) 20. paint;
+  let path = Filename.temp_file "oski_test" ".png" in
+  Fun.protect
+    ~finally:(fun () -> Sys.remove path)
+    (fun () ->
+       Oski.Surface.save_png surface path;
+       let ic = open_in_bin path in
+       let len = in_channel_length ic in
+       let signature = really_input_string ic 8 in
+       close_in ic;
+       Alcotest.(check bool) "PNG file is non-empty" true (len > 8);
+       Alcotest.(check string) "PNG signature" "\137PNG\r\n\026\n" signature)
+
 let tests =
   [ ( "Color"
     , [ "color make rgb", `Quick, test_color_make_rgba
@@ -224,4 +243,5 @@ let tests =
       ; "Font styleset get count", `Quick, test_font_mgr_styleset_get_count
       ] )
   ; "Path", [ "get points", `Quick, test_path_get_points ]
+  ; "Surface", [ "draw and save png", `Quick, test_surface_draw_and_save_png ]
   ]

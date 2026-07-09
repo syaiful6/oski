@@ -28,3 +28,7 @@ module Path_iterator = Path_iterator
 module Path_measure = Path_measure
 module Path_effect = Path_effect
 module Color_space = Color_space
+module Image_info = Image_info
+module Paint = Paint
+module Canvas = Canvas
+module Surface = Surface

@@ -3108,6 +3108,38 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> returning (ptr (const T.Surface_props.t)))
   end
 
+  module Png_encoder = struct
+    module Filter_flags = struct
+      type t = T.Png_encoder_filter_flags.t
+
+      let t = T.Png_encoder_filter_flags.t
+    end
+
+    module Options = struct
+      type t = T.Png_encoder_options.t C.structure C.ptr
+
+      let t = C.ptr T.Png_encoder_options.t
+
+      let make ~filter_flags ~zlib_level =
+        let options = C.allocate_n T.Png_encoder_options.t ~count:1 in
+        C.(
+          setf !@options T.Png_encoder_options.filter_flags filter_flags;
+          setf !@options T.Png_encoder_options.zlib_level zlib_level;
+          setf !@options T.Png_encoder_options.comments Ctypes.null;
+          setf !@options T.Png_encoder_options.icc_profile Ctypes.null;
+          setf
+            !@options
+            T.Png_encoder_options.icc_profile_description
+            Ctypes.null);
+        options
+    end
+
+    let encode =
+      foreign
+        "sk_pngencoder_encode"
+        C.(WStream.t @-> Pixmap.t @-> Options.t @-> returning bool)
+  end
+
   module Document = struct
     type t = T.Document.t C.structure C.ptr
 
