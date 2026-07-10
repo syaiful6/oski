@@ -617,6 +617,8 @@ module Typeface : sig
   val get_font_style : t -> Font_style.t
   val get_family_name : t -> string
   val get_units_per_em : t -> int
+  val to_native : t -> Oski_ffi.M.Typeface.t
+  val of_native : Oski_ffi.M.Typeface.t -> t
 end
 
 module Font_style : sig
@@ -691,6 +693,90 @@ module Font_metrics : sig
   val of_native : Oski_types.M.Font_metrics.t Ctypes.structure -> t
 end
 
+module Font : sig
+  type t
+  type hinting = Oski_types.M.Font.hinting
+
+  val make : unit -> t
+
+  val make_with_values : Typeface.t -> float -> float -> float -> t
+  (** [make_with_values face size scalex skewx] creates a new Font with the given Typeface, size, scale, and skew. *)
+
+  val get_typeface : t -> Typeface.t
+  (** [get_typeface font] returns the Typeface associated with the Font. *)
+
+  val set_typeface : t -> Typeface.t -> unit
+  (** [set_typeface font face] sets the Typeface for the Font. *)
+
+  val get_size : t -> float
+  (** [get_size font] returns the size of the Font. *)
+
+  val set_size : t -> float -> unit
+  (** [set_size font size] sets the size of the Font. *)
+
+  val is_subpixel : t -> bool
+  (** [is_subpixel font] returns true if the Font is using subpixel rendering. *)
+
+  val set_subpixel : t -> bool -> unit
+  (** [set_subpixel font subpixel] enables or disables subpixel rendering for the Font. *)
+
+  val get_metrics : t -> Font_metrics.t
+  (** [get_metrics font] retrieves the Font_metrics for the Font. *)
+
+  val measure_text :
+     ?bounds:Rect.t
+    -> paint:Paint.t
+    -> ?encoding:Text_encoding.t
+    -> t
+    -> string
+    -> unit
+    -> float
+
+  val to_native : t -> Oski_ffi.M.Font.t
+end
+
+module Text_blob : sig
+  type t
+end
+
+module Text_blob_builder : sig
+  type t
+
+  val make : unit -> t
+  val with_builder : (t -> 'a) -> 'a
+  val build : t -> Text_blob.t option
+  val to_native : t -> Oski_ffi.M.Text_blob_builder.t
+
+  type shape =
+    { glyph_id : int
+    ; cluster : int
+    ; x_advance : float
+    ; y_advance : float
+    ; x_offset : float
+    ; y_offset : float
+    ; units_per_em : float
+    }
+
+  val alloc_run :
+     font:Font.t
+    -> glyphs:int list
+    -> ?bounds:Rect.t
+    -> ?x:float
+    -> ?y:float
+    -> t
+    -> unit
+
+  val alloc_run_pos :
+     font:Font.t
+    -> font_size:float
+    -> shapes:shape list
+    -> ?bounds:Rect.t
+    -> base_line_x:float
+    -> base_line_y:float
+    -> t
+    -> unit
+end
+
 module Blend_mode : sig
   type t = Oski_types.M.Blend_mode.t
 end
@@ -710,6 +796,33 @@ module Blender : sig
     -> t option
   (** [of_arithmetic k1 k2 k3 k4 enforce_premul] creates a Blender with the given arithmetic coefficients.
       Returns [Some blender] on success, [None] if the coefficients are invalid. *)
+end
+
+module Shader : sig
+  type t
+  type tile_mode
+
+  type color_stop =
+    { color : Color.t
+    ; position : float
+    }
+
+  val of_empty : unit -> t
+
+  val of_linear_gradient2 :
+     start_point:Point.t
+    -> stop_point:Point.t
+    -> start_color:Color.t
+    -> stop_color:Color.t
+    -> tile_mode:tile_mode
+    -> t
+
+  val of_linear_gradient :
+     start_point:Point.t
+    -> stop_point:Point.t
+    -> color_stops:color_stop list
+    -> tile_mode:tile_mode
+    -> t
 end
 
 module Path : sig
@@ -943,6 +1056,7 @@ module Path_effect : sig
   val create1d : style:Style.t -> advance:float -> phase:float -> Path.t -> t
   val create2d_line : width:float -> matrix:Matrix.t -> t
   val create2d_path : matrix:Matrix.t -> Path.t -> t
+  val to_native : t -> Oski_ffi.M.Path_effect.t
 end
 
 module Color_space : sig
@@ -1013,6 +1127,9 @@ module Paint : sig
   val set_stroke_cap : t -> stroke_cap -> unit
   val get_stroke_join : t -> stroke_join
   val set_stroke_join : t -> stroke_join -> unit
+  val set_path_effect : t -> Path_effect.t -> unit
+  val get_path_effect : t -> Path_effect.t
+  val set_shader : t -> Shader.t -> unit
 
   val make_fill : ?antialias:bool -> Color.t -> t
   (** [make_fill color] is a convenience constructor for an antialiased fill paint. *)
@@ -1046,6 +1163,19 @@ module Canvas : sig
   val draw_circle : t -> Point.t -> float -> Paint.t -> unit
   val draw_oval : t -> Rect.t -> Paint.t -> unit
   val draw_path : t -> Path.t -> Paint.t -> unit
+
+  val draw_simple_text :
+     ?encoding:Text_encoding.t
+    -> t
+    -> string
+    -> float
+    -> float
+    -> Font.t
+    -> Paint.t
+    -> unit
+    -> unit
+
+  val draw_text : t -> string -> float -> float -> Font.t -> Paint.t -> unit
   val clip_rect : ?op:clip_op -> ?antialias:bool -> t -> Rect.t -> unit
   val clip_path : ?op:clip_op -> ?antialias:bool -> t -> Path.t -> unit
   val clip_rrect : ?op:clip_op -> ?antialias:bool -> t -> RRect.t -> unit

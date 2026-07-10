@@ -31,3 +31,5 @@ let create2d_path ~matrix path =
   let eff = F.Path_effect.of_2d_path (Matrix.to_native_ptr matrix) path in
   Gc.finalise F.Path_effect.unref eff;
   eff
+
+external to_native : t -> F.Path_effect.t = "%identity"
