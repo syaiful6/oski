@@ -66,6 +66,14 @@ let draw_simple_text ?(encoding = `GlyphId) canvas text x y font paint () =
     (Font.to_native font)
     (Paint.to_native paint)
 
+let draw_text_blob canvas text x y paint =
+  F.Canvas.draw_text_blob
+    canvas
+    (Text_blob.to_native text)
+    x
+    y
+    (Paint.to_native paint)
+
 let draw_text canvas text x y font paint =
   draw_simple_text canvas text x y font paint ()
 

@@ -737,6 +737,8 @@ end
 
 module Text_blob : sig
   type t
+
+  val to_native : t -> Oski_ffi.M.Text_blob.t
 end
 
 module Text_blob_builder : sig
