@@ -2231,10 +2231,10 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_font_measure_text"
         C.(
           t
-          @-> ptr void
+          @-> string
           @-> size_t
           @-> Text_encoding.t
-          @-> Rect.t
+          @-> ptr_opt T.Rect.t
           @-> Paint.t
           @-> returning float)
 
@@ -2447,7 +2447,7 @@ module M (F : Ctypes.FOREIGN) = struct
         "sk_canvas_draw_simple_text"
         C.(
           t
-          @-> ptr void
+          @-> string
           @-> size_t
           @-> Text_encoding.t
           @-> float

@@ -45,6 +45,9 @@ let get_stroke_cap = F.Paint.get_stroke_cap
 let set_stroke_cap = F.Paint.set_stroke_cap
 let get_stroke_join = F.Paint.get_stroke_join
 let set_stroke_join = F.Paint.set_stroke_join
+let set_path_effect = F.Paint.set_path_effect
+let get_path_effect = F.Paint.get_path_effect
+let set_shader = F.Paint.set_shader
 
 let make_fill ?(antialias = true) color =
   let paint = make () in

@@ -55,6 +55,20 @@ let clip_path ?(op = `Intersect) ?(antialias = false) t path =
 let clip_rrect ?(op = `Intersect) ?(antialias = false) t rrect =
   F.Canvas.clip_rrect_with_operation t rrect op antialias
 
+let draw_simple_text ?(encoding = `GlyphId) canvas text x y font paint () =
+  F.Canvas.draw_simple_text
+    canvas
+    text
+    (Unsigned.Size_t.of_int (String.length text))
+    encoding
+    x
+    y
+    (Font.to_native font)
+    (Paint.to_native paint)
+
+let draw_text canvas text x y font paint =
+  draw_simple_text canvas text x y font paint ()
+
 let quick_reject t rect = F.Canvas.quick_reject t (Rect.to_native_ptr rect)
 let translate = F.Canvas.translate
 let scale = F.Canvas.scale

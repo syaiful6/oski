@@ -64,3 +64,6 @@ let copy_table_data face tag =
   | None -> None
 
 let get_units_per_em = F.Typeface.get_units_per_em
+
+external to_native : t -> F.Typeface.t = "%identity"
+external of_native : F.Typeface.t -> t = "%identity"
