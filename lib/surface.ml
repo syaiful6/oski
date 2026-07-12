@@ -3,7 +3,7 @@ module T = Oski_types.M
 
 type t = F.Surface.t
 
-let to_native t = t
+external to_native : t -> F.Surface.t = "%identity"
 
 let make_raster ?(row_bytes = 0) info =
   let props = Ctypes.from_voidp T.Surface_props.t Ctypes.null in
