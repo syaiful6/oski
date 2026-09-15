@@ -1,5 +1,8 @@
-let prologue = {|
+let prologue =
+  {|
 #include "include/c/sk_types.h"
+#include "include/c/sk_graphite.h"
+#include "include/c/sk_graphite_vulkan.h"
 #include "oski_types.h"
 |}
 

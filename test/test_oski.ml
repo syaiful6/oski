@@ -185,16 +185,39 @@ let test_font_mgr_styleset_get_style () =
     true
 
 let test_path_get_points () =
-  let path = Oski.Path.make () in
-  Oski.Path.add_rect
-    path
+  let builder = Oski.Path_builder.make () in
+  Oski.Path_builder.add_rect
+    builder
     (Oski.Rect.make ~left:0. ~top:0. ~right:10. ~bottom:10.)
     ();
+  let path = Oski.Path_builder.detach builder in
   let points_count = Oski.Path.count_points path in
   let count, points = Oski.Path.get_points path points_count in
   Alcotest.(check int) "Path get points count" points_count (List.length points);
   Alcotest.(check int) "Path get points returned count" points_count count;
   Alcotest.(check int) "Path get points count" points_count 4
+
+let test_path_effect_filter_path () =
+  let builder = Oski.Path_builder.make () in
+  Oski.Path_builder.add_rect
+    builder
+    (Oski.Rect.make ~left:0. ~top:0. ~right:40. ~bottom:40.)
+    ();
+  let src = Oski.Path_builder.detach builder in
+  let matrix = Oski.Matrix.scale ~x:8. ~y:8. in
+  let path_effect = Oski.Path_effect.create2d_line ~width:2. ~matrix in
+  let stroke_rec = Oski.Stroke_rec.make_fill () in
+  match Oski.Path_effect.filter_path path_effect ~stroke_rec src with
+  | None -> Alcotest.fail "Path_effect.filter_path returned None"
+  | Some result ->
+    Alcotest.(check bool)
+      "filtered path has points"
+      true
+      (Oski.Path.count_points result > 0);
+    Alcotest.(check bool)
+      "filtered path differs from source (2D line effect applied)"
+      true
+      (Oski.Path.count_verbs result <> Oski.Path.count_verbs src)
 
 let test_surface_draw_and_save_png () =
   let info = Oski.Image_info.make_n32_premul ~width:64 ~height:64 () in
@@ -214,6 +237,176 @@ let test_surface_draw_and_save_png () =
        close_in ic;
        Alcotest.(check bool) "PNG file is non-empty" true (len > 8);
        Alcotest.(check string) "PNG signature" "\137PNG\r\n\026\n" signature)
+
+let test_surface_pixels_and_image_roundtrip () =
+  let info = Oski.Image_info.make_n32_premul ~width:64 ~height:64 () in
+  let surface = Oski.Surface.make_raster info in
+  let canvas = Oski.Surface.get_canvas surface in
+  Oski.Canvas.clear canvas (Oski.Color.of_argb 255 255 255 255);
+  let paint = Oski.Paint.make_fill (Oski.Color.of_argb 255 220 20 60) in
+  Oski.Canvas.draw_circle canvas (Oski.Point.make 32. 32.) 20. paint;
+  let pixmap =
+    match Oski.Surface.peek_pixels surface with
+    | Some pixmap -> pixmap
+    | None -> Alcotest.fail "Surface.peek_pixels returned None"
+  in
+  let ba = Oski.Pixmap.to_bigarray pixmap in
+  Alcotest.(check int)
+    "bigarray size matches row_bytes * height"
+    (Oski.Pixmap.row_bytes pixmap * Oski.Pixmap.height pixmap)
+    (Bigarray.Array1.dim ba);
+  let expected = Oski.Color.of_argb 255 220 20 60 in
+  Alcotest.(check bool)
+    "center pixel matches the drawn color"
+    true
+    (Oski.Pixmap.get_pixel_color pixmap ~x:32 ~y:32 = expected);
+  let path = Filename.temp_file "oski_test" ".png" in
+  Fun.protect
+    ~finally:(fun () -> Sys.remove path)
+    (fun () ->
+       Oski.Surface.save_png surface path;
+       let image =
+         match Oski.Image.of_file path with
+         | Some image -> image
+         | None -> Alcotest.fail "Image.of_file returned None"
+       in
+       Alcotest.(check int) "loaded image width" 64 (Oski.Image.width image);
+       Alcotest.(check int) "loaded image height" 64 (Oski.Image.height image);
+       let surface2 = Oski.Surface.make_raster info in
+       let canvas2 = Oski.Surface.get_canvas surface2 in
+       Oski.Canvas.clear canvas2 (Oski.Color.of_argb 255 0 0 0);
+       Oski.Canvas.draw_image canvas2 image (Oski.Point.make 0. 0.);
+       let pixmap2 =
+         match Oski.Surface.peek_pixels surface2 with
+         | Some pixmap -> pixmap
+         | None -> Alcotest.fail "Surface.peek_pixels (surface2) returned None"
+       in
+       Alcotest.(check bool)
+         "center pixel matches after PNG round-trip + draw_image"
+         true
+         (Oski.Pixmap.get_pixel_color pixmap2 ~x:32 ~y:32 = expected))
+
+(* Graphite+Vulkan needs an actual GPU, a Vulkan loader able to find a working
+   ICD, and Skia to have been compiled with SUPPORT_GRAPHITE=true
+   SUPPORT_VULKAN=true (see CLAUDE.md) -- none of which are guaranteed in every
+   environment this test suite runs in. Every step below degrades to a printed
+   note (test still passes) rather than a hard failure when that's the case,
+   since it reflects the environment, not a bug. *)
+let test_graphite_vulkan_render_and_read_pixels () =
+  match Oski.Graphite_vk.Device.make () with
+  | None -> print_endline "  (skipped: no Vulkan device available)"
+  | Some device ->
+    (match Oski.Graphite_vk.make_context device with
+    | None -> print_endline "  (skipped: Graphite+Vulkan context unavailable)"
+    | Some context ->
+      Fun.protect
+        ~finally:(fun () -> Oski.Graphite.Context.delete context)
+        (fun () ->
+           match Oski.Graphite.Context.make_recorder context with
+           | None ->
+             Alcotest.fail "Graphite.Context.make_recorder returned None"
+           | Some recorder ->
+             Fun.protect
+               ~finally:(fun () -> Oski.Graphite.Recorder.delete recorder)
+               (fun () ->
+                  let info =
+                    Oski.Image_info.make_n32_premul ~width:64 ~height:64 ()
+                  in
+                  let surface =
+                    Oski.Graphite.make_render_target recorder info ()
+                  in
+                  let canvas = Oski.Surface.get_canvas surface in
+                  Oski.Canvas.clear canvas (Oski.Color.of_argb 255 255 255 255);
+                  let paint =
+                    Oski.Paint.make_fill (Oski.Color.of_argb 255 220 20 60)
+                  in
+                  Oski.Canvas.draw_circle
+                    canvas
+                    (Oski.Point.make 32. 32.)
+                    20.
+                    paint;
+                  match Oski.Graphite.Recorder.snap recorder with
+                  | None -> Alcotest.fail "Graphite.Recorder.snap returned None"
+                  | Some recording ->
+                    Fun.protect
+                      ~finally:(fun () ->
+                        Oski.Graphite.Recording.delete recording)
+                      (fun () ->
+                         let status =
+                           Oski.Graphite.Context.insert_recording
+                             context
+                             ~recording
+                             ()
+                         in
+                         Alcotest.(check bool)
+                           "insert_recording succeeds"
+                           true
+                           (status = `Success);
+                         Alcotest.(check bool)
+                           "submit succeeds"
+                           true
+                           (Oski.Graphite.Context.submit ~sync:true context);
+                         let dst_info = info in
+                         let src_rect =
+                           Oski.IRect.make ~left:0 ~top:0 ~right:64 ~bottom:64
+                         in
+                         match
+                           Oski.Graphite.Context.read_pixels_sync
+                             context
+                             surface
+                             ~dst_info
+                             ~src_rect
+                         with
+                         | None ->
+                           Alcotest.fail "read_pixels_sync returned None"
+                         | Some result ->
+                           Fun.protect
+                             ~finally:(fun () ->
+                               Oski.Graphite.Read_pixels_result.delete result)
+                             (fun () ->
+                                let ba =
+                                  Oski.Graphite.Read_pixels_result.to_bigarray
+                                    result
+                                    ~height:64
+                                in
+                                let row_bytes =
+                                  Oski.Graphite.Read_pixels_result.get_row_bytes
+                                    result
+                                in
+                                let off = (32 * row_bytes) + (32 * 4) in
+                                let byte i =
+                                  Char.code (Bigarray.Array1.get ba (off + i))
+                                in
+                                Alcotest.(check (list int))
+                                  "center pixel is opaque crimson (R,G,B,A)"
+                                  [ 220; 20; 60; 255 ]
+                                  [ byte 0; byte 1; byte 2; byte 3 ])))))
+
+let test_document_pdf () =
+  let path = Filename.temp_file "oski_test" ".pdf" in
+  Fun.protect
+    ~finally:(fun () -> Sys.remove path)
+    (fun () ->
+       let metadata =
+         { Oski.Document.default_metadata with
+           title = Some "Oski Test Document"
+         }
+       in
+       let doc = Oski.Document.make_pdf_to_file ~metadata path in
+       Oski.Document.with_page doc ~width:100. ~height:100. (fun canvas ->
+         Oski.Canvas.clear canvas (Oski.Color.of_argb 255 255 255 255);
+         let paint = Oski.Paint.make_fill (Oski.Color.of_argb 255 220 20 60) in
+         Oski.Canvas.draw_rect
+           canvas
+           (Oski.Rect.make ~left:10. ~top:10. ~right:90. ~bottom:90.)
+           paint);
+       Oski.Document.close doc;
+       let ic = open_in_bin path in
+       let len = in_channel_length ic in
+       let signature = really_input_string ic 5 in
+       close_in ic;
+       Alcotest.(check bool) "PDF file is non-empty" true (len > 5);
+       Alcotest.(check string) "PDF signature" "%PDF-" signature)
 
 let tests =
   [ ( "Color"
@@ -243,5 +436,17 @@ let tests =
       ; "Font styleset get count", `Quick, test_font_mgr_styleset_get_count
       ] )
   ; "Path", [ "get points", `Quick, test_path_get_points ]
-  ; "Surface", [ "draw and save png", `Quick, test_surface_draw_and_save_png ]
+  ; "Path_effect", [ "filter_path", `Quick, test_path_effect_filter_path ]
+  ; ( "Surface"
+    , [ "draw and save png", `Quick, test_surface_draw_and_save_png
+      ; ( "pixels and image round-trip"
+        , `Quick
+        , test_surface_pixels_and_image_roundtrip )
+      ] )
+  ; "Document", [ "create pdf", `Quick, test_document_pdf ]
+  ; ( "Graphite"
+    , [ ( "vulkan render and read pixels"
+        , `Quick
+        , test_graphite_vulkan_render_and_read_pixels )
+      ] )
   ]

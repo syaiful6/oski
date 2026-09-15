@@ -23,6 +23,16 @@ mkShell {
     export CC="${llvmPkgs.clang}/bin/clang"
     export CXX="${llvmPkgs.clang}/bin/clang++"
     export LIBCLANG_PATH="${llvmPkgs.libclang}/lib"
+  ''
+  + lib.optionalString stdenv.isLinux ''
+    # The nix-provided vulkan-loader doesn't search /usr/share/vulkan/icd.d,
+    # and even if it did, a system Mesa ICD's "library_path" is a bare
+    # filename resolved via the system's own ld.so search path, which a
+    # nix-sandboxed process doesn't have. Point the loader at nixpkgs' own
+    # Mesa ICDs instead, whose driver .so is referenced by an absolute nix
+    # store path.
+    export VK_ICD_FILENAMES="$(echo ${pkgs.mesa}/share/vulkan/icd.d/*.json | tr ' ' ':')"
+    export VK_DRIVER_FILES="$VK_ICD_FILENAMES"
   '';
 
   buildInputs =
@@ -30,9 +40,7 @@ mkShell {
       ocaml-lsp
       ocamlformat
     ])
-    ++
-    (with pkgs;
-    [
+    ++ (with pkgs; [
       llvmPkgs.clang
       ninja
       gn
@@ -46,6 +54,8 @@ mkShell {
     ++ lib.optionals stdenv.isLinux [
       pkgs.vulkan-headers
       pkgs.vulkan-loader
+      pkgs.vulkan-tools
+      pkgs.mesa
       pkgs.libGL
     ];
 }

@@ -492,6 +492,10 @@ module M (F : Ctypes.TYPE) = struct
 
     let iterator : iterator structure typ = structure "sk_path_iterator_t"
 
+    type builder
+
+    let builder : builder structure typ = structure "sk_pathbuilder_t"
+
     type op =
       [ `Difference
       | `Intersect
@@ -535,6 +539,12 @@ module M (F : Ctypes.TYPE) = struct
         ; `Get_tangent, "GET_TANGENT"
         ; `Get_pos_and_tan, "GET_POS_AND_TAN"
         ]
+  end
+
+  module Stroke_rec = struct
+    type t
+
+    let t : t structure typ = structure "oski_strokerec_t"
   end
 
   module Path_effect = struct
@@ -931,8 +941,8 @@ module M (F : Ctypes.TYPE) = struct
     let filter_flags = field t "fFilterFlags" Png_encoder_filter_flags.t
     let zlib_level = field t "fZLibLevel" int
     let comments = field t "fComments" (ptr void)
-    let icc_profile = field t "fICCProfile" (ptr void)
-    let icc_profile_description = field t "fICCProfileDescription" (ptr void)
+    let gainmap = field t "fGainmap" (ptr void)
+    let gainmap_info = field t "fGainmapInfo" (ptr void)
     let () = seal t
   end
 
@@ -1343,6 +1353,44 @@ module M (F : Ctypes.TYPE) = struct
         [ `Allow, "ALLOW"; `Disallow, "DISALLOW" ]
   end
 
+  module Read_pixels_result = struct
+    type t
+
+    let t : t structure typ = structure "oski_graphite_read_pixels_result_t"
+  end
+
+  module Image_rescale_gamma = struct
+    type t =
+      [ `Src
+      | `Linear
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "IMAGE_RESCALE_GAMMA"
+        "sk_image_rescale_gamma_t"
+        [ `Src, "SRC"; `Linear, "LINEAR" ]
+  end
+
+  module Image_rescale_mode = struct
+    type t =
+      [ `Nearest
+      | `Linear
+      | `Repeated_linear
+      | `Repeated_cubic
+      ]
+
+    let t : t typ =
+      skia_c_enum
+        "IMAGE_RESCALE_MODE"
+        "sk_image_rescale_mode_t"
+        [ `Nearest, "NEAREST"
+        ; `Linear, "LINEAR"
+        ; `Repeated_linear, "REPEATED_LINEAR"
+        ; `Repeated_cubic, "REPEATED_CUBIC"
+        ]
+  end
+
   module Runtime_effect = struct
     type t
 
@@ -1520,5 +1568,208 @@ module M (F : Ctypes.TYPE) = struct
 
       let t : t structure typ = structure "gr_backendtexture_t"
     end
+  end
+
+  module Vk = struct
+    type instance
+
+    let instance : instance structure typ = structure "vk_instance_t"
+
+    type physical_device
+
+    let physical_device : physical_device structure typ =
+      structure "vk_physical_device_t"
+
+    type device
+
+    let device : device structure typ = structure "vk_device_t"
+
+    type queue
+
+    let queue : queue structure typ = structure "vk_queue_t"
+  end
+
+  module Vk_device = struct
+    type t
+
+    let t : t structure typ = structure "oski_vk_device_t"
+  end
+
+  module Graphite = struct
+    type context
+
+    let context : context structure typ = structure "sk_graphite_context_t"
+
+    type recorder
+
+    let recorder : recorder structure typ = structure "sk_graphite_recorder_t"
+
+    type recording
+
+    let recording : recording structure typ =
+      structure "sk_graphite_recording_t"
+
+    type backend_texture
+
+    let backend_texture : backend_texture structure typ =
+      structure "sk_graphite_backend_texture_t"
+
+    type texture_info
+
+    let texture_info : texture_info structure typ =
+      structure "sk_graphite_texture_info_t"
+
+    type image_provider
+
+    let image_provider : image_provider structure typ =
+      structure "sk_graphite_image_provider_t"
+
+    type backend =
+      [ `Dawn
+      | `Metal
+      | `Vulkan
+      | `Unknown
+      ]
+
+    let backend : backend typ =
+      skia_c_enum
+        "GRAPHITE_BACKEND"
+        "sk_graphite_backend_t"
+        [ `Dawn, "DAWN"
+        ; `Metal, "METAL"
+        ; `Vulkan, "VULKAN"
+        ; `Unknown, "UNKNOWN"
+        ]
+
+    type insert_status =
+      [ `Success
+      | `Invalid_recording
+      | `Promise_instantiation_failed
+      | `Add_commands_failed
+      | `Async_shader_compiles_failed
+      | `Out_of_order_recording
+      ]
+
+    let insert_status : insert_status typ =
+      skia_c_enum
+        "GRAPHITE_INSERT_STATUS"
+        "sk_graphite_insert_status_t"
+        [ `Success, "SUCCESS"
+        ; `Invalid_recording, "INVALID_RECORDING"
+        ; `Promise_instantiation_failed, "PROMISE_INSTANTIATION_FAILED"
+        ; `Add_commands_failed, "ADD_COMMANDS_FAILED"
+        ; `Async_shader_compiles_failed, "ASYNC_SHADER_COMPILES_FAILED"
+        ; `Out_of_order_recording, "OUT_OF_ORDER_RECORDING"
+        ]
+
+    type context_options
+
+    let context_options : context_options structure typ =
+      structure "sk_graphite_context_options_t"
+
+    let context_options =
+      typedef context_options "sk_graphite_context_options_t"
+
+    let disable_driver_correctness_workarounds =
+      field context_options "fDisableDriverCorrectnessWorkarounds" bool
+
+    let internal_multisample_count =
+      field context_options "fInternalMultisampleCount" int32_t
+
+    let gpu_budget_in_bytes = field context_options "fGpuBudgetInBytes" int64_t
+
+    let require_ordered_recordings =
+      field context_options "fRequireOrderedRecordings" bool
+
+    let set_backend_labels = field context_options "fSetBackendLabels" bool
+    let () = seal context_options
+
+    type submit_info
+
+    let submit_info : submit_info structure typ =
+      structure "sk_graphite_submit_info_t"
+
+    let submit_info = typedef submit_info "sk_graphite_submit_info_t"
+    let sync = field submit_info "fSync" bool
+    let mark_boundary = field submit_info "fMarkBoundary" bool
+    let frame_id = field submit_info "fFrameID" uint64_t
+    let () = seal submit_info
+
+    type insert_recording_info
+
+    let insert_recording_info : insert_recording_info structure typ =
+      structure "sk_graphite_insert_recording_info_t"
+
+    let insert_recording_info =
+      typedef insert_recording_info "sk_graphite_insert_recording_info_t"
+
+    let recording_field =
+      field insert_recording_info "fRecording" (ptr recording)
+
+    let target_surface =
+      field insert_recording_info "fTargetSurface" (ptr Surface.t)
+
+    let target_translation_x =
+      field insert_recording_info "fTargetTranslationX" int32_t
+
+    let target_translation_y =
+      field insert_recording_info "fTargetTranslationY" int32_t
+
+    let target_clip = field insert_recording_info "fTargetClip" IRect.t
+    let () = seal insert_recording_info
+  end
+
+  module Graphite_vk = struct
+    let get_proc =
+      static_funptr
+        (ptr void
+        @-> string
+        @-> ptr Vk.instance
+        @-> ptr Vk.device
+        @-> returning (static_funptr (void @-> returning void)))
+
+    type backend_context_init
+
+    let backend_context_init : backend_context_init structure typ =
+      structure "sk_graphite_vk_backend_context_init_t"
+
+    let backend_context_init =
+      typedef backend_context_init "sk_graphite_vk_backend_context_init_t"
+
+    let instance = field backend_context_init "fInstance" (ptr Vk.instance)
+
+    let physical_device =
+      field backend_context_init "fPhysicalDevice" (ptr Vk.physical_device)
+
+    let device = field backend_context_init "fDevice" (ptr Vk.device)
+    let queue = field backend_context_init "fQueue" (ptr Vk.queue)
+
+    let graphics_queue_index =
+      field backend_context_init "fGraphicsQueueIndex" uint32_t
+
+    let max_api_version = field backend_context_init "fMaxAPIVersion" uint32_t
+    let get_proc_field = field backend_context_init "fGetProc" get_proc
+
+    let get_proc_user_data =
+      field backend_context_init "fGetProcUserData" (ptr void)
+
+    let protected_context = field backend_context_init "fProtectedContext" bool
+    let () = seal backend_context_init
+
+    type texture_info
+
+    let texture_info : texture_info structure typ =
+      structure "sk_graphite_vk_texture_info_t"
+
+    let texture_info = typedef texture_info "sk_graphite_vk_texture_info_t"
+    let sample_count = field texture_info "fSampleCount" int32_t
+    let mipmapped = field texture_info "fMipmapped" bool
+    let flags = field texture_info "fFlags" uint32_t
+    let format = field texture_info "fFormat" int32_t
+    let image_tiling = field texture_info "fImageTiling" int32_t
+    let image_usage_flags = field texture_info "fImageUsageFlags" uint32_t
+    let sharing_mode = field texture_info "fSharingMode" int32_t
+    let aspect_mask = field texture_info "fAspectMask" uint32_t
+    let () = seal texture_info
   end
 end

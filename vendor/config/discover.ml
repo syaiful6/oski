@@ -135,13 +135,16 @@ module GnArgs = struct
       |> arg ~name:"is_component_build" "false"
       |> arg ~name:"skia_enable_tools" "false"
       |> arg ~name:"skia_use_piex" "true"
-      |> arg ~name:"skia_use_sfntly" "false"
       |> arg ~name:"skia_use_system_expat" "false"
       |> arg ~name:"skia_use_system_libjpeg_turbo" "false"
       |> arg ~name:"skia_use_system_libpng" "false"
       |> arg ~name:"skia_use_system_libwebp" "false"
       |> arg ~name:"skia_use_system_zlib" "false"
       |> arg ~name:"skia_enable_pdf" "true"
+      (* Chromium's PartitionAlloc-backed raw_ptr<> (BackupRefPtr) requires
+         vendoring and linking third_party/externals/partition_alloc, which we
+         don't ship; fall back to Skia's no-op raw_ptr<> implementation. *)
+      |> arg ~name:"skia_use_partition_alloc" "false"
       (* Text layout / sharping *)
       |> fun t ->
         match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
@@ -161,20 +164,15 @@ module GnArgs = struct
     (* SVG support *)
     |> fun t ->
       match Sys.getenv_opt "SKIA_ENABLE_SVG" with
-      | Some x when str_true x ->
-        t
-        |> arg ~name:"skia_enable_svg" "true"
-        |> arg ~name:"skia_svg_parser" "true"
-      | _ ->
-        t
-        |> arg ~name:"skia_enable_svg" "false"
-        |> arg ~name:"skia_svg_parser" "false" )
+      | Some x when str_true x -> t |> arg ~name:"skia_enable_svg" "true"
+      | _ -> t |> arg ~name:"skia_enable_svg" "false" )
     |> fun t ->
     match t.target.os with
     | Linux ->
       t
       |> arg ~name:"cc" (quote "clang")
       |> arg ~name:"cxx" (quote "clang++")
+      |> arg ~name:"skia_enable_graphite" (enable_with_env "SUPPORT_GRAPHITE")
       |> arg ~name:"skia_enable_ganesh" (enable_with_env "SUPPORT_GPU")
       |> arg ~name:"skia_use_vulkan" (enable_with_env "SUPPORT_VULKAN")
       |> cflag "-DSKIA_C_DLL"
@@ -183,6 +181,8 @@ module GnArgs = struct
       |> ldflag "-static-libgcc"
     | Mac ->
       t
+      |> arg ~name:"skia_enable_graphite" "true"
+      |> arg ~name:"skia_enable_ganesh" "true"
       |> arg ~name:"skia_use_metal" "true"
       |> cflag "-DSKIA_C_DLL"
       |> cflag "-DHAVE_ARC4RANDOM_BUF"
@@ -194,6 +194,9 @@ module GnArgs = struct
       |> arg ~name:"cxx" (quote "clang++")
       |> arg ~name:"skia_enable_fontmgr_win_gdi" "false"
       |> arg ~name:"skia_use_dng_sdk" "false"
+      |> arg ~name:"skia_enable_graphite" (enable_with_env "SUPPORT_GPU")
+      |> arg ~name:"skia_enable_ganesh" (enable_with_env "SUPPORT_GPU")
+      |> arg ~name:"skia_enable_dawn" (enable_with_env "SUPPORT_GPU")
       |> arg ~name:"skia_use_vulkan" (enable_with_env "SUPPORT_VULKAN")
       |> arg ~name:"skia_use_direct3d" (enable_with_env "SUPPORT_DIRECT3D")
       |> cflag "-DSKIA_C_DLL"
@@ -205,11 +208,14 @@ module GnArgs = struct
       |> ldflag "/DEBUGTYPE:CV,FIXUP"
     | Android ->
       t
+      |> arg ~name:"skia_enable_graphite" "true"
       |> arg ~name:"skia_enable_ganesh" "true"
       |> cflag "-DSKIA_C_DLL"
       |> ldflag "-static-libstdc++"
     | IOS ->
       t
+      |> arg ~name:"skia_enable_graphite" "true"
+      |> arg ~name:"skia_enable_ganesh" "true"
       |> arg ~name:"skia_use_metal" "true"
       |> cflag "-DSKIA_C_DLL"
       |> cflag "-DHAVE_ARC4RANDOM_BUF"

@@ -5,7 +5,7 @@ let
     programs.nixfmt.enable = true;
     programs.ocamlformat = {
       enable = true;
-      configFile = ../../.ocamlformat;
+      # configFile = ../../.ocamlformat;
     };
     settings.formatter = { };
   };

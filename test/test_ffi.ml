@@ -49,7 +49,7 @@ let test_matrix_set_scale () =
   Alcotest.(check float_nearly_equal) "Matrix y scale" 8.0 (Vector.get_y vector)
 
 let test_font_manager_count_families () =
-  let fontmgr = Font_manager.ref_default () in
+  let fontmgr = Font_manager.make_default () in
   Gc.finalise Font_manager.unref fontmgr;
   let count = Font_manager.count_families fontmgr in
   Alcotest.(check bool)
@@ -58,7 +58,7 @@ let test_font_manager_count_families () =
     (count > 0)
 
 let test_font_manager_match_family_style () =
-  let fontmgr = Font_manager.ref_default () in
+  let fontmgr = Font_manager.make_default () in
   Gc.finalise Font_manager.unref fontmgr;
   let style = Font_style.make 400 5 `Upright in
   Gc.finalise Font_style.delete style;

@@ -36,6 +36,14 @@ typedef struct {
 typedef struct oski_svgdom_t oski_svgdom_t;
 typedef uint32_t oski_typeface_id;
 
+// Wraps SkStrokeRec; needed by oski_path_effect_filter_path since
+// SkPathEffect::filterPath requires a stroke context.
+typedef struct oski_strokerec_t oski_strokerec_t;
+
+// Holds pixel bytes copied out of a one-shot Graphite async pixel readback;
+// see oski_graphite_context_read_pixels_sync in bindings.h.
+typedef struct oski_graphite_read_pixels_result_t oski_graphite_read_pixels_result_t;
+
 OSKI_PLUS_PLUS_END_GUARD
 
 #endif
