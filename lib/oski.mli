@@ -7,7 +7,7 @@ module Color : sig
       }
 
     val make : float -> float -> float -> t
-    (** [make h s v] return a new HSV color *)
+    (** [make h s v] returns an HSV color. *)
 
     val to_color : int -> t -> Unsigned.uint32
   end
@@ -69,7 +69,7 @@ module Vec2 : sig
     }
 
   val make : float -> float -> t
-  (** [make x y] create Vec2.t with pair of float. *)
+  (** [make x y] returns a vector with coordinates [x] and [y]. *)
 
   val dot : t -> t -> float
   val cross : t -> t -> float
@@ -437,101 +437,101 @@ module RSXform : sig
 end
 
 module Stream : sig
-  (** Stream interface for reading data from Skia streams in a safe, OCaml-friendly way.
-
-        This module provides an In_channel-like API for working with Skia streams,
-        using Bigstring for efficient memory management and safe pointer operations. *)
+  (** An {!Stdlib.In_channel}-style interface to Skia streams. Reads can
+      target bigstrings to avoid intermediate copies. *)
 
   type t
-  (** Abstract type representing a Skia stream *)
+  (** A Skia stream. *)
 
   type bigstring =
     (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
-  (** Bigstring type for efficient byte array operations *)
+  (** A one-dimensional array of bytes. *)
 
   (** {1 Native Interface} *)
 
   val to_native : t -> Oski_ffi.M.Stream.t
-  (** [to_native stream] returns the underlying FFI stream handle.
-        Use this when interfacing with other Skia functions that expect a native stream. *)
+  (** [to_native stream] returns the underlying FFI handle. *)
 
   (** {1 Stream Operations} *)
 
   val duplicate : t -> t option
-  (** [duplicate stream] creates a duplicate of the stream.
-        Returns [Some duplicated_stream] on success, [None] if duplication is not supported. *)
+  (** [duplicate stream] returns a copy with its own position, or [None] if
+      [stream] does not support duplication. *)
 
   val fork : t -> t option
-  (** [fork stream] creates a fork of the stream.
-        Returns [Some forked_stream] on success, [None] if forking is not supported. *)
+  (** [fork stream] returns a stream at the same position as [stream], or
+      [None] if [stream] does not support forking. *)
 
   (** {1 Stream Properties} *)
 
   val has_position : t -> bool
-  (** [has_position stream] returns [true] if the stream supports position queries *)
+  (** [has_position stream] is [true] when [stream] supports position queries. *)
 
   val is_at_end : t -> bool
-  (** [is_at_end stream] returns [true] if the stream is at its end *)
+  (** [is_at_end stream] is [true] at the end of [stream]. *)
 
   val get_position : t -> Unsigned.Size_t.t
-  (** [get_position stream] returns the current position in the stream.
-        Only valid if [has_position stream] returns [true]. *)
+  (** [get_position stream] returns its current position. Call it only when
+      [has_position stream] is [true]. *)
 
   val has_length : t -> bool
-  (** [has_length stream] returns [true] if the stream has a known length *)
+  (** [has_length stream] is [true] when its length is known. *)
 
   val get_length : t -> int
-  (** [get_length stream] returns the total length of the stream.
-        Only valid if [has_length stream] returns [true]. *)
+  (** [get_length stream] returns its length. Call it only when
+      [has_length stream] is [true]. *)
 
-  (** {1 Reading Functions} *)
+  (** {1 Reading}
+
+      Reads may return fewer than the requested number of bytes at the end
+      of a stream. *)
 
   val read : t -> bigstring -> pos:int -> len:int -> int
-  (** [read stream buffer ~pos ~len] reads up to [len] bytes from [stream] 
-        into [buffer] starting at position [pos].
-        Returns the actual number of bytes read.
-        Raises [Invalid_argument] if [pos] or [len] are out of bounds. *)
+  (** [read stream buffer ~pos ~len] reads at most [len] bytes into [buffer]
+      at [pos] and returns the number read.
+
+      @raise Invalid_argument if the requested range lies outside [buffer]. *)
 
   val peek : t -> bigstring -> pos:int -> len:int -> int
-  (** [peek stream buffer ~pos ~len] peeks up to [len] bytes from [stream]
-        into [buffer] starting at position [pos], without advancing the stream position.
-        Returns the actual number of bytes peeked.
-        Raises [Invalid_argument] if [pos] or [len] are out of bounds. *)
+  (** [peek stream buffer ~pos ~len] reads at most [len] bytes into [buffer]
+      at [pos] without advancing [stream], and returns the number read.
+
+      @raise Invalid_argument if the requested range lies outside [buffer]. *)
 
   val read_bigstring : t -> int -> bigstring
-  (** [read_bigstring stream len] allocates a new bigstring and reads up to [len] bytes.
-        Returns a bigstring containing the actual bytes read (may be shorter than [len]). *)
+  (** [read_bigstring stream len] reads at most [len] bytes into a new
+      bigstring. *)
 
   val peek_bigstring : t -> int -> bigstring
-  (** [peek_bigstring stream len] allocates a new bigstring and peeks up to [len] bytes.
-        Returns a bigstring containing the actual bytes peeked (may be shorter than [len]). *)
+  (** [peek_bigstring stream len] reads at most [len] bytes into a new
+      bigstring without advancing [stream]. *)
 
   val read_bytes : t -> int -> bytes
-  (** [read_bytes stream len] reads up to [len] bytes and returns them as a [bytes] value.
-        Returns bytes containing the actual data read (may be shorter than [len]). *)
+  (** [read_bytes stream len] reads at most [len] bytes. *)
 
   val read_string : t -> int -> string
-  (** [read_string stream len] reads up to [len] bytes and returns them as a string.
-        Returns string containing the actual data read (may be shorter than [len]). *)
+  (** [read_string stream len] reads at most [len] bytes. *)
 
-  (** {1 Complete Reading Functions} *)
+  (** {1 Complete reads} *)
 
   val really_read : t -> bigstring -> pos:int -> len:int -> bool
-  (** [really_read stream buffer ~pos ~len] ensures exactly [len] bytes are read
-        from [stream] into [buffer] starting at position [pos].
-        Returns [true] on success, [false] if EOF is reached before reading [len] bytes.
-        Raises [Invalid_argument] if [pos] or [len] are out of bounds. *)
+  (** [really_read stream buffer ~pos ~len] fills the requested range and
+      returns [true]. It returns [false] if the stream ends first.
+
+      @raise Invalid_argument if the requested range lies outside [buffer]. *)
 
   val really_read_bigstring : t -> int -> bigstring option
-  (** [really_read_bigstring stream len] allocates a new bigstring and reads exactly [len] bytes.
-        Returns [Some bigstring] on success, [None] if EOF is reached before reading [len] bytes. *)
+  (** [really_read_bigstring stream len] reads [len] bytes into a new
+      bigstring, or returns [None] if the stream ends first. *)
 
   val really_read_string : t -> int -> string option
-  (** [really_read_string stream len] reads exactly [len] bytes and returns them as a string.
-        Returns [Some string] on success, [None] if EOF is reached before reading [len] bytes. *)
+  (** [really_read_string stream len] reads a string of [len] bytes, or
+      returns [None] if the stream ends first. *)
 
   val get_memory_base : t -> unit Ctypes.ptr
-  (** Returns the starting address for the data. *)
+  (** [get_memory_base stream] returns the address of its memory-backed data,
+      or a null pointer when no address is available. The pointer remains
+      valid only while [stream] is alive. *)
 end
 
 module Stream_asset : sig
@@ -541,8 +541,7 @@ module Stream_asset : sig
   val to_stream : t -> Stream.t
 
   val to_native : t -> Oski_ffi.M.Stream_asset.t
-  (** [to_native asset] returns the underlying FFI stream asset handle.
-      Use this when interfacing with other Skia functions that expect a native stream asset. *)
+  (** [to_native asset] returns the underlying FFI handle. *)
 end
 
 module File_stream : sig
@@ -554,42 +553,38 @@ module File_stream : sig
   val to_stream : t -> Stream.t
 
   val to_native : t -> Oski_ffi.M.File_stream.t
-  (** [to_native file] returns the underlying FFI file stream handle.
-      Use this when interfacing with other Skia functions that expect a native file stream. *)
+  (** [to_native file] returns the underlying FFI handle. *)
 end
 
 module Data : sig
-  (** Data interface for working with immutable byte arrays from Skia.
-
-      Data objects are reference-counted and automatically managed by the garbage collector. *)
+  (** Immutable byte buffers owned by Skia. OCaml finalizers release their
+      reference counts. *)
 
   type t
-  (** Abstract type representing a Skia data object *)
+  (** An immutable Skia byte buffer. *)
 
   (** {1 Native Interface} *)
 
   val to_native : t -> Oski_ffi.M.Data.t
-  (** [to_native data] returns the underlying FFI data handle.
-      Use this when interfacing with other Skia functions that expect native data. *)
+  (** [to_native data] returns the underlying FFI handle. *)
 
   (** {1 Creation} *)
 
   val of_file : string -> t option
-  (** [of_file path] creates a data object from a file.
-      Returns [Some data] on success, [None] if the file cannot be read. *)
+  (** [of_file path] reads a buffer from [path], or returns [None] if the
+      file cannot be read. *)
 
   val of_stream : Oski_ffi.M.Stream.t -> int -> t option
-  (** [of_stream stream size] creates a data object by reading [size] bytes from [stream].
-      Returns [Some data] on success, [None] if the stream cannot be read. *)
+  (** [of_stream stream size] reads [size] bytes from [stream], or returns
+      [None] if the read fails. *)
 
   (** {1 Access} *)
 
   val get_size : t -> Unsigned.Size_t.t
-  (** [get_size data] returns the size of the data in bytes *)
+  (** [get_size data] returns its size in bytes. *)
 
   val to_string : t -> string
-  (** [to_string data] converts the data to a string.
-      The data is interpreted as raw bytes. *)
+  (** [to_string data] copies its raw bytes into a string. *)
 end
 
 module Memory_stream : sig
@@ -605,10 +600,6 @@ module Typeface : sig
   type id = Oski_types.M.Typeface.id
   type font_table_tag = Oski_types.M.Typeface.font_table_tag
 
-  val of_name : string -> Font_style.t -> t option
-  val of_file : string -> int -> t option
-  val of_asset : Stream_asset.t -> int -> t option
-  val of_data : Data.t -> int -> t option
   val open_stream : t -> Stream_asset.t option * int
   val open_existing_stream : t -> Stream_asset.t option * int
   val get_unique_id : t -> id
@@ -648,8 +639,8 @@ module Font_manager : sig
   val make_style_set : t -> int -> Font_style_set.t option
 
   val match_family : t -> string -> Font_style_set.t option
-  (** [match_family mgr family] returns a Font_style_set for the given family name.
-      Returns [None] if the family is not found. *)
+  (** [match_family mgr family] returns the styles for [family], or [None]
+      if the family is unavailable. *)
 
   val match_family_style : t -> string -> Font_style.t -> Typeface.t option
   val get_family_name : t -> int -> string
@@ -700,28 +691,29 @@ module Font : sig
   val make : unit -> t
 
   val make_with_values : Typeface.t -> float -> float -> float -> t
-  (** [make_with_values face size scalex skewx] creates a new Font with the given Typeface, size, scale, and skew. *)
+  (** [make_with_values face size scalex skewx] creates a font with the given
+      typeface, size, horizontal scale, and skew. *)
 
   val get_typeface : t -> Typeface.t
-  (** [get_typeface font] returns the Typeface associated with the Font. *)
+  (** [get_typeface font] returns its typeface. *)
 
   val set_typeface : t -> Typeface.t -> unit
-  (** [set_typeface font face] sets the Typeface for the Font. *)
+  (** [set_typeface font face] sets its typeface to [face]. *)
 
   val get_size : t -> float
-  (** [get_size font] returns the size of the Font. *)
+  (** [get_size font] returns its size. *)
 
   val set_size : t -> float -> unit
-  (** [set_size font size] sets the size of the Font. *)
+  (** [set_size font size] sets its size. *)
 
   val is_subpixel : t -> bool
-  (** [is_subpixel font] returns true if the Font is using subpixel rendering. *)
+  (** [is_subpixel font] is [true] when subpixel rendering is enabled. *)
 
   val set_subpixel : t -> bool -> unit
-  (** [set_subpixel font subpixel] enables or disables subpixel rendering for the Font. *)
+  (** [set_subpixel font subpixel] controls subpixel rendering. *)
 
   val get_metrics : t -> Font_metrics.t
-  (** [get_metrics font] retrieves the Font_metrics for the Font. *)
+  (** [get_metrics font] returns its metrics. *)
 
   val measure_text :
      ?bounds:Rect.t
@@ -787,7 +779,7 @@ module Blender : sig
   type t
 
   val of_mode : Blend_mode.t -> t
-  (** [of_mode mode] creates a Blender for the given blend mode. *)
+  (** [of_mode mode] creates a blender that uses [mode]. *)
 
   val of_arithmetic :
      k1:float
@@ -796,8 +788,8 @@ module Blender : sig
     -> k4:float
     -> enforce_premul:bool
     -> t option
-  (** [of_arithmetic k1 k2 k3 k4 enforce_premul] creates a Blender with the given arithmetic coefficients.
-      Returns [Some blender] on success, [None] if the coefficients are invalid. *)
+  (** [of_arithmetic ~k1 ~k2 ~k3 ~k4 ~enforce_premul] creates an arithmetic
+      blender, or returns [None] if the coefficients are invalid. *)
 end
 
 module Shader : sig
@@ -836,89 +828,93 @@ module Path : sig
   type verb = Oski_types.M.Path.verb
 
   val make : unit -> t
-  (** [make ()] creates a new empty path. *)
+  (** [make ()] creates an empty path. *)
 
   val to_native : t -> Oski_ffi.M.Path.t
-  (** [to_native path] returns the underlying FFI path handle.
-      Use this when interfacing with other Skia functions that expect a native path. *)
+  (** [to_native path] returns the underlying FFI handle. *)
 
   val make_from :
      Point.t list
-    -> int list
+    -> verb list
     -> float list
     -> fill_type
-    -> bool
-    -> t option
-  (** [make_from points verbs conic_weights fill_type is_volatile] creates a new path with specified segements.
+    -> is_volatile:bool
+    -> t
+  (** [make_from points verbs weights fill_type ~is_volatile] constructs a
+      path by consuming [points] and [weights] in verb order. [`Move] and
+      [`Line] consume one point, [`Quad] and [`Conic] consume two, and
+      [`Cubic] consumes three. [`Conic] also consumes one weight; [`Close]
+      consumes neither.
 
-      The points and weights array are read in order, based, on the sequence of verbs.
+      Each contour begins with [`Move] and may end with [`Close]. Invalid
+      sequences or insufficient points and weights produce an empty path.
 
-      Move 1 point
-      Line 1 point
-      Quad 2 point
-      Conic 2 points and 1 weight
-      Cubic 3 points
-      Close 0 points
-
-      If an illegal sequence of verbs is encountered, or the specified of points
-      or weights is not sufficient given the verbs, and empty Path is returned.
-
-      A legal sequence of verbs consists of any number of Contours. A contour always begins
-      with a Move verb, followed by 0 or more segements: Line, Quad, Conic, Cubic, followed
-      by an optional Close. *)
+      @raise Invalid_argument if [verbs] contains [`Done]. *)
 
   val equal : t -> t -> bool
-  (** [equal path1 path2] returns true if the two paths are equal. *)
+  (** [equal path1 path2] is [true] when the paths are equal. *)
 
   val reset : t -> unit
-  (** [reset path] clears the path, removing all segments and contours. *)
+  (** [reset path] clears the path. *)
 
   val rewind : t -> unit
-  (** [rewind path] rewinds the path, resetting the current point to the start of the first contour.
-      This does not clear the path, but allows for reusing it without starting from scratch. *)
+  (** [rewind path] clears the path. In this Skia version it is equivalent to
+      [reset path]. *)
 
   val count_points : t -> int
-  (** [count_points path] returns the number of points in the path. *)
+  (** [count_points path] returns its number of points. *)
 
   val count_verbs : t -> int
-  (** [count_verbs path] returns the number of verbs in the path.
-      This includes Move, Line, Quad, Conic, Cubic, and Close verbs. *)
+  (** [count_verbs path] returns its number of verbs. *)
 
   val get_fill_type : t -> fill_type
-  (** [get_fill_type path] returns the current fill type of the path. *)
+  (** [get_fill_type path] returns its fill rule. *)
 
   val set_fill_type : t -> fill_type -> unit
-  (** [set_fill_type path fill_type] sets the fill type of the path.
-      - `fill_type`: the fill type to set, e.g., `Winding`, `Even_odd`, etc. *)
+  (** [set_fill_type path fill_type] sets its fill rule. *)
+
+  val transform : t -> Matrix.t -> unit
+
+  val is_rect : t -> (Rect.t * bool * direction) option
+  (** [is_rect path] returns [Some (rect, is_closed, direction)] if the
+      filled path is rectangular, and [None] otherwise. *)
+
+  val get_points : t -> int -> int * Point.t list
+  (** [get_points path max_points] returns the number of available points and
+      at most [max_points] of them. *)
+end
+
+module Path_builder : sig
+  type t
+  type direction = Oski_types.M.Path.direction
+  type arc_size = Oski_types.M.Path.arc_size
+  type fill_type = Oski_types.M.Path.fill_type
+  type add_mode = Oski_types.M.Path.add_mode
+
+  val make : unit -> t
+  (** [make ()] creates an empty path builder. *)
+
+  val make_from_path : Path.t -> t
+  (** [make_from_path path] creates a builder initialized from [path]. *)
+
+  val to_native : t -> Oski_ffi.M.Path_builder.t
 
   val move_to : t -> Point.t -> unit
-  (** [move_to path point] Adds beginning of contour to the path at the given point. 
-
-      - `x`: x-axis value of contour start 
-      - `y`: y-axis value of contour start *)
+  (** [move_to builder point] starts a contour at [point]. *)
 
   val line_to : t -> Point.t -> unit
-  (** [line_to path point] Adds a line segment to the path from the current point to the given point.
-
-      - `x`: x-axis value of line end
-      - `y`: y-axis value of line end *)
+  (** [line_to builder point] adds a line from the current point to [point]. *)
 
   val quad_to : t -> Point.t -> Point.t -> unit
-  (** [quad_to path pt1 pt2] Adds a quadratic bezier curve to the path.
-      - `pt1`: control point of the curve
-      - `pt2`: end point of the curve *)
+  (** [quad_to builder control endpoint] adds a quadratic Bezier segment. *)
 
   val conic_to : t -> Point.t -> Point.t -> float -> unit
-  (** [conic_to path pt1 pt2 weight] Adds a conic curve to the path.
-      - `pt1`: control point of the curve
-      - `pt2`: end point of the curve
-      - `weight`: weight of the conic curve *)
+  (** [conic_to builder control endpoint weight] adds a weighted conic
+      segment. *)
 
   val cubic_to : t -> Point.t -> Point.t -> Point.t -> unit
-  (** [cubic_to path pt1 pt2 pt3] Adds a cubic bezier curve to the path.
-      - `pt1`: first control point of the curve
-      - `pt2`: second control point of the curve
-      - `pt3`: end point of the curve *)
+  (** [cubic_to builder control1 control2 endpoint] adds a cubic Bezier
+      segment. *)
 
   val arc_to :
      t
@@ -927,38 +923,9 @@ module Path : sig
     -> sweep_angle:float
     -> force_move_to:bool
     -> unit
-  (** [arc_to path oval ~start_angle ~sweep_angle ~force_move_to] Adds an arc to the path.
-      - `oval`: bounding rectangle of the arc
-      - `start_angle`: starting angle of the arc in degrees
-      - `sweep_angle`: angle to sweep for the arc in degrees
-      - `force_move_to`: if true, forces a move to the start point of the arc *)
-
-  val rmove_to : t -> Point.t -> unit
-  (** [rmove_to path point] Adds a relative move to the path by the given offset.
-      - `dx`: x-axis offset from the current point
-      - `dy`: y-axis offset from the current point *)
-
-  val rline_to : t -> Point.t -> unit
-  (** [rline_to path point] Adds a relative line segment to the path by the given offset.
-      - `dx`: x-axis offset from the current point
-      - `dy`: y-axis offset from the current point *)
-
-  val rquad_to : t -> Point.t -> Point.t -> unit
-  (** [rquad_to path pt1 pt2] Adds a relative quadratic bezier curve to the path.
-      - `pt1`: control point offset from the current point
-      - `pt2`: end point offset from the current point *)
-
-  val rconic_to : t -> Point.t -> Point.t -> float -> unit
-  (** [rconic_to path pt1 pt2 weight] Adds a relative conic curve to the path.
-      - `pt1`: control point offset from the current point
-      - `pt2`: end point offset from the current point
-      - `weight`: weight of the conic curve *)
-
-  val rcubic_to : t -> Point.t -> Point.t -> Point.t -> unit
-  (** [rcubic_to path pt1 pt2 pt3] Adds a relative cubic bezier curve to the path.
-      - `pt1`: first control point offset from the current point
-      - `pt2`: second control point offset from the current point
-      - `pt3`: end point offset from the current point *)
+  (** [arc_to builder oval ~start_angle ~sweep_angle ~force_move_to] adds an
+      arc of [oval]. Angles are in degrees. If [force_move_to] is [true], a
+      move starts at the first point of the arc. *)
 
   val arc_to_with_oval :
      t
@@ -967,6 +934,26 @@ module Path : sig
     -> sweep_angle:float
     -> force_move_to:bool
     -> unit
+
+  val rmove_to : t -> Point.t -> unit
+  (** [rmove_to builder offset] starts a contour at [offset] from the current
+      point. *)
+
+  val rline_to : t -> Point.t -> unit
+  (** [rline_to builder offset] adds a line to [offset] from the current
+      point. *)
+
+  val rquad_to : t -> Point.t -> Point.t -> unit
+  (** [rquad_to builder control endpoint] adds a quadratic Bezier segment
+      whose points are offsets from the current point. *)
+
+  val rconic_to : t -> Point.t -> Point.t -> float -> unit
+  (** [rconic_to builder control endpoint weight] adds a weighted conic
+      segment whose points are offsets from the current point. *)
+
+  val rcubic_to : t -> Point.t -> Point.t -> Point.t -> unit
+  (** [rcubic_to builder control1 control2 endpoint] adds a cubic Bezier
+      segment whose points are offsets from the current point. *)
 
   val add_rect : t -> Rect.t -> ?dir_start:direction * int -> unit -> unit
   val add_rrect : t -> RRect.t -> ?dir_start:direction * int -> unit -> unit
@@ -981,55 +968,60 @@ module Path : sig
     -> unit
     -> unit
 
-  val transform : t -> Matrix.t -> unit
-
   val close : t -> unit
-  (** Append Verb.Close to the path, closing the current contour. *)
+  (** [close builder] closes the current contour. *)
 
-  val is_rect : t -> (Rect.t * bool * direction) option
-  (** [is_rect path] returns `Some(Rect.t * bool * direction)`` if path is equivalent
-      to Rect.t when filled.*)
+  val add_path : t -> Path.t -> Point.t -> ?mode:add_mode -> unit -> unit
+  (** [add_path dst src offset ~mode] adds [src] to [dst] after translating
+      it by [offset]. [mode] defaults to [`Append]. *)
 
-  val add_path : t -> t -> Point.t -> ?mode:add_mode -> unit -> unit
-  (** [add_path dst src offset ~mode] adds the source path to the destination path,
-      offset by the given point.
-      - `offset`: translation to apply to the source path before adding
-      - `mode`: how to combine the source and destination paths (default is `Append`) *)
+  val add_path_matrix :
+     t
+    -> Path.t
+    -> Matrix.t
+    -> ?mode:add_mode
+    -> unit
+    -> unit
+  (** [add_path_matrix dst src matrix ~mode] adds [src] to [dst] after
+      applying [matrix]. [mode] defaults to [`Append]. *)
 
-  val add_path_matrix : t -> t -> Matrix.t -> ?mode:add_mode -> unit -> unit
-  (** [add_path_matrix dst src matrix ~mode] adds the source path to the destination path,
-      transformed by the given matrix.
-      - `matrix`: transformation to apply to the source path before adding
-      - `mode`: how to combine the source and destination paths (default is `Append`) *)
+  val add_path_reverse : t -> Path.t -> unit
+  (** [add_path_reverse builder src] appends [src] in reverse order as a new
+      contour. *)
 
-  val add_path_reverse : t -> t -> unit
-  (** [add_path_reverse path src] Appends src to path, from back to front. 
-      Reversed src always appends a new contour to path. *)
+  val set_fill_type : t -> fill_type -> unit
+  val get_fill_type : t -> fill_type
+  val reset : t -> unit
 
-  val get_points : t -> int -> int * Point.t list
-  (** [get_points path max_points] retrieves up to [max_points] points from the path.
-      Returns a list of points. If [max_points] is greater than the number of points in the path,
-      all points are returned. *)
+  val detach : t -> Path.t
+  (** [detach builder] returns the path and resets [builder]. *)
+
+  val snapshot : t -> Path.t
+  (** [snapshot builder] copies the current path without resetting [builder]. *)
 end
 
 module Path_iterator : sig
   type t
 
   val make : Path.t -> bool -> t option
-  (** [make path force_close] creates a new path iterator for the given path. *)
+  (** [make path force_close] creates an iterator over [path]. If
+      [force_close] is [true], open contours end with a closing line. *)
 
   val next : t -> Path.verb * Point.t list
-  (** [next iterator] retrieves the next verb and its associated points from the path.
-      Returns [Some (verb, points)] if there are more segments, or [None] if the end is reached. *)
+  (** [next iterator] returns the next verb and its point buffer. [`Done]
+      marks the end of the path. *)
 
   val conic_weight : t -> float
-  (** [conic_weight iterator] returns the weight of the last conic segment returned by [next]. *)
+  (** [conic_weight iterator] returns the weight of the last conic segment
+      returned by [next]. *)
 
   val is_close_line : t -> bool
-  (** [is_close_line iterator] returns true if the last segment returned by [next] was a close line. *)
+  (** [is_close_line iterator] is [true] when the last segment returned by
+      [next] was a closing line. *)
 
   val is_closed_contour : t -> bool
-  (** [is_closed_contour iterator] returns true if the current contour is closed. *)
+  (** [is_closed_contour iterator] is [true] when the current contour is
+      closed. *)
 end
 
 module Path_measure : sig
@@ -1040,25 +1032,6 @@ module Path_measure : sig
   val set_path : t -> Path.t -> bool -> unit
   val get_length : t -> float
   val get_pos_tan : t -> float -> (Point.t * Vec2.t) option
-end
-
-module Path_effect : sig
-  module Style : sig
-    type t =
-      [ `Translate
-      | `Rotate
-      | `Morph
-      ]
-  end
-
-  type t
-
-  val compose : t -> t -> t
-  val sum : t -> t -> t
-  val create1d : style:Style.t -> advance:float -> phase:float -> Path.t -> t
-  val create2d_line : width:float -> matrix:Matrix.t -> t
-  val create2d_path : matrix:Matrix.t -> Path.t -> t
-  val to_native : t -> Oski_ffi.M.Path_effect.t
 end
 
 module Color_space : sig
@@ -1083,8 +1056,8 @@ module Image_info : sig
     -> alpha_type:alpha_type
     -> unit
     -> t
-  (** [make ~width ~height ~color_type ~alpha_type ()] describes the pixel
-      layout of a raster surface: dimensions, color type, and alpha type. *)
+  (** [make ~width ~height ~color_type ~alpha_type ()] describes a raster
+      surface's dimensions and pixel layout. *)
 
   val make_n32_premul :
      ?color_space:Color_space.t
@@ -1092,14 +1065,52 @@ module Image_info : sig
     -> height:int
     -> unit
     -> t
-  (** [make_n32_premul ~width ~height ()] is a convenience constructor using
-      the common native 32-bit premultiplied RGBA layout. *)
+  (** [make_n32_premul ~width ~height ()] describes a surface that uses the
+      native 32-bit premultiplied RGBA layout. *)
 
   val width : t -> int
   val height : t -> int
   val color_type : t -> color_type
   val alpha_type : t -> alpha_type
   val to_native : t -> Oski_ffi.M.Image_info.t
+end
+
+module Image : sig
+  type t
+
+  val of_file : string -> t option
+  (** [of_file path] decodes an image from [path], or returns [None] if it
+      cannot read or decode the file. *)
+
+  val of_data : Data.t -> t option
+  (** [of_data data] decodes an image held in [data], or returns [None] if
+      the data has an unsupported or invalid encoding. *)
+
+  val width : t -> int
+  val height : t -> int
+  val alpha_type : t -> Oski_types.M.Alpha_type.t
+  val color_type : t -> Oski_types.M.Color_type.t
+  val is_alpha_only : t -> bool
+  val to_native : t -> Oski_ffi.M.Image.t
+end
+
+module Pixmap : sig
+  type t
+
+  val make : unit -> t
+  val width : t -> int
+  val height : t -> int
+  val row_bytes : t -> int
+  val get_pixel_color : t -> x:int -> y:int -> Color.t
+
+  val to_bigarray :
+     t
+    -> (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+  (** [to_bigarray pixmap] returns a zero-copy, row-major view of its raw
+      pixels. The view contains [row_bytes pixmap * height pixmap] bytes and
+      remains valid while the surface or image that owns [pixmap] is alive. *)
+
+  val to_native : t -> Oski_ffi.M.Pixmap.t
 end
 
 module Paint : sig
@@ -1134,12 +1145,63 @@ module Paint : sig
   val set_shader : t -> Shader.t -> unit
 
   val make_fill : ?antialias:bool -> Color.t -> t
-  (** [make_fill color] is a convenience constructor for an antialiased fill paint. *)
+  (** [make_fill ~antialias color] creates a fill paint. Antialiasing
+      defaults to [true]. *)
 
   val make_stroke : ?antialias:bool -> ?width:float -> Color.t -> t
-  (** [make_stroke color] is a convenience constructor for an antialiased stroke paint. *)
+  (** [make_stroke ~antialias ~width color] creates a stroke paint.
+      Antialiasing defaults to [true]. *)
 
   val to_native : t -> Oski_ffi.M.Paint.t
+end
+
+module Stroke_rec : sig
+  type t
+  type style = Oski_types.M.Paint.style
+
+  val make_fill : unit -> t
+  (** [make_fill ()] creates a fill-only stroke context. *)
+
+  val make_hairline : unit -> t
+  (** [make_hairline ()] creates an unscaled, one-pixel stroke context. *)
+
+  val of_paint : ?res_scale:float -> Paint.t -> style -> t
+  (** [of_paint paint style] creates a stroke context from [paint]'s width,
+      cap, join, and miter, with [style] overriding the paint's style. *)
+
+  val to_native : t -> Oski_ffi.M.Stroke_rec.t
+end
+
+module Path_effect : sig
+  module Style : sig
+    type t =
+      [ `Translate
+      | `Rotate
+      | `Morph
+      ]
+  end
+
+  type t
+
+  val compose : t -> t -> t
+  val sum : t -> t -> t
+  val create1d : style:Style.t -> advance:float -> phase:float -> Path.t -> t
+  val create2d_line : width:float -> matrix:Matrix.t -> t
+  val create2d_path : matrix:Matrix.t -> Path.t -> t
+
+  val filter_path :
+     ?cull_rect:Rect.t
+    -> ?ctm:Matrix.t
+    -> t
+    -> stroke_rec:Stroke_rec.t
+    -> Path.t
+    -> Path.t option
+  (** [filter_path effect ~stroke_rec src] applies [effect] to [src]. It
+      returns [None] if the operation fails. [stroke_rec] supplies the stroke
+      settings; use [Stroke_rec.make_fill ()] for a fill-only path.
+      [cull_rect] takes effect only when [ctm] is present. *)
+
+  val to_native : t -> Oski_ffi.M.Path_effect.t
 end
 
 module Canvas : sig
@@ -1165,6 +1227,20 @@ module Canvas : sig
   val draw_circle : t -> Point.t -> float -> Paint.t -> unit
   val draw_oval : t -> Rect.t -> Paint.t -> unit
   val draw_path : t -> Path.t -> Paint.t -> unit
+
+  val draw_image : ?paint:Paint.t -> t -> Image.t -> Point.t -> unit
+  (** [draw_image canvas image point] draws [image] at [point] with
+      nearest-neighbor sampling. *)
+
+  val draw_image_rect :
+     ?paint:Paint.t
+    -> t
+    -> Image.t
+    -> src:Rect.t
+    -> dst:Rect.t
+    -> unit
+  (** [draw_image_rect canvas image ~src ~dst] scales [src] from [image]
+      into [dst] with nearest-neighbor sampling. *)
 
   val draw_simple_text :
      ?encoding:Text_encoding.t
@@ -1195,12 +1271,16 @@ module Surface : sig
   type t
 
   val make_raster : ?row_bytes:int -> Image_info.t -> t
-  (** [make_raster info] allocates a raster surface backed by CPU memory
-      matching [info]'s dimensions and pixel layout. *)
+  (** [make_raster info] allocates a CPU-backed surface with the dimensions
+      and pixel layout in [info]. *)
 
   val get_canvas : t -> Canvas.t
-  (** [get_canvas surface] returns the canvas used to draw into [surface].
-      The canvas is owned by the surface and must not be freed separately. *)
+  (** [get_canvas surface] returns its drawing canvas. [surface] owns the
+      canvas. *)
+
+  val peek_pixels : t -> Pixmap.t option
+  (** [peek_pixels surface] returns direct access to its pixels, or [None]
+      for surfaces that cannot expose them, including GPU-backed surfaces. *)
 
   val save_png :
      ?zlib_level:int
@@ -1208,9 +1288,193 @@ module Surface : sig
     -> t
     -> string
     -> unit
-  (** [save_png surface path] encodes the current contents of [surface] as a
-      PNG file at [path]. Raises [Invalid_argument] if the surface's pixels
-      cannot be read directly or if writing fails. *)
+  (** [save_png surface path] writes its current contents to [path].
+
+      @raise Invalid_argument if the pixels are inaccessible or the write
+      fails. *)
 
   val to_native : t -> Oski_ffi.M.Surface.t
+end
+
+module Document : sig
+  type t
+
+  type metadata =
+    { title : string option
+    ; author : string option
+    ; subject : string option
+    ; keywords : string option
+    ; creator : string option
+    ; producer : string option
+    ; raster_dpi : float option
+    ; pdfa : bool
+    ; encoding_quality : int option
+    }
+
+  val default_metadata : metadata
+  (** [default_metadata] leaves every optional field unset and sets [pdfa]
+      to [false]. Use record update syntax to set individual fields. *)
+
+  val make_pdf_to_file : ?metadata:metadata -> string -> t
+  (** [make_pdf_to_file ?metadata path] opens a PDF document at [path].
+
+      @raise Invalid_argument if [path] cannot be opened or Skia cannot
+      create the document. *)
+
+  val begin_page :
+     ?content:Rect.t
+    -> t
+    -> width:float
+    -> height:float
+    -> Canvas.t
+  (** [begin_page document ~width ~height] starts a page measured in points
+      and returns its canvas. [content] restricts drawing to a subrectangle;
+      it defaults to the full page. [document] owns the canvas. *)
+
+  val end_page : t -> unit
+  (** [end_page document] finishes the current page. *)
+
+  val with_page :
+     ?content:Rect.t
+    -> t
+    -> width:float
+    -> height:float
+    -> (Canvas.t -> 'a)
+    -> 'a
+  (** [with_page document ~width ~height f] runs [f] with a new page's canvas
+      and ends the page even if [f] raises. *)
+
+  val close : t -> unit
+  (** [close document] finishes the document and releases its resources.
+      Repeated calls have no effect. *)
+
+  val abort : t -> unit
+  (** [abort document] discards the unfinished document and releases its
+      resources. Repeated calls have no effect. *)
+end
+
+(** Skia's Graphite GPU backend. {!Graphite_vk} creates Vulkan contexts.
+
+    A [Context] manages a GPU connection. A [Recorder] creates surfaces and
+    records drawing commands; it is not thread-safe. [Recorder.snap] returns
+    an immutable [Recording], which a context schedules and submits. *)
+module Graphite : sig
+  type backend = Oski_types.M.Graphite.backend
+
+  val backend_is_available : backend -> bool
+  (** [backend_is_available backend] is [true] when this Skia build includes
+      [backend]. It does not require a context. *)
+
+  module Read_pixels_result : sig
+    type t
+
+    val get_row_bytes : t -> int
+
+    val to_bigarray :
+       t
+      -> height:int
+      -> (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+    (** [to_bigarray result ~height] returns a zero-copy view of its pixels.
+        Pass the height used for [dst_info], since [result] does not store it.
+        The view remains valid until [delete result]. *)
+
+    val delete : t -> unit
+  end
+
+  module Recording : sig
+    type t
+
+    val delete : t -> unit
+    (** No finalizer is installed; call [delete] when finished. *)
+  end
+
+  module Recorder : sig
+    type t
+
+    val delete : t -> unit
+    (** No finalizer is installed; call [delete] when finished. *)
+
+    val snap : t -> Recording.t option
+  end
+
+  module Context : sig
+    type t
+
+    val get_backend : t -> backend
+    val is_device_lost : t -> bool
+    val get_max_texture_size : t -> int
+    val free_gpu_resources : t -> unit
+
+    val delete : t -> unit
+    (** No finalizer is installed. Release every recorder, recording, and
+        surface created from the context before calling [delete]. *)
+
+    val make_recorder : ?budget_bytes:int64 -> t -> Recorder.t option
+
+    val insert_recording :
+       t
+      -> recording:Recording.t
+      -> ?target_surface:Surface.t
+      -> ?translation_x:int
+      -> ?translation_y:int
+      -> ?clip:IRect.t
+      -> unit
+      -> Oski_types.M.Graphite.insert_status
+    (** [insert_recording context ~recording ()] schedules [recording].
+        [target_surface] selects another playback surface. The translation
+        and clip arguments restrict its playback region. *)
+
+    val submit :
+       ?sync:bool
+      -> ?mark_boundary:bool
+      -> ?frame_id:int64
+      -> t
+      -> bool
+    (** [submit context] sends all inserted recordings to the GPU queue. *)
+
+    val read_pixels_sync :
+       ?max_iterations:int
+      -> ?gamma:[ `Src | `Linear ]
+      -> ?mode:[ `Nearest | `Linear | `Repeated_linear | `Repeated_cubic ]
+      -> t
+      -> Surface.t
+      -> dst_info:Image_info.t
+      -> src_rect:IRect.t
+      -> Read_pixels_result.t option
+    (** [read_pixels_sync context surface ~dst_info ~src_rect] reads pixels
+        from a Graphite surface. It polls asynchronous work at most
+        [max_iterations] times (default [1_000_000]) and returns [None] on
+        failure or timeout. *)
+  end
+
+  val make_render_target :
+     Recorder.t
+    -> Image_info.t
+    -> ?mipmapped:bool
+    -> unit
+    -> Surface.t
+  (** [make_render_target recorder info ()] allocates a GPU render target
+      with the dimensions and pixel layout in [info].
+
+      @raise Invalid_argument if allocation fails. *)
+end
+
+(** Creates Vulkan devices and Graphite contexts for offscreen rendering. *)
+module Graphite_vk : sig
+  module Device : sig
+    type t
+
+    val make : unit -> t option
+    (** [make ()] creates a headless Vulkan instance, device, and graphics
+        queue for {!make_context}. Applications that render to windows
+        should provide their own Vulkan setup. Returns [None] if Vulkan
+        initialization fails. Available only on Linux. *)
+  end
+
+  val make_context :
+     ?protected_context:bool
+    -> Device.t
+    -> Graphite.Context.t option
+  (** [make_context device] creates a Graphite context from [device], or
+      returns [None] if initialization fails. *)
 end

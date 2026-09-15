@@ -87,20 +87,20 @@ let cxxflags vendor os =
   | Android | Linux ->
     []
     @ skia_include_flags vendor
-    @ [ "-fPIC"; "-std=c++17"; "-Wno-return-type" ]
+    @ [ "-fPIC"; "-std=c++20"; "-Wno-return-type" ]
   | IOS ->
     let sdk_path = find_xcode_sysroot "iphoneos" in
     []
     @ [ "-isysroot"; sdk_path ]
     @ skia_include_flags vendor
-    @ [ "-std=c++17"; "-Wno-return-type" ]
+    @ [ "-std=c++20"; "-Wno-return-type" ]
   | Mac ->
     let sdk_path = find_xcode_sysroot "macosx" in
     []
     @ [ "-isysroot"; sdk_path ]
     @ skia_include_flags vendor
-    @ [ "-std=c++17"; "-Wno-return-type" ]
-  | Windows -> [] @ skia_include_flags vendor @ [ "/std:c++17" ]
+    @ [ "-std=c++20"; "-Wno-return-type" ]
+  | Windows -> [] @ skia_include_flags vendor @ [ "/std:c++20" ]
 
 let get_feature_flags () =
   []
@@ -140,13 +140,12 @@ let skia_lib_flags () =
   let base_libs = [ "-lskia" ] in
   let text_shaping_libs =
     match Sys.getenv_opt "SKIA_ENABLE_SHAPING" with
-    | Some flag when str_true flag ->
-      [ "-lskshaper"; "-lskunicode"; "-lskparagraph" ]
+    | Some flag when str_true flag -> [ "-lskshaper"; "-lskparagraph" ]
     | _ -> []
   in
   let svg_libs =
     match Sys.getenv_opt "SKIA_ENABLE_SVG" with
-    | Some flag when str_true flag -> [ "-lsvg"; "-lskresources" ]
+    | Some flag when str_true flag -> [] (* nows it's included in libskia.a *)
     | _ -> []
   in
   (*TODO: remove duplicate libs *)
@@ -191,7 +190,12 @@ let c_library_flags prefix = function
   | Linux ->
     []
     @ skia_lib_flags ()
-    @ [ "-lfontconfig"; "-lfreetype"; "-lGL"; "-L" ^ skia_lib_path prefix ]
+    @ [ "-lfontconfig"
+      ; "-lfreetype"
+      ; "-lGL"
+      ; "-lvulkan"
+      ; "-L" ^ skia_lib_path prefix
+      ]
   | Windows ->
     []
     @ skia_lib_flags ()

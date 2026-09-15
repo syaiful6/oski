@@ -4,7 +4,8 @@ type t = F.Font.t
 type hinting = Oski_types.M.Font.hinting
 
 let make () =
-  let font = F.Font.make () in
+  let no_typeface = Ctypes.from_voidp Oski_types.M.Typeface.t Ctypes.null in
+  let font = F.Font.make_with_values no_typeface 12.0 1.0 0.0 in
   Gc.finalise F.Font.delete font;
   font
 

@@ -717,26 +717,6 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_family_name =
       foreign "sk_typeface_get_family_name" C.(t @-> returning String.t)
 
-    let of_name =
-      foreign
-        "sk_typeface_create_from_name"
-        C.(string @-> Font_style.t @-> returning t_opt)
-
-    let of_file =
-      foreign
-        "sk_typeface_create_from_file"
-        C.(string @-> int @-> returning t_opt)
-
-    let of_asset =
-      foreign
-        "sk_typeface_create_from_stream"
-        C.(Stream_asset.t @-> int @-> returning t_opt)
-
-    let of_data =
-      foreign
-        "sk_typeface_create_from_data"
-        C.(data @-> int @-> returning t_opt)
-
     let unichars_to_glyphs =
       foreign
         "sk_typeface_unichars_to_glyphs"
@@ -844,8 +824,6 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let make_default =
       foreign "sk_fontmgr_create_default" C.(void @-> returning t)
-
-    let ref_default = foreign "sk_fontmgr_ref_default" C.(void @-> returning t)
 
     let make_styleset =
       foreign
@@ -965,7 +943,7 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> int
           @-> T.Path.fill_type
           @-> bool
-          @-> returning (ptr_opt T.Path.t))
+          @-> returning t)
 
     type direction = T.Path.direction
 
@@ -988,152 +966,11 @@ module M (F : Ctypes.FOREIGN) = struct
     let verb = T.Path.verb
     let equal = foreign "oski_path_is_equal" C.(t @-> t @-> returning bool)
 
-    let move_to =
-      foreign "sk_path_move_to" C.(t @-> float @-> float @-> returning void)
-
-    let line_to =
-      foreign "sk_path_line_to" C.(t @-> float @-> float @-> returning void)
-
-    let quad_to =
-      foreign
-        "sk_path_quad_to"
-        C.(t @-> float @-> float @-> float @-> float @-> returning void)
-
-    let conic_to =
-      foreign
-        "sk_path_conic_to"
-        C.(
-          t @-> float @-> float @-> float @-> float @-> float @-> returning void)
-
-    let cubic_to =
-      foreign
-        "sk_path_cubic_to"
-        C.(
-          t
-          @-> float
-          @-> float
-          @-> float
-          @-> float
-          @-> float
-          @-> float
-          @-> returning void)
-
-    let arc_to =
-      foreign
-        "sk_path_arc_to"
-        C.(
-          t
-          @-> float
-          @-> float
-          @-> float
-          @-> arc_size
-          @-> direction
-          @-> float
-          @-> float
-          @-> returning void)
-
-    let rarc_to =
-      foreign
-        "sk_path_rarc_to"
-        C.(
-          t
-          @-> float
-          @-> float
-          @-> float
-          @-> arc_size
-          @-> direction
-          @-> float
-          @-> float
-          @-> returning void)
-
-    let arc_to_with_oval =
-      foreign
-        "sk_path_arc_to_with_oval"
-        C.(t @-> Rect.t @-> float @-> float @-> bool @-> returning void)
-
-    let arc_to_with_points =
-      foreign
-        "sk_path_arc_to_with_points"
-        C.(
-          t @-> float @-> float @-> float @-> float @-> float @-> returning void)
-
-    let close = foreign "sk_path_close" C.(t @-> returning void)
-
-    let add_rect =
-      foreign
-        "sk_path_add_rect"
-        C.(t @-> Rect.t @-> direction @-> returning void)
-
-    let add_rrect =
-      foreign
-        "sk_path_add_rrect"
-        C.(t @-> RRect.t @-> direction @-> returning void)
-
-    let add_rrect_start =
-      foreign
-        "sk_path_add_rrect_start"
-        C.(t @-> RRect.t @-> direction @-> uint32_t @-> returning void)
-
-    let add_rounded_rect =
-      foreign
-        "sk_path_add_rounded_rect"
-        C.(t @-> Rect.t @-> float @-> float @-> direction @-> returning void)
-
-    let add_oval =
-      foreign
-        "sk_path_add_oval"
-        C.(t @-> Rect.t @-> direction @-> returning void)
-
-    let add_circle =
-      foreign
-        "sk_path_add_circle"
-        C.(t @-> float @-> float @-> float @-> direction @-> returning void)
-
     let get_bounds =
       foreign "sk_path_get_bounds" C.(t @-> Rect.t @-> returning void)
 
     let compute_tight_bounds =
       foreign "sk_path_compute_tight_bounds" C.(t @-> Rect.t @-> returning void)
-
-    let rmove_to =
-      foreign "sk_path_rmove_to" C.(t @-> float @-> float @-> returning void)
-
-    let rline_to =
-      foreign "sk_path_rline_to" C.(t @-> float @-> float @-> returning void)
-
-    let rquad_to =
-      foreign
-        "sk_path_rquad_to"
-        C.(t @-> float @-> float @-> float @-> float @-> returning void)
-
-    let rconic_to =
-      foreign
-        "sk_path_rconic_to"
-        C.(
-          t @-> float @-> float @-> float @-> float @-> float @-> returning void)
-
-    let rcubic_to =
-      foreign
-        "sk_path_rcubic_to"
-        C.(
-          t
-          @-> float
-          @-> float
-          @-> float
-          @-> float
-          @-> float
-          @-> float
-          @-> returning void)
-
-    let add_rect_start =
-      foreign
-        "sk_path_add_rect_start"
-        C.(t @-> Rect.t @-> direction @-> uint32_t @-> returning void)
-
-    let add_arc =
-      foreign
-        "sk_path_add_arc"
-        C.(t @-> Rect.t @-> float @-> float @-> returning void)
 
     let get_fill_type =
       foreign "sk_path_get_filltype" C.(t @-> returning fill_type)
@@ -1150,23 +987,6 @@ module M (F : Ctypes.FOREIGN) = struct
         C.(t @-> Matrix.t @-> t @-> returning void)
 
     let clone = foreign "sk_path_clone" C.(t @-> returning t)
-
-    let add_path_offset =
-      foreign
-        "sk_path_add_path_offset"
-        C.(t @-> t @-> float @-> float @-> add_mode @-> returning void)
-
-    let add_path_matrix =
-      foreign
-        "sk_path_add_path_matrix"
-        C.(t @-> t @-> Matrix.t @-> add_mode @-> returning void)
-
-    let add_path =
-      foreign "sk_path_add_path" C.(t @-> t @-> add_mode @-> returning void)
-
-    let add_path_reverse =
-      foreign "sk_path_add_path_reverse" C.(t @-> t @-> returning void)
-
     let reset = foreign "sk_path_reset" C.(t @-> returning void)
     let rewind = foreign "sk_path_rewind" C.(t @-> returning void)
     let count_points = foreign "sk_path_count_points" C.(t @-> returning int)
@@ -1195,11 +1015,6 @@ module M (F : Ctypes.FOREIGN) = struct
           @-> Point.t
           @-> int
           @-> returning int)
-
-    let add_poly =
-      foreign
-        "sk_path_add_poly"
-        C.(t @-> Point.t @-> int @-> bool @-> returning void)
 
     let get_segment_masks =
       foreign "sk_path_get_segment_masks" C.(t @-> returning uint32_t)
@@ -1248,6 +1063,227 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let is_closed_contour =
       foreign "sk_path_iter_is_closed_contour" C.(t @-> returning bool)
+  end
+
+  module Path_builder = struct
+    type t = T.Path.builder C.structure C.ptr
+
+    let t = C.ptr T.Path.builder
+    let make = foreign "sk_pathbuilder_new" C.(void @-> returning t)
+
+    let make_from_path =
+      foreign "sk_pathbuilder_new_from_path" C.(Path.t @-> returning t)
+
+    let delete = foreign "sk_pathbuilder_delete" C.(t @-> returning void)
+
+    let move_to =
+      foreign
+        "sk_pathbuilder_move_to"
+        C.(t @-> float @-> float @-> returning void)
+
+    let line_to =
+      foreign
+        "sk_pathbuilder_line_to"
+        C.(t @-> float @-> float @-> returning void)
+
+    let quad_to =
+      foreign
+        "sk_pathbuilder_quad_to"
+        C.(t @-> float @-> float @-> float @-> float @-> returning void)
+
+    let conic_to =
+      foreign
+        "sk_pathbuilder_conic_to"
+        C.(
+          t @-> float @-> float @-> float @-> float @-> float @-> returning void)
+
+    let cubic_to =
+      foreign
+        "sk_pathbuilder_cubic_to"
+        C.(
+          t
+          @-> float
+          @-> float
+          @-> float
+          @-> float
+          @-> float
+          @-> float
+          @-> returning void)
+
+    let arc_to =
+      foreign
+        "sk_pathbuilder_arc_to"
+        C.(
+          t
+          @-> float
+          @-> float
+          @-> float
+          @-> Path.arc_size
+          @-> Path.direction
+          @-> float
+          @-> float
+          @-> returning void)
+
+    let rarc_to =
+      foreign
+        "sk_pathbuilder_rarc_to"
+        C.(
+          t
+          @-> float
+          @-> float
+          @-> float
+          @-> Path.arc_size
+          @-> Path.direction
+          @-> float
+          @-> float
+          @-> returning void)
+
+    let arc_to_with_oval =
+      foreign
+        "sk_pathbuilder_arc_to_with_oval"
+        C.(t @-> Rect.t @-> float @-> float @-> bool @-> returning void)
+
+    let arc_to_with_points =
+      foreign
+        "sk_pathbuilder_arc_to_with_points"
+        C.(
+          t @-> float @-> float @-> float @-> float @-> float @-> returning void)
+
+    let close = foreign "sk_pathbuilder_close" C.(t @-> returning void)
+
+    let rmove_to =
+      foreign
+        "sk_pathbuilder_rmove_to"
+        C.(t @-> float @-> float @-> returning void)
+
+    let rline_to =
+      foreign
+        "sk_pathbuilder_rline_to"
+        C.(t @-> float @-> float @-> returning void)
+
+    let rquad_to =
+      foreign
+        "sk_pathbuilder_rquad_to"
+        C.(t @-> float @-> float @-> float @-> float @-> returning void)
+
+    let rconic_to =
+      foreign
+        "sk_pathbuilder_rconic_to"
+        C.(
+          t @-> float @-> float @-> float @-> float @-> float @-> returning void)
+
+    let rcubic_to =
+      foreign
+        "sk_pathbuilder_rcubic_to"
+        C.(
+          t
+          @-> float
+          @-> float
+          @-> float
+          @-> float
+          @-> float
+          @-> float
+          @-> returning void)
+
+    let add_rect =
+      foreign
+        "sk_pathbuilder_add_rect"
+        C.(t @-> Rect.t @-> Path.direction @-> returning void)
+
+    let add_rect_start =
+      foreign
+        "sk_pathbuilder_add_rect_start"
+        C.(t @-> Rect.t @-> Path.direction @-> uint32_t @-> returning void)
+
+    let add_rrect =
+      foreign
+        "sk_pathbuilder_add_rrect"
+        C.(t @-> RRect.t @-> Path.direction @-> returning void)
+
+    let add_rrect_start =
+      foreign
+        "sk_pathbuilder_add_rrect_start"
+        C.(t @-> RRect.t @-> Path.direction @-> uint32_t @-> returning void)
+
+    let add_rounded_rect =
+      foreign
+        "sk_pathbuilder_add_rounded_rect"
+        C.(
+          t @-> Rect.t @-> float @-> float @-> Path.direction @-> returning void)
+
+    let add_oval =
+      foreign
+        "sk_pathbuilder_add_oval"
+        C.(t @-> Rect.t @-> Path.direction @-> returning void)
+
+    let add_circle =
+      foreign
+        "sk_pathbuilder_add_circle"
+        C.(
+          t @-> float @-> float @-> float @-> Path.direction @-> returning void)
+
+    let add_arc =
+      foreign
+        "sk_pathbuilder_add_arc"
+        C.(t @-> Rect.t @-> float @-> float @-> returning void)
+
+    let add_poly =
+      foreign
+        "sk_pathbuilder_add_poly"
+        C.(t @-> Point.t @-> int @-> bool @-> returning void)
+
+    let add_path_offset =
+      foreign
+        "sk_pathbuilder_add_path_offset"
+        C.(
+          t @-> Path.t @-> float @-> float @-> Path.add_mode @-> returning void)
+
+    let add_path_matrix =
+      foreign
+        "sk_pathbuilder_add_path_matrix"
+        C.(t @-> Path.t @-> Matrix.t @-> Path.add_mode @-> returning void)
+
+    let add_path =
+      foreign
+        "sk_pathbuilder_add_path"
+        C.(t @-> Path.t @-> Path.add_mode @-> returning void)
+
+    let reverse_add_path =
+      foreign
+        "sk_pathbuilder_reverse_add_path"
+        C.(t @-> Path.t @-> returning void)
+
+    let set_fill_type =
+      foreign
+        "sk_pathbuilder_set_filltype"
+        C.(t @-> Path.fill_type @-> returning void)
+
+    let get_fill_type =
+      foreign "sk_pathbuilder_get_filltype" C.(t @-> returning Path.fill_type)
+
+    let reset = foreign "sk_pathbuilder_reset" C.(t @-> returning void)
+
+    let detach_path =
+      foreign "sk_pathbuilder_detach_path" C.(t @-> returning Path.t)
+
+    let snapshot_path =
+      foreign "sk_pathbuilder_snapshot_path" C.(t @-> returning Path.t)
+  end
+
+  module Stroke_rec = struct
+    type t = T.Stroke_rec.t C.structure C.ptr
+
+    let t = C.ptr T.Stroke_rec.t
+
+    let make_fill_or_hairline =
+      foreign "oski_strokerec_make_fill_or_hairline" C.(bool @-> returning t)
+
+    let make_from_paint =
+      foreign
+        "oski_strokerec_make_from_paint"
+        C.(C.ptr T.Paint.t @-> T.Paint.style @-> float @-> returning t)
+
+    let delete = foreign "oski_strokerec_delete" C.(t @-> returning void)
   end
 
   module Path_op = struct
@@ -1325,7 +1361,7 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_segment =
       foreign
         "sk_pathmeasure_get_segment"
-        C.(t @-> float @-> float @-> Path.t @-> bool @-> returning bool)
+        C.(t @-> float @-> float @-> Path_builder.t @-> bool @-> returning bool)
 
     let is_closed = foreign "sk_pathmeasure_is_closed" C.(t @-> returning bool)
 
@@ -1387,6 +1423,18 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let is_need_ctm =
       foreign "oski_path_effect_need_ctm" C.(t @-> returning bool)
+
+    let filter_path =
+      foreign
+        "oski_path_effect_filter_path"
+        C.(
+          t
+          @-> Path_builder.t
+          @-> Path.t
+          @-> Stroke_rec.t
+          @-> ptr T.Rect.t
+          @-> ptr T.Matrix.t
+          @-> returning bool)
   end
 
   module Region = struct
@@ -1999,6 +2047,18 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let of_encoded =
       foreign "sk_image_new_from_encoded" C.(Data.t @-> returning t_opt)
+
+    let get_width = foreign "sk_image_get_width" C.(t @-> returning int)
+    let get_height = foreign "sk_image_get_height" C.(t @-> returning int)
+
+    let get_alpha_type =
+      foreign "sk_image_get_alpha_type" C.(t @-> returning T.Alpha_type.t)
+
+    let get_color_type =
+      foreign "sk_image_get_color_type" C.(t @-> returning T.Color_type.t)
+
+    let is_alpha_only =
+      foreign "sk_image_is_alpha_only" C.(t @-> returning bool)
   end
 
   module Paint = struct
@@ -2123,7 +2183,13 @@ module M (F : Ctypes.FOREIGN) = struct
     let get_fill_path =
       foreign
         "sk_paint_get_fill_path"
-        C.(t @-> Path.t @-> Path.t @-> Rect.t @-> Matrix.t @-> returning bool)
+        C.(
+          t
+          @-> Path.t
+          @-> Path_builder.t
+          @-> Rect.t
+          @-> Matrix.t
+          @-> returning bool)
   end
 
   module Font = struct
@@ -2131,7 +2197,6 @@ module M (F : Ctypes.FOREIGN) = struct
 
     let t = C.ptr T.Font.t
     let t_opt = C.ptr_opt T.Font.t
-    let make = foreign "sk_font_new" C.(void @-> returning t)
 
     let make_with_values =
       foreign
@@ -3126,11 +3191,8 @@ module M (F : Ctypes.FOREIGN) = struct
           setf !@options T.Png_encoder_options.filter_flags filter_flags;
           setf !@options T.Png_encoder_options.zlib_level zlib_level;
           setf !@options T.Png_encoder_options.comments Ctypes.null;
-          setf !@options T.Png_encoder_options.icc_profile Ctypes.null;
-          setf
-            !@options
-            T.Png_encoder_options.icc_profile_description
-            Ctypes.null);
+          setf !@options T.Png_encoder_options.gainmap Ctypes.null;
+          setf !@options T.Png_encoder_options.gainmap_info Ctypes.null);
         options
     end
 
@@ -3170,5 +3232,208 @@ module M (F : Ctypes.FOREIGN) = struct
       foreign
         "sk_document_create_xps_from_stream"
         C.(WStream.t @-> float @-> returning t_opt)
+  end
+
+  module Vk = struct
+    type instance = T.Vk.instance C.structure C.ptr
+    type physical_device = T.Vk.physical_device C.structure C.ptr
+    type device = T.Vk.device C.structure C.ptr
+    type queue = T.Vk.queue C.structure C.ptr
+
+    let instance = C.ptr T.Vk.instance
+    let physical_device = C.ptr T.Vk.physical_device
+    let device = C.ptr T.Vk.device
+    let queue = C.ptr T.Vk.queue
+  end
+
+  module Vk_device = struct
+    type t = T.Vk_device.t C.structure C.ptr
+
+    let t = C.ptr T.Vk_device.t
+    let t_opt = C.ptr_opt T.Vk_device.t
+    let make = foreign "oski_vk_device_make" C.(void @-> returning t_opt)
+    let delete = foreign "oski_vk_device_delete" C.(t @-> returning void)
+
+    let get_instance =
+      foreign "oski_vk_device_get_instance" C.(t @-> returning Vk.instance)
+
+    let get_physical_device =
+      foreign
+        "oski_vk_device_get_physical_device"
+        C.(t @-> returning Vk.physical_device)
+
+    let get_device =
+      foreign "oski_vk_device_get_device" C.(t @-> returning Vk.device)
+
+    let get_queue =
+      foreign "oski_vk_device_get_queue" C.(t @-> returning Vk.queue)
+
+    let get_queue_family_index =
+      foreign
+        "oski_vk_device_get_queue_family_index"
+        C.(t @-> returning uint32_t)
+
+    let get_api_version =
+      foreign "oski_vk_device_get_api_version" C.(t @-> returning uint32_t)
+
+    let get_proc_fn =
+      foreign
+        "oski_vk_get_proc_fn"
+        C.(void @-> returning T.Graphite_vk.get_proc)
+  end
+
+  module Graphite = struct
+    type context = T.Graphite.context C.structure C.ptr
+    type recorder = T.Graphite.recorder C.structure C.ptr
+    type recording = T.Graphite.recording C.structure C.ptr
+    type backend_texture = T.Graphite.backend_texture C.structure C.ptr
+    type texture_info = T.Graphite.texture_info C.structure C.ptr
+    type image_provider = T.Graphite.image_provider C.structure C.ptr
+
+    let context = C.ptr T.Graphite.context
+    let context_opt = C.ptr_opt T.Graphite.context
+    let recorder = C.ptr T.Graphite.recorder
+    let recorder_opt = C.ptr_opt T.Graphite.recorder
+    let recording = C.ptr T.Graphite.recording
+    let recording_opt = C.ptr_opt T.Graphite.recording
+    let backend_texture = C.ptr T.Graphite.backend_texture
+    let backend_texture_opt = C.ptr_opt T.Graphite.backend_texture
+    let texture_info = C.ptr T.Graphite.texture_info
+    let image_provider = C.ptr T.Graphite.image_provider
+    let image_provider_opt = C.ptr_opt T.Graphite.image_provider
+
+    type backend = T.Graphite.backend
+
+    let backend = T.Graphite.backend
+
+    type insert_status = T.Graphite.insert_status
+
+    let insert_status = T.Graphite.insert_status
+    let context_options = T.Graphite.context_options
+    let submit_info = T.Graphite.submit_info
+    let insert_recording_info = T.Graphite.insert_recording_info
+
+    let backend_is_available =
+      foreign "sk_graphite_backend_is_available" C.(backend @-> returning bool)
+
+    let context_options_init_defaults =
+      foreign
+        "sk_graphite_context_options_init_defaults"
+        C.(ptr context_options @-> returning void)
+
+    (* Context *)
+    let context_delete =
+      foreign "sk_graphite_context_delete" C.(context @-> returning void)
+
+    let context_get_backend =
+      foreign
+        "sk_graphite_context_get_backend"
+        C.(context @-> returning backend)
+
+    let context_is_device_lost =
+      foreign
+        "sk_graphite_context_is_device_lost"
+        C.(context @-> returning bool)
+
+    let context_get_max_texture_size =
+      foreign
+        "sk_graphite_context_get_max_texture_size"
+        C.(context @-> returning int32_t)
+
+    let context_free_gpu_resources =
+      foreign
+        "sk_graphite_context_free_gpu_resources"
+        C.(context @-> returning void)
+
+    let context_make_recorder =
+      foreign
+        "sk_graphite_context_make_recorder"
+        C.(
+          context @-> int64_t @-> image_provider_opt @-> returning recorder_opt)
+
+    let context_insert_recording =
+      foreign
+        "sk_graphite_context_insert_recording"
+        C.(context @-> ptr insert_recording_info @-> returning insert_status)
+
+    let context_submit =
+      foreign
+        "sk_graphite_context_submit"
+        C.(context @-> ptr submit_info @-> returning bool)
+
+    (* Recorder *)
+    let recorder_delete =
+      foreign "sk_graphite_recorder_delete" C.(recorder @-> returning void)
+
+    let recorder_snap =
+      foreign
+        "sk_graphite_recorder_snap"
+        C.(recorder @-> returning recording_opt)
+
+    (* Recording *)
+    let recording_delete =
+      foreign "sk_graphite_recording_delete" C.(recording @-> returning void)
+
+    (* Surface factories *)
+    let surface_make_render_target =
+      foreign
+        "sk_graphite_surface_make_render_target"
+        C.(
+          recorder
+          @-> Image_info.t
+          @-> bool
+          @-> ptr T.Surface_props.t
+          @-> returning Surface.t_opt)
+
+    let context_check_async_work_completion =
+      foreign
+        "sk_graphite_context_check_async_work_completion"
+        C.(context @-> returning void)
+  end
+
+  module Read_pixels_result = struct
+    type t = T.Read_pixels_result.t C.structure C.ptr
+
+    let t = C.ptr T.Read_pixels_result.t
+    let t_opt = C.ptr_opt T.Read_pixels_result.t
+
+    let context_read_pixels_sync =
+      foreign
+        "oski_graphite_context_read_pixels_sync"
+        C.(
+          Graphite.context
+          @-> Surface.t
+          @-> Image_info.t
+          @-> IRect.t
+          @-> T.Image_rescale_gamma.t
+          @-> T.Image_rescale_mode.t
+          @-> int32_t
+          @-> returning t_opt)
+
+    let get_row_bytes =
+      foreign
+        "oski_graphite_read_pixels_result_get_row_bytes"
+        C.(t @-> returning size_t)
+
+    let get_data =
+      foreign
+        "oski_graphite_read_pixels_result_get_data"
+        C.(t @-> returning (ptr (const void)))
+
+    let delete =
+      foreign "oski_graphite_read_pixels_result_delete" C.(t @-> returning void)
+  end
+
+  module Graphite_vk = struct
+    let backend_context_init = T.Graphite_vk.backend_context_init
+    let texture_info = T.Graphite_vk.texture_info
+
+    let context_make_vulkan =
+      foreign
+        "sk_graphite_context_make_vulkan"
+        C.(
+          backend_context_init
+          @-> ptr Graphite.context_options
+          @-> returning Graphite.context_opt)
   end
 end

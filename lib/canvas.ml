@@ -46,6 +46,35 @@ let draw_oval t rect paint =
 
 let draw_path t path paint = F.Canvas.draw_path t path paint
 
+let default_sampling () =
+  F.Sampling_options.make
+    ~cubic:(F.Cubic_resampler.empty ())
+    ~filter:`Nearest
+    ~mimmap:`None
+    ()
+
+let paint_or_default = function Some paint -> paint | None -> Paint.make ()
+
+let draw_image ?paint t image point =
+  let sampling = default_sampling () in
+  F.Canvas.draw_image
+    t
+    (Image.to_native image)
+    point.Point.x
+    point.Point.y
+    (Ctypes.addr sampling)
+    (paint_or_default paint)
+
+let draw_image_rect ?paint t image ~src ~dst =
+  let sampling = default_sampling () in
+  F.Canvas.draw_image_rect
+    t
+    (Image.to_native image)
+    (Rect.to_native_ptr src)
+    (Rect.to_native_ptr dst)
+    (Ctypes.addr sampling)
+    (paint_or_default paint)
+
 let clip_rect ?(op = `Intersect) ?(antialias = false) t rect =
   F.Canvas.clip_rect_with_operation t (Rect.to_native_ptr rect) op antialias
 

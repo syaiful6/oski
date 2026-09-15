@@ -20,6 +20,10 @@ let make_raster ?(row_bytes = 0) info =
 
 let get_canvas t = F.Surface.get_canvas t
 
+let peek_pixels t =
+  let pixmap = Pixmap.make () in
+  if F.Surface.peek_pixels t pixmap then Some pixmap else None
+
 let save_png ?(zlib_level = 6) ?(filter_flags = `All) t path =
   let pixmap = F.Pixmap.make () in
   Gc.finalise F.Pixmap.delete pixmap;

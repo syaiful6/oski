@@ -36,7 +36,7 @@ end
 type t = F.Font_manager.t
 
 let make () =
-  let mgr = F.Font_manager.ref_default () in
+  let mgr = F.Font_manager.make_default () in
   Gc.finalise F.Font_manager.unref mgr;
   mgr
 

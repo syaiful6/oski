@@ -82,7 +82,7 @@ COPY_LIBS_BASE="libskia"
 if [[ "$SKIA_ENABLE_SVG" = "1" || "$SKIA_ENABLE_SVG" = "yes" || "$SKIA_ENABLE_SVG" = "on" ]]; then
   echo "SKIA_ENABLE_SVG is enabled. Including SVG modules."
   NINJA_TARGETS="$NINJA_TARGETS modules/svg"
-  COPY_LIBS_BASE="$COPY_LIBS_BASE libsvg libskresources libskshaper"
+  COPY_LIBS_BASE="$COPY_LIBS_BASE libskshaper"
 else
   echo "SKIA_ENABLE_SVG is disabled. Excluding SVG modules."
 fi
@@ -91,7 +91,7 @@ fi
 if [[ "$SKIA_ENABLE_SHAPING" = "1" || "$SKIA_ENABLE_SHAPING" = "yes" || "$SKIA_ENABLE_SHAPING" = "on" ]]; then
   echo "SKIA_ENABLE_SHAPING is enabled. Including SkShaper."
   NINJA_TARGETS="$NINJA_TARGETS modules/skshaper modules/skparagraph"
-  COPY_LIBS_BASE="$COPY_LIBS_BASE libskshaper libskunicode libskparagraph"
+  COPY_LIBS_BASE="$COPY_LIBS_BASE libskshaper libskparagraph"
 else
   echo "SKIA_ENABLE_SHAPING is disabled. Excluding SkShaper."
 fi
