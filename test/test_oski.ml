@@ -197,6 +197,94 @@ let test_path_get_points () =
   Alcotest.(check int) "Path get points returned count" points_count count;
   Alcotest.(check int) "Path get points count" points_count 4
 
+let test_path_get_bounds () =
+  let builder = Oski.Path_builder.make () in
+  let rect = Oski.Rect.make ~left:5. ~top:10. ~right:25. ~bottom:40. in
+  Oski.Path_builder.add_rect builder rect ();
+  let path = Oski.Path_builder.detach builder in
+  Alcotest.(check bool)
+    "bounds match the added rect"
+    true
+    (Oski.Path.get_bounds path = rect)
+
+let make_white_surface ~width ~height =
+  let info = Oski.Image_info.make_n32_premul ~width ~height () in
+  let surface = Oski.Surface.make_raster info in
+  Oski.Canvas.clear
+    (Oski.Surface.get_canvas surface)
+    (Oski.Color.of_argb 255 255 255 255);
+  surface
+
+let peek_pixels_exn surface =
+  match Oski.Surface.peek_pixels surface with
+  | Some pixmap -> pixmap
+  | None -> Alcotest.fail "Surface.peek_pixels returned None"
+
+let test_shader_linear_gradient () =
+  let surface = make_white_surface ~width:100 ~height:10 in
+  let red = Oski.Color.of_argb 255 255 0 0 in
+  let blue = Oski.Color.of_argb 255 0 0 255 in
+  let shader =
+    Oski.Shader.of_linear_gradient2
+      ~start_point:(Oski.Point.make 0. 0.)
+      ~stop_point:(Oski.Point.make 100. 0.)
+      ~start_color:red
+      ~stop_color:blue
+      ~tile_mode:`clamp
+  in
+  let paint = Oski.Paint.make () in
+  Oski.Paint.set_shader paint shader;
+  Oski.Canvas.draw_paint (Oski.Surface.get_canvas surface) paint;
+  let pixmap = peek_pixels_exn surface in
+  let left = Oski.Pixmap.get_pixel_color pixmap ~x:0 ~y:5 in
+  let right = Oski.Pixmap.get_pixel_color pixmap ~x:99 ~y:5 in
+  Alcotest.(check bool)
+    "left edge is mostly red"
+    true
+    (Oski.Color.red left > 240 && Oski.Color.blue left < 15);
+  Alcotest.(check bool)
+    "right edge is mostly blue"
+    true
+    (Oski.Color.blue right > 240 && Oski.Color.red right < 15)
+
+let test_canvas_draw_text_blob () =
+  let mgr = Oski.Font_manager.make () in
+  let style = Oski.Font_style.make 400 5 `Upright in
+  match Oski.Font_manager.match_family_style mgr "Arial" style with
+  | None -> print_endline "No typeface available; skipping draw_text_blob test"
+  | Some typeface ->
+    let font = Oski.Font.make_with_values typeface 32. 1. 0. in
+    let blob =
+      Oski.Text_blob_builder.with_builder (fun builder ->
+        (* Glyph IDs are font-specific; any non-empty glyphs will do here. *)
+        Oski.Text_blob_builder.alloc_run
+          ~font
+          ~glyphs:[ 36; 37; 38; 39 ]
+          builder;
+        Oski.Text_blob_builder.build builder)
+    in
+    (match blob with
+    | None -> Alcotest.fail "Text_blob_builder.build returned None"
+    | Some blob ->
+      let surface = make_white_surface ~width:160 ~height:64 in
+      let paint = Oski.Paint.make_fill (Oski.Color.of_argb 255 0 0 0) in
+      Oski.Canvas.draw_text_blob
+        (Oski.Surface.get_canvas surface)
+        blob
+        10.
+        48.
+        paint;
+      let pixmap = peek_pixels_exn surface in
+      let white = Oski.Color.of_argb 255 255 255 255 in
+      let drawn = ref false in
+      for y = 0 to 63 do
+        for x = 0 to 159 do
+          if Oski.Pixmap.get_pixel_color pixmap ~x ~y <> white
+          then drawn := true
+        done
+      done;
+      Alcotest.(check bool) "text blob changed some pixels" true !drawn)
+
 let test_path_effect_filter_path () =
   let builder = Oski.Path_builder.make () in
   Oski.Path_builder.add_rect
@@ -435,7 +523,12 @@ let tests =
       ; "Font styleset get style", `Quick, test_font_mgr_styleset_get_style
       ; "Font styleset get count", `Quick, test_font_mgr_styleset_get_count
       ] )
-  ; "Path", [ "get points", `Quick, test_path_get_points ]
+  ; ( "Path"
+    , [ "get points", `Quick, test_path_get_points
+      ; "get bounds", `Quick, test_path_get_bounds
+      ] )
+  ; "Shader", [ "linear gradient", `Quick, test_shader_linear_gradient ]
+  ; "Canvas", [ "draw text blob", `Quick, test_canvas_draw_text_blob ]
   ; "Path_effect", [ "filter_path", `Quick, test_path_effect_filter_path ]
   ; ( "Surface"
     , [ "draw and save png", `Quick, test_surface_draw_and_save_png
