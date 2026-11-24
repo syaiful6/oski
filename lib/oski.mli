@@ -794,7 +794,7 @@ end
 
 module Shader : sig
   type t
-  type tile_mode
+  type tile_mode = Oski_types.M.Shader.tile_mode
 
   type color_stop =
     { color : Color.t
@@ -878,6 +878,10 @@ module Path : sig
   val is_rect : t -> (Rect.t * bool * direction) option
   (** [is_rect path] returns [Some (rect, is_closed, direction)] if the
       filled path is rectangular, and [None] otherwise. *)
+
+  val get_bounds : t -> Rect.t
+  (** [get_bounds path] returns the bounding box of its points. Control points
+      are included, so the box may be larger than the drawn shape. *)
 
   val get_points : t -> int -> int * Point.t list
   (** [get_points path max_points] returns the number of available points and
@@ -1254,6 +1258,11 @@ module Canvas : sig
     -> unit
 
   val draw_text : t -> string -> float -> float -> Font.t -> Paint.t -> unit
+
+  val draw_text_blob : t -> Text_blob.t -> float -> float -> Paint.t -> unit
+  (** [draw_text_blob canvas blob x y paint] draws [blob] with its origin at
+      ([x], [y]). *)
+
   val clip_rect : ?op:clip_op -> ?antialias:bool -> t -> Rect.t -> unit
   val clip_path : ?op:clip_op -> ?antialias:bool -> t -> Path.t -> unit
   val clip_rrect : ?op:clip_op -> ?antialias:bool -> t -> RRect.t -> unit
